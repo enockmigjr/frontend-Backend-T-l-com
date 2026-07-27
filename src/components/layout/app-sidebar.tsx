@@ -37,14 +37,17 @@ export function AppSidebar({ user }: Readonly<{ user: CurrentUser }>) {
   });
 
   useEffect(() => {
-    const stored = window.localStorage.getItem(storageKey);
-    if (!stored) return;
-    try {
-      const value: unknown = JSON.parse(stored);
-      if (isGroupState(value)) setOpened(value);
-    } catch {
-      window.localStorage.removeItem(storageKey);
-    }
+    const frame = window.requestAnimationFrame(() => {
+      const stored = window.localStorage.getItem(storageKey);
+      if (!stored) return;
+      try {
+        const value: unknown = JSON.parse(stored);
+        if (isGroupState(value)) setOpened(value);
+      } catch {
+        window.localStorage.removeItem(storageKey);
+      }
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   function setGroup(group: NavigationGroup, open: boolean) {

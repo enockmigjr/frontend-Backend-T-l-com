@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { KeyRound, LogOut, Mail, MonitorX, ShieldCheck, UserRound } from 'lucide-react';
+import { Building2, CalendarClock, KeyRound, LogOut, Mail, MonitorX, ShieldCheck, UserRound } from 'lucide-react';
 import type { CurrentUser } from '@/lib/auth/session';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,7 +21,18 @@ export function AccountPanel({ user }: Readonly<{ user: CurrentUser }>) {
           <Info icon={UserRound} label="Nom" value={`${user.firstName} ${user.lastName}`} />
           <Info icon={Mail} label="Adresse email" value={user.email} />
           <Info icon={ShieldCheck} label="Rôle" value={roleLabel(user.role)} />
+          <Info icon={Building2} label="Département" value={user.department?.name ?? 'Non renseigné'} />
+          <Info
+            icon={CalendarClock}
+            label="Dernière connexion"
+            value={user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleString('fr-FR') : 'Non renseignée'}
+          />
           <Info icon={KeyRound} label="Identifiant" value={user.id.slice(0, 8)} mono />
+          {user.department?.description ? (
+            <p className="rounded-lg border bg-background p-3 text-sm text-muted-foreground sm:col-span-2">
+              {user.department.description}
+            </p>
+          ) : null}
         </CardContent>
       </Card>
       <Card>

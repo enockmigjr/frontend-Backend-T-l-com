@@ -24,8 +24,9 @@ export function TicketRow({
   canStart,
   onStart,
 }: Readonly<{ ticket: TicketListItem; teamName?: string | null; canStart: boolean; onStart: () => void }>) {
+  const [mountedAt] = useState(Date.now);
   const overdue =
-    ticket.slaBreached || (ticket.resolutionDueAt ? new Date(ticket.resolutionDueAt).getTime() < Date.now() : false);
+    ticket.slaBreached || (ticket.resolutionDueAt ? new Date(ticket.resolutionDueAt).getTime() < mountedAt : false);
   return (
     <tr className="group hover:bg-muted/25">
       <td className="px-4 py-3.5">

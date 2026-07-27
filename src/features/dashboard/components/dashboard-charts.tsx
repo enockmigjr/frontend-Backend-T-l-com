@@ -48,6 +48,17 @@ export default function DashboardCharts({ data }: Readonly<{ data: DashboardData
     ...item,
     label: { LOW: 'Faible', MEDIUM: 'Moyenne', HIGH: 'Haute', CRITICAL: 'Critique' }[item.priority],
   }));
+  const severities = Object.entries(data.overview.bySeverity).map(([severity, count]) => ({
+    severity,
+    count,
+  }));
+  const workload = [...data.workload.data]
+    .sort((left, right) => right.openTicketsCount - left.openTicketsCount)
+    .slice(0, 8)
+    .map((item) => ({
+      ...item,
+      agent: `${item.firstName ?? ''} ${item.lastName ?? ''}`.trim() || item.email || 'Agent',
+    }));
 
   return (
     <section className="grid gap-5 xl:grid-cols-2">
@@ -95,6 +106,35 @@ export default function DashboardCharts({ data }: Readonly<{ data: DashboardData
             <Tooltip contentStyle={{ borderRadius: 10, borderColor: '#dce3ea' }} />
             <Bar dataKey="count" name="Tickets" fill="#1d4ed8" radius={[4, 4, 0, 0]} />
             <Bar dataKey="slaBreaches" name="SLA dépassés" fill="#b42318" radius={[4, 4, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+      </ChartFrame>
+      <ChartFrame title="Répartition par sévérité" summary="Volume d’incidents selon leur impact opérationnel">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={severities} margin={{ top: 10, right: 8, left: -16, bottom: 0 }}>
+            <CartesianGrid vertical={false} stroke="#e5e7eb" />
+            <XAxis dataKey="severity" axisLine={false} tickLine={false} tick={{ fontSize: 11 }} />
+            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+            <Tooltip contentStyle={{ borderRadius: 10, borderColor: '#dce3ea' }} />
+            <Bar dataKey="count" name="Tickets" fill="#7c3aed" radius={[4, 4, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+      </ChartFrame>
+      <ChartFrame title="Charge des agents" summary="Les huit charges ouvertes les plus élevées">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={workload} layout="vertical" margin={{ top: 6, right: 12, left: 20, bottom: 0 }}>
+            <CartesianGrid horizontal={false} stroke="#e5e7eb" />
+            <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 11 }} />
+            <YAxis
+              type="category"
+              dataKey="agent"
+              width={92}
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontSize: 10 }}
+            />
+            <Tooltip contentStyle={{ borderRadius: 10, borderColor: '#dce3ea' }} />
+            <Bar dataKey="openTicketsCount" name="Tickets ouverts" fill="#0f766e" radius={[0, 4, 4, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </ChartFrame>

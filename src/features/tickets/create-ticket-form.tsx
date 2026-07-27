@@ -4,7 +4,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { Building2, ClipboardPlus, LoaderCircle, RadioTower, UserRound } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useRef } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Panel } from '@/components/ui/panel';
@@ -31,7 +31,7 @@ export function CreateTicketForm() {
     resolver: zodResolver(createTicketSchema),
     defaultValues: { priority: 'MEDIUM', severity: 'S3' },
   });
-  const values = form.watch();
+  const values = useWatch({ control: form.control });
   const teamName = references.data?.departments.find((item) => item.id === values.assignedTeamId)?.name;
   const departmentName = references.data?.departments.find((item) => item.id === values.departmentId)?.name;
   if (references.isPending)

@@ -140,7 +140,6 @@ export function NotificationList() {
 }
 
 function NotificationRow({ item, onRead }: Readonly<{ item: NotificationItem; onRead: () => void }>) {
-  const Icon = notificationIcon(item.type);
   return (
     <li className={item.isRead ? 'bg-background' : 'bg-primary/[0.035]'}>
       <Link
@@ -151,7 +150,7 @@ function NotificationRow({ item, onRead }: Readonly<{ item: NotificationItem; on
         <span
           className={`grid size-10 place-items-center rounded-full ${item.isRead ? 'bg-muted text-muted-foreground' : 'bg-primary/10 text-primary'}`}
         >
-          <Icon aria-hidden className="size-4.5" />
+          <NotificationIcon type={item.type} />
         </span>
         <span className="min-w-0">
           <span className="flex items-center gap-2">
@@ -171,11 +170,11 @@ function NotificationRow({ item, onRead }: Readonly<{ item: NotificationItem; on
     </li>
   );
 }
-function notificationIcon(type: string) {
-  if (type.includes('SLA')) return CircleAlert;
-  if (type.includes('REPORT')) return FileCheck2;
-  if (type.includes('TICKET')) return TicketCheck;
-  return Bell;
+function NotificationIcon({ type }: Readonly<{ type: string }>) {
+  if (type.includes('SLA')) return <CircleAlert aria-hidden className="size-4.5" />;
+  if (type.includes('REPORT')) return <FileCheck2 aria-hidden className="size-4.5" />;
+  if (type.includes('TICKET')) return <TicketCheck aria-hidden className="size-4.5" />;
+  return <Bell aria-hidden className="size-4.5" />;
 }
 function ViewButton({
   selected,

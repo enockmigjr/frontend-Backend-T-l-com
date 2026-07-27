@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { Eye, Pencil, Plus, Trash2 } from 'lucide-react';
 import type { Category } from '@/features/users/api/types';
 import { AdminSection } from '@/features/users/components/admin-section';
 import { EmptyState, ErrorState, LoadingState } from '@/features/users/components/async-state';
@@ -10,10 +10,13 @@ import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { DataTable, type DataColumn } from '@/components/ui/data-table';
 import { Input } from '@/components/ui/input';
+import { MutationError } from '@/components/ui/mutation-error';
 import { ResourceDialog } from '@/components/ui/resource-dialog';
+import { RowActionMenu } from '@/components/ui/row-action-menu';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/components/ui/toast';
 import { createCategory, deleteCategory, listCategories, updateCategory } from './api';
+import { CategoryDetail } from './category-detail';
 
 const roles = {
   CUSTOMER_SERVICE_AGENT: 'Service client',
@@ -22,20 +25,29 @@ const roles = {
   TECHNICAL_SUPPORT_ENGINEER: 'Support technique',
   FIELD_TECHNICIAN: 'Technicien terrain',
 } as const;
-
 type Role = keyof typeof roles;
+const roleLabel = (role?: string | null) => (role ? (roles[role as Role] ?? role) : 'Aucune orientation');
 
 export function CategoriesPage() {
   const [editing, setEditing] = useState<Category | null>(null);
+  const [selected, setSelected] = useState<Category>();
+  const [pendingDelete, setPendingDelete] = useState<Category>();
   const [formOpen, setFormOpen] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<unknown>();
   const query = useQuery({
     queryKey: ['categories'],
     queryFn: ({ signal }) => listCategories(signal).then((result) => result.data),
   });
   const items = query.data ?? [];
 
+  function changeFormOpen(open: boolean) {
+    setFormOpen(open);
+    setError(undefined);
+    if (!open) setEditing(null);
+  }
+
   async function save(formData: FormData) {
+    setError(undefined);
     const body = {
       name: String(formData.get('name')).trim(),
       description: String(formData.get('description')).trim() || undefined,
@@ -49,48 +61,51 @@ export function CategoriesPage() {
       setEditing(null);
       toast.add({ title: editing ? 'Catégorie mise à jour' : 'Catégorie créée' });
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'Enregistrement impossible.');
+      setError(reason);
     }
   }
 
   async function remove(item: Category) {
-    try {
-      await deleteCategory(item.id);
-      await query.refetch();
-      toast.add({ title: 'Catégorie supprimée' });
-    } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'Suppression refusée.');
-    }
+    await deleteCategory(item.id);
+    await query.refetch();
+    toast.add({ title: 'Catégorie supprimée' });
   }
 
   const columns: DataColumn<Category>[] = [
-    { key: 'name', label: 'Catégorie', cell: (item) => <strong>{item.name}</strong> },
-    { key: 'description', label: 'Description', cell: (item) => item.description || '—' },
+    { key: 'name', label: 'Catégorie', sortValue: (item) => item.name, cell: (item) => <strong>{item.name}</strong> },
+    {
+      key: 'description',
+      label: 'Description',
+      sortValue: (item) => item.description,
+      cell: (item) => item.description || '—',
+    },
     {
       key: 'role',
       label: 'Orientation',
-      cell: (item) => (item.targetRole ? roles[item.targetRole as Role] ?? item.targetRole : 'Aucune'),
+      sortValue: (item) => item.targetRole,
+      cell: (item) => roleLabel(item.targetRole),
     },
     {
       key: 'actions',
       label: '',
-      className: 'w-28 text-right',
+      className: 'w-40 text-right',
       cell: (item) => (
-        <div className="flex justify-end gap-1">
-          <Button variant="ghost" size="icon" aria-label={`Modifier ${item.name}`} onClick={() => {
-            setEditing(item);
-            setFormOpen(true);
-          }}>
-            <Pencil />
-          </Button>
-          <ConfirmDialog
-            trigger={<Button variant="ghost" size="icon" aria-label={`Supprimer ${item.name}`}><Trash2 /></Button>}
-            title="Supprimer cette catégorie ?"
-            description="La suppression sera refusée si la catégorie reste utilisée."
-            confirmLabel="Supprimer"
-            onConfirm={() => void remove(item)}
-          />
-        </div>
+        <RowActionMenu
+          label={`Actions pour ${item.name}`}
+          actions={[
+            { label: 'Voir', icon: Eye, onSelect: () => setSelected(item) },
+            {
+              label: 'Modifier',
+              icon: Pencil,
+              onSelect: () => {
+                setError(undefined);
+                setEditing(item);
+                setFormOpen(true);
+              },
+            },
+            { label: 'Supprimer', icon: Trash2, destructive: true, onSelect: () => setPendingDelete(item) },
+          ]}
+        />
       ),
     },
   ];
@@ -98,35 +113,88 @@ export function CategoriesPage() {
   return (
     <AdminSection
       title="Catégories"
-      description="Structurez les incidents et orientez automatiquement chaque catégorie vers un rôle opérationnel."
-      action={<Button onClick={() => { setEditing(null); setFormOpen(true); }}><Plus />Nouvelle catégorie</Button>}
+      description="Structurez les incidents et orientez chaque catégorie vers le rôle opérationnel prévu par le backend."
+      action={
+        <Button
+          onClick={() => {
+            setEditing(null);
+            setError(undefined);
+            setFormOpen(true);
+          }}
+        >
+          <Plus />
+          Nouvelle catégorie
+        </Button>
+      }
     >
       <ResourceDialog
         open={formOpen}
-        onOpenChange={setFormOpen}
+        onOpenChange={changeFormOpen}
         title={editing ? 'Modifier la catégorie' : 'Nouvelle catégorie'}
-        description="Une catégorie cible un seul rôle, conformément au modèle backend."
+        description="Le moteur d’assignation accepte actuellement un seul rôle cible par catégorie."
       >
-        <form action={save} className="grid gap-4">
-          <label className="grid gap-2 text-sm font-medium">Nom
+        <form action={save} className="grid min-w-0 gap-4">
+          <MutationError error={error} />
+          <label className="grid gap-2 text-sm font-medium">
+            Nom
             <Input required name="name" defaultValue={editing?.name} />
           </label>
-          <label className="grid gap-2 text-sm font-medium">Description
+          <label className="grid gap-2 text-sm font-medium">
+            Description
             <Textarea name="description" defaultValue={editing?.description ?? ''} />
           </label>
-          <label className="grid gap-2 text-sm font-medium">Rôle d’orientation
-            <select name="targetRole" defaultValue={editing?.targetRole ?? ''} className="h-10 rounded-lg border bg-background px-3">
+          <label className="grid min-w-0 gap-2 text-sm font-medium">
+            Rôle d’orientation
+            <select
+              name="targetRole"
+              defaultValue={editing?.targetRole ?? ''}
+              className="h-10 w-full min-w-0 truncate rounded-lg border bg-background px-3"
+            >
               <option value="">Aucun</option>
-              {Object.entries(roles).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+              {Object.entries(roles).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
             </select>
           </label>
-          <Button type="submit" className="justify-self-end">Enregistrer</Button>
+          <Button type="submit" className="justify-self-end">
+            Enregistrer
+          </Button>
         </form>
       </ResourceDialog>
-      {error || query.error ? <ErrorState message={error || String(query.error)} retry={() => void query.refetch()} /> : null}
-      {query.isPending ? <LoadingState /> : items.length ? (
+      <ConfirmDialog
+        open={Boolean(pendingDelete)}
+        onOpenChange={(open) => {
+          if (!open) setPendingDelete(undefined);
+        }}
+        title="Supprimer cette catégorie ?"
+        description="La suppression sera refusée si un ticket ou une politique SLA est encore lié. Le détail de l’erreur restera visible ici."
+        confirmLabel="Supprimer"
+        onConfirm={async () => {
+          if (!pendingDelete) return;
+          await remove(pendingDelete);
+          setPendingDelete(undefined);
+        }}
+      />
+      <ResourceDialog
+        open={Boolean(selected)}
+        onOpenChange={(open) => {
+          if (!open) setSelected(undefined);
+        }}
+        title="Détail de la catégorie"
+        size="large"
+      >
+        {selected ? <CategoryDetail id={selected.id} roleLabel={roleLabel} /> : null}
+      </ResourceDialog>
+      {query.error ? <ErrorState message={query.error.message} retry={() => void query.refetch()} /> : null}
+      {query.isPending ? (
+        <LoadingState />
+      ) : items.length ? (
         <DataTable rows={items} columns={columns} getRowKey={(item) => item.id} caption="Liste des catégories" />
-      ) : <EmptyState>Aucune catégorie.</EmptyState>}
+      ) : (
+        <EmptyState>Aucune catégorie.</EmptyState>
+      )}
     </AdminSection>
   );
 }

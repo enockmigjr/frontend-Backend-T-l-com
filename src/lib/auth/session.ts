@@ -19,6 +19,14 @@ export interface CurrentUser {
   readonly lastName: string;
   readonly role: UserRole;
   readonly departmentId?: string | null;
+  readonly department?: {
+    readonly id: string | null;
+    readonly name: string | null;
+    readonly description: string | null;
+  } | null;
+  readonly isActive?: boolean;
+  readonly lastLoginAt?: string | null;
+  readonly createdAt?: string;
   readonly mustChangePassword?: boolean;
 }
 
@@ -29,6 +37,17 @@ const currentUserSchema = z.object({
   lastName: z.string(),
   role: z.enum(USER_ROLES),
   departmentId: z.string().uuid().nullable().optional(),
+  department: z
+    .object({
+      id: z.string().uuid().nullable(),
+      name: z.string().nullable(),
+      description: z.string().nullable(),
+    })
+    .nullable()
+    .optional(),
+  isActive: z.boolean().optional(),
+  lastLoginAt: z.string().nullable().optional(),
+  createdAt: z.string().optional(),
   mustChangePassword: z.boolean().optional(),
 });
 const currentUserEnvelopeSchema = z.object({ data: currentUserSchema });

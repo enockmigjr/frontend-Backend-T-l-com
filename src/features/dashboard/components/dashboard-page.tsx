@@ -3,7 +3,18 @@
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { AlertTriangle, CalendarDays, CircleCheck, Clock3, RadioTower, RefreshCw, TicketCheck } from 'lucide-react';
+import {
+  AlertTriangle,
+  CalendarDays,
+  CircleCheck,
+  Clock3,
+  Gauge,
+  ListChecks,
+  RadioTower,
+  RefreshCw,
+  TicketCheck,
+  Users,
+} from 'lucide-react';
 import { loadDashboard, type DashboardData } from '../api/dashboard-api';
 import { DashboardTables } from './dashboard-tables';
 import { ErrorState } from '@/features/users/components/async-state';
@@ -73,9 +84,24 @@ function DashboardContent({ data }: Readonly<{ data: DashboardData }>) {
     timeStyle: 'short',
   });
   const metrics = [
+    { label: 'Tickets sur la période', value: data.overview.ticketVolume.total, icon: ListChecks, tone: 'text-violet-700' },
     { label: 'Tickets ouverts', value: data.overview.ticketVolume.openTickets, icon: RadioTower, tone: 'text-blue-700' },
     { label: 'Créés aujourd’hui', value: data.overview.ticketVolume.createdToday, icon: TicketCheck, tone: 'text-slate-700' },
+    { label: 'Résolus aujourd’hui', value: data.overview.ticketVolume.resolvedToday, icon: CircleCheck, tone: 'text-emerald-700' },
     { label: 'Conformité SLA', value: `${data.overview.sla.complianceRate}%`, icon: CircleCheck, tone: 'text-emerald-700' },
+    {
+      label: 'Première réponse SLA',
+      value: `${data.sla.summary.firstResponseComplianceRate}%`,
+      icon: Gauge,
+      tone: 'text-cyan-700',
+    },
+    { label: 'Agents actifs', value: data.workload.summary.totalAgents, icon: Users, tone: 'text-indigo-700' },
+    {
+      label: 'Charge moyenne',
+      value: `${data.workload.summary.avgTicketsPerAgent.toFixed(1)} ticket`,
+      icon: Gauge,
+      tone: 'text-orange-700',
+    },
     {
       label: 'Résolution moyenne',
       value: `${Math.round(data.resolution.overall.avgResolutionTimeMinutes)} min`,
@@ -105,7 +131,7 @@ function DashboardContent({ data }: Readonly<{ data: DashboardData }>) {
         <CalendarDays aria-hidden className="size-3.5" />
         Dernière consolidation : {generatedAt}
       </div>
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
         {metrics.map(({ label, value, icon: Icon, tone }) => (
           <Card key={label} className="gap-3 py-4 shadow-sm">
             <CardHeader className="flex-row items-center justify-between px-4">

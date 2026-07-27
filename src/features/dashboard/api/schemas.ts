@@ -86,15 +86,15 @@ export const departmentsSchema = z.object({
   period,
   data: z.array(
     z.object({
-      departmentId: z.string().uuid(),
+      departmentId: z.string().uuid().nullable(),
       departmentName: z.string().nullable().optional(),
-      total: z.number().int(),
-      open: z.number().int(),
-      resolved: z.number().int(),
-      closed: z.number().int(),
-      slaCompliant: z.number().int(),
-      slaBreached: z.number().int(),
-      avgResolutionMinutes: z.number().optional(),
+      total: z.coerce.number().int(),
+      open: z.coerce.number().int(),
+      resolved: z.coerce.number().int(),
+      closed: z.coerce.number().int(),
+      slaCompliant: z.coerce.number().int(),
+      slaBreached: z.coerce.number().int(),
+      avgResolutionMinutes: z.coerce.number().optional(),
     }),
   ),
 });

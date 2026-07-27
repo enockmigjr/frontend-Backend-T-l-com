@@ -1,12 +1,14 @@
 'use client';
 
-import { CircleDot, PanelLeft, RadioTower, Sparkles, Waves } from 'lucide-react';
+import { CircleDot, PanelLeft, RadioTower, RotateCcw, Sparkles, Waves } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Switch } from '@/components/ui/switch';
 import {
   type DensityPreference,
   type NavigationTone,
+  defaultPreferences,
   useInterfacePreferences,
 } from './preferences';
 
@@ -81,6 +83,11 @@ export function PreferencePanel() {
         checked={preferences.reduceMotion}
         onCheckedChange={(checked) => update({ reduceMotion: checked })}
       />
+      <div className="flex justify-end lg:col-span-2">
+        <Button variant="outline" onClick={() => save(defaultPreferences)}>
+          <RotateCcw />Rétablir les préférences
+        </Button>
+      </div>
     </div>
   );
 }

@@ -139,7 +139,7 @@ export async function proxyToBackend(request: NextRequest, segments: readonly st
     }
   }
   try {
-    let upstream = await sendUpstream(request, segments, accessToken);
+    const upstream = await sendUpstream(request, segments, accessToken);
     if (upstream.status !== 401 || !SAFE_METHODS.has(request.method)) return fromUpstream(upstream);
 
     if (!refreshToken) return fromUpstream(upstream);

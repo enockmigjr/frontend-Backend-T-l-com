@@ -29,7 +29,42 @@ export const userSchema = z
     tempPassword: z.string().optional(),
   })
   .passthrough();
-export const createdUserSchema = userSchema.extend({ tempPassword: z.string() });
+export const createdUserSchema = userSchema.extend({
+  isActive: z.boolean().optional().default(true),
+  tempPassword: z.string(),
+});
+export const userDetailSchema = userSchema.extend({
+  department: z
+    .object({
+      id: z.string().uuid().nullable(),
+      name: z.string().nullable(),
+      description: z.string().nullable(),
+    })
+    .nullable()
+    .optional(),
+  ticketStats: z
+    .object({
+      totalCreated: z.coerce.number(),
+      totalAssigned: z.coerce.number(),
+      openTickets: z.coerce.number(),
+      resolvedTickets: z.coerce.number(),
+      slaBreachedCount: z.coerce.number(),
+    })
+    .optional(),
+  recentTickets: z
+    .array(
+      z.object({
+        id: z.string().uuid(),
+        ticketNumber: z.string(),
+        title: z.string(),
+        status: z.string(),
+        priority: z.string(),
+        createdAt: z.string(),
+        slaBreached: z.boolean(),
+      }),
+    )
+    .optional(),
+});
 export const departmentSchema = z
   .object({
     id: z.string().uuid(),
@@ -94,10 +129,12 @@ export const reportSchema = z
     requestedBy: z.string().uuid(),
     createdAt: z.string(),
     errorMessage: z.string().nullable().optional(),
+    metadata: z.record(z.string(), z.unknown()).nullable().optional(),
+    objectKey: z.string().nullable().optional(),
   })
   .passthrough();
 export const reportJobSchema = z.object({ reportId: z.string().uuid(), message: z.string() });
-export const actionSchema = z.object({ success: z.literal(true), message: z.string() });
+export const actionSchema = z.object({ success: z.literal(true), message: z.string().optional() });
 export const envelope = <T extends z.ZodType>(data: T) =>
   z.object({ success: z.literal(true), statusCode: z.number().optional(), message: z.string().optional(), data });
 export const pageEnvelope = <T extends z.ZodType>(item: T) =>
