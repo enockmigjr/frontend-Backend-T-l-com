@@ -2,8 +2,14 @@ import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import { GeistMono } from 'geist/font/mono';
 import { GeistSans } from 'geist/font/sans';
+import { Inter } from 'next/font/google';
 import './globals.css';
 import { Providers } from '@/components/providers';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import { Toaster } from '@/components/ui/toast';
+import { cn } from '@/lib/utils';
+
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
   title: { default: 'KAMGOKO ITSM', template: '%s · KAMGOKO ITSM' },
@@ -13,7 +19,7 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   await headers();
   return (
-    <html lang="fr" className={`${GeistSans.variable} ${GeistMono.variable}`}>
+    <html lang="fr" className={cn(GeistSans.variable, GeistMono.variable, inter.variable, 'font-sans')}>
       <body>
         <nav aria-label="Accès rapide">
           <a
@@ -23,9 +29,12 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
             Aller au contenu
           </a>
         </nav>
-        <div className="isolate min-h-dvh">
-          <Providers>{children}</Providers>
-        </div>
+        <TooltipProvider>
+          <div className="isolate min-h-dvh">
+            <Providers>{children}</Providers>
+          </div>
+          <Toaster />
+        </TooltipProvider>
       </body>
     </html>
   );

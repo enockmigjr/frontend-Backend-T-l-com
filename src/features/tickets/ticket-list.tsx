@@ -17,6 +17,7 @@ export function TicketList({ filters, query }: Readonly<{ filters: Filters; quer
     placeholderData: keepPreviousData,
   });
   const page = Number(filters.page ?? 1);
+  const limit = Number(filters.limit ?? 20);
   const href = (nextPage: number) => {
     const params = new URLSearchParams(query);
     params.set('page', String(nextPage));
@@ -130,6 +131,23 @@ export function TicketList({ filters, query }: Readonly<{ filters: Filters; quer
           </div>
         </nav>
       ) : null}
+      <div className="flex flex-wrap items-center justify-end gap-2 text-sm text-muted-foreground">
+        <span>Résultats par page</span>
+        {[10, 20, 50, 100].map((size) => {
+          const params = new URLSearchParams(query);
+          params.set('limit', String(size));
+          params.set('page', '1');
+          return (
+            <Link
+              key={size}
+              href={{ pathname: '/tickets', query: Object.fromEntries(params) }}
+              className={`rounded-md border px-2.5 py-1.5 ${limit === size ? 'bg-foreground text-background' : 'bg-background'}`}
+            >
+              {size}
+            </Link>
+          );
+        })}
+      </div>
     </div>
   );
 }

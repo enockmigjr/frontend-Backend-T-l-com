@@ -1,9 +1,12 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Download, Paperclip, Upload } from 'lucide-react';
+import { Download, Paperclip, Trash2, Upload } from 'lucide-react';
 import { useRef } from 'react';
 import { ErrorAlert } from '@/features/auth/error-alert';
+import { Button } from '@/components/ui/button';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { toast } from '@/components/ui/toast';
 import { ticketsApi } from './api';
 import { formatBytes, formatDate } from './presentation';
 import { ticketKeys } from './query-keys';
@@ -20,19 +23,23 @@ export function AttachmentsPanel({ ticketId }: Readonly<{ ticketId: string }>) {
     onSuccess: async () => {
       if (input.current) input.current.value = '';
       await client.invalidateQueries({ queryKey: ticketKeys.attachments(ticketId) });
+      toast.add({ title: 'Pièce jointe ajoutée' });
+    },
+  });
+  const remove = useMutation({
+    mutationFn: (id: string) => ticketsApi.removeAttachment(id),
+    onSuccess: async () => {
+      await client.invalidateQueries({ queryKey: ticketKeys.attachments(ticketId) });
+      toast.add({ title: 'Pièce jointe supprimée' });
     },
   });
 
   return (
-    <section className="rounded-xl border bg-white p-4" aria-labelledby="attachments-title">
+    <section className="rounded-xl border bg-card p-4 shadow-sm" aria-labelledby="attachments-title">
       <div className="flex items-center justify-between gap-3">
-        <h2 id="attachments-title" className="flex items-center gap-2 font-semibold">
-          <Paperclip aria-hidden size={18} />
-          Pièces jointes
-        </h2>
-        <label className="flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium">
-          <Upload aria-hidden size={17} />
-          {upload.isPending ? 'Envoi…' : 'Ajouter'}
+        <h2 id="attachments-title" className="flex items-center gap-2 font-semibold"><Paperclip />Pièces jointes</h2>
+        <Button variant="outline" size="sm" render={<label className="cursor-pointer" />}>
+          <Upload />{upload.isPending ? 'Envoi…' : 'Ajouter'}
           <input
             ref={input}
             className="sr-only"
@@ -43,38 +50,33 @@ export function AttachmentsPanel({ ticketId }: Readonly<{ ticketId: string }>) {
               if (file) upload.mutate(file);
             }}
           />
-        </label>
+        </Button>
       </div>
-      {attachments.error || upload.error ? (
-        <div className="mt-3">
-          <ErrorAlert error={attachments.error ?? upload.error} />
-        </div>
+      {attachments.error || upload.error || remove.error ? (
+        <div className="mt-3"><ErrorAlert error={attachments.error ?? upload.error ?? remove.error} /></div>
       ) : null}
-      {attachments.isPending ? (
-        <p className="mt-4 text-sm" role="status">
-          Chargement…
-        </p>
-      ) : null}
+      {attachments.isPending ? <p className="mt-4 text-sm" role="status">Chargement…</p> : null}
       <ul className="mt-3 divide-y">
         {attachments.data?.data.map((file) => (
           <li key={file.id} className="flex items-center justify-between gap-3 py-3 text-sm">
             <div className="min-w-0">
               <p className="truncate font-medium">{file.originalFilename}</p>
-              <p className="text-xs text-slate-500">
-                {formatBytes(file.fileSize)} · {formatDate(file.createdAt)}
-              </p>
+              <p className="text-xs text-muted-foreground">{formatBytes(file.fileSize)} · {formatDate(file.createdAt)}</p>
             </div>
-            <a
-              className="flex min-h-11 min-w-11 items-center justify-center rounded-lg border p-2"
-              aria-label={`Télécharger ${file.originalFilename}`}
-              href={`/api/v1/attachments/${file.id}/download`}
-            >
-              <Download aria-hidden size={18} />
-            </a>
+            <div className="flex gap-1">
+              <Button variant="outline" size="icon" render={<a href={`/api/v1/attachments/${file.id}/download`} />} aria-label={`Télécharger ${file.originalFilename}`}><Download /></Button>
+              <ConfirmDialog
+                trigger={<Button variant="ghost" size="icon" aria-label={`Supprimer ${file.originalFilename}`}><Trash2 /></Button>}
+                title="Supprimer cette pièce jointe ?"
+                description="Le fichier ne sera plus disponible dans le ticket."
+                confirmLabel="Supprimer"
+                onConfirm={() => remove.mutate(file.id)}
+              />
+            </div>
           </li>
         ))}
       </ul>
-      {attachments.data?.data.length === 0 ? <p className="mt-3 text-sm text-slate-600">Aucune pièce jointe.</p> : null}
+      {attachments.data?.data.length === 0 ? <p className="mt-3 text-sm text-muted-foreground">Aucune pièce jointe.</p> : null}
     </section>
   );
 }

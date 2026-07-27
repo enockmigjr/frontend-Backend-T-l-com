@@ -7,7 +7,7 @@ export default async function TicketsPage({ searchParams }: Readonly<{ searchPar
   const first = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value);
   const filters = {
     page: Number(first(raw.page) ?? 1),
-    limit: 20,
+    limit: [10, 20, 50, 100].includes(Number(first(raw.limit))) ? Number(first(raw.limit)) : 20,
     search: first(raw.search),
     status: first(raw.status),
     priority: first(raw.priority),

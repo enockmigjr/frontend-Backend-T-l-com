@@ -1,24 +1,82 @@
-import { BarChart3, Bell, ClipboardList, FileBarChart, History, Settings, ShieldCheck, Users } from 'lucide-react';
+import {
+  BarChart3,
+  Bell,
+  Building2,
+  ClipboardList,
+  FileBarChart,
+  FolderCog,
+  Gauge,
+  History,
+  Settings,
+  ShieldCheck,
+  Users,
+} from 'lucide-react';
 import type { UserRole } from '@/lib/auth/session';
+
+export type NavigationGroup = 'Travail' | 'Supervision' | 'Administration';
 
 export interface NavigationItem {
   readonly label: string;
   readonly href: string;
   readonly icon: typeof ClipboardList;
+  readonly group: NavigationGroup;
   readonly roles?: readonly UserRole[];
 }
 
 export const navigation: readonly NavigationItem[] = [
-  { label: 'Tickets', href: '/tickets', icon: ClipboardList },
-  { label: 'Notifications', href: '/notifications', icon: Bell },
-  { label: 'Tableau de bord', href: '/dashboard', icon: BarChart3, roles: ['ADMINISTRATOR', 'SUPERVISOR'] },
-  { label: 'Utilisateurs', href: '/admin/users', icon: Users, roles: ['ADMINISTRATOR', 'SUPERVISOR'] },
-  { label: 'Départements', href: '/admin/departments', icon: Settings, roles: ['ADMINISTRATOR'] },
-  { label: 'Catégories', href: '/admin/categories', icon: Settings, roles: ['ADMINISTRATOR'] },
-  { label: 'Paramètres', href: '/admin/settings', icon: Settings, roles: ['ADMINISTRATOR'] },
-  { label: 'Politiques SLA', href: '/admin/sla', icon: ShieldCheck, roles: ['ADMINISTRATOR'] },
-  { label: 'Audit', href: '/audit', icon: History, roles: ['ADMINISTRATOR', 'SUPERVISOR'] },
-  { label: 'Rapports', href: '/reports', icon: FileBarChart, roles: ['ADMINISTRATOR', 'SUPERVISOR'] },
+  { label: 'Tickets', href: '/tickets', icon: ClipboardList, group: 'Travail' },
+  { label: 'Notifications', href: '/notifications', icon: Bell, group: 'Travail' },
+  {
+    label: 'Tableau de bord',
+    href: '/dashboard',
+    icon: BarChart3,
+    group: 'Supervision',
+    roles: ['ADMINISTRATOR', 'SUPERVISOR'],
+  },
+  { label: 'Audit', href: '/audit', icon: History, group: 'Supervision', roles: ['ADMINISTRATOR', 'SUPERVISOR'] },
+  {
+    label: 'Rapports',
+    href: '/reports',
+    icon: FileBarChart,
+    group: 'Supervision',
+    roles: ['ADMINISTRATOR', 'SUPERVISOR'],
+  },
+  { label: 'Administration', href: '/admin', icon: Gauge, group: 'Administration', roles: ['ADMINISTRATOR'] },
+  {
+    label: 'Utilisateurs',
+    href: '/admin/users',
+    icon: Users,
+    group: 'Administration',
+    roles: ['ADMINISTRATOR', 'SUPERVISOR'],
+  },
+  {
+    label: 'Départements',
+    href: '/admin/departments',
+    icon: Building2,
+    group: 'Administration',
+    roles: ['ADMINISTRATOR'],
+  },
+  {
+    label: 'Catégories',
+    href: '/admin/categories',
+    icon: FolderCog,
+    group: 'Administration',
+    roles: ['ADMINISTRATOR'],
+  },
+  {
+    label: 'Politiques SLA',
+    href: '/admin/sla',
+    icon: ShieldCheck,
+    group: 'Administration',
+    roles: ['ADMINISTRATOR'],
+  },
+  {
+    label: 'Paramètres',
+    href: '/admin/settings',
+    icon: Settings,
+    group: 'Administration',
+    roles: ['ADMINISTRATOR'],
+  },
 ];
 
 export function navigationForRole(role: UserRole): readonly NavigationItem[] {

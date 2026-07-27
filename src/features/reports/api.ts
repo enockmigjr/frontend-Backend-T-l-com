@@ -2,6 +2,8 @@ import { apiRequest } from '@/lib/api/client';
 import { envelope, pageEnvelope, reportJobSchema, reportSchema } from '@/features/users/api/validation';
 export const listReports = async (signal?: AbortSignal) =>
   pageEnvelope(reportSchema).parse(await apiRequest('/api/v1/reports?limit=50&order=desc', { signal }));
+export const getReport = async (id: string, signal?: AbortSignal) =>
+  envelope(reportSchema).parse(await apiRequest(`/api/v1/reports/${id}`, { signal }));
 export const generateWeekly = async () =>
   envelope(reportJobSchema).parse(await apiRequest('/api/v1/reports/weekly/generate', { method: 'POST' }));
 export const generateSla = async (from: string, to: string) =>

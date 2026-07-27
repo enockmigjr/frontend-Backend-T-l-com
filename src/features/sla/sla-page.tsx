@@ -1,117 +1,103 @@
 'use client';
+
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Pencil, Plus } from 'lucide-react';
 import type { SlaPolicy } from '@/features/users/api/types';
+import { listCategories } from '@/features/categories/api';
 import { AdminSection } from '@/features/users/components/admin-section';
 import { EmptyState, ErrorState, LoadingState } from '@/features/users/components/async-state';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { DataTable, type DataColumn } from '@/components/ui/data-table';
+import { Input } from '@/components/ui/input';
+import { ResourceDialog } from '@/components/ui/resource-dialog';
+import { toast } from '@/components/ui/toast';
 import { createPolicy, listPolicies, updatePolicy } from './api';
-import { z } from 'zod';
+
 const priorities = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] as const;
-const prioritySchema = z.enum(priorities);
+const labels = { LOW: 'Faible', MEDIUM: 'Moyenne', HIGH: 'Haute', CRITICAL: 'Critique' } as const;
+
 export function SlaPage() {
+  const [editing, setEditing] = useState<SlaPolicy | null>(null);
+  const [formOpen, setFormOpen] = useState(false);
   const [error, setError] = useState('');
-  const query = useQuery({
+  const policies = useQuery({
     queryKey: ['sla-policies'],
     queryFn: ({ signal }) => listPolicies(signal).then((result) => result.data),
   });
-  const items = query.data ?? [];
-  const loading = query.isPending;
-  const visibleError = error || (query.error instanceof Error ? query.error.message : '');
-  const load = async () => {
-    await query.refetch();
-  };
-  async function create(formData: FormData) {
+  const categories = useQuery({
+    queryKey: ['categories', 'sla-select'],
+    queryFn: ({ signal }) => listCategories(signal).then((result) => result.data),
+  });
+
+  async function save(formData: FormData) {
+    const body = {
+      categoryId: String(formData.get('categoryId')),
+      priority: String(formData.get('priority')) as (typeof priorities)[number],
+      firstResponseMinutes: Number(formData.get('firstResponseMinutes')),
+      resolutionMinutes: Number(formData.get('resolutionMinutes')),
+    };
     try {
-      await createPolicy({
-        categoryId: String(formData.get('categoryId')),
-        priority: prioritySchema.parse(formData.get('priority')),
-        firstResponseMinutes: Number(formData.get('firstResponseMinutes')),
-        resolutionMinutes: Number(formData.get('resolutionMinutes')),
-      });
-      await load();
-    } catch (value) {
-      setError(value instanceof Error ? value.message : 'Création impossible.');
+      if (editing) await updatePolicy(editing.id, body);
+      else await createPolicy(body);
+      await policies.refetch();
+      setFormOpen(false);
+      setEditing(null);
+      toast.add({ title: editing ? 'Politique SLA mise à jour' : 'Politique SLA créée' });
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'Enregistrement impossible.');
     }
   }
-  async function edit(item: SlaPolicy) {
-    const resolution = window.prompt('Délai de résolution (minutes)', String(item.resolutionMinutes));
-    if (!resolution) return;
-    try {
-      await updatePolicy(item.id, { resolutionMinutes: Number(resolution) });
-      await load();
-    } catch (value) {
-      setError(value instanceof Error ? value.message : 'Modification impossible.');
-    }
-  }
+
+  const columns: DataColumn<SlaPolicy>[] = [
+    { key: 'category', label: 'Catégorie', cell: (item) => item.categoryName ?? 'Catégorie inconnue' },
+    { key: 'priority', label: 'Priorité', cell: (item) => <Badge variant={item.priority === 'CRITICAL' ? 'destructive' : 'secondary'}>{labels[item.priority]}</Badge> },
+    { key: 'response', label: 'Première réponse', cell: (item) => `${item.firstResponseMinutes} min` },
+    { key: 'resolution', label: 'Résolution', cell: (item) => `${item.resolutionMinutes} min` },
+    {
+      key: 'actions', label: '', className: 'w-20 text-right', cell: (item) => (
+        <Button variant="ghost" size="icon" aria-label="Modifier la politique" onClick={() => {
+          setEditing(item);
+          setFormOpen(true);
+        }}><Pencil /></Button>
+      ),
+    },
+  ];
+
   return (
     <AdminSection
       title="Politiques SLA"
-      description="La lecture est disponible aux rôles concernés; création et modification restent administrateur uniquement. L’API ne prévoit pas de suppression."
+      description="Définissez les engagements de première réponse et de résolution par catégorie et priorité."
+      action={<Button onClick={() => { setEditing(null); setFormOpen(true); }}><Plus />Nouvelle politique</Button>}
     >
-      <form action={create} className="grid gap-3 rounded-xl border bg-white p-5 md:grid-cols-4">
-        <label className="grid gap-1 text-sm">
-          Catégorie (UUID)
-          <input required name="categoryId" className="min-h-11 rounded-lg border px-3" />
-        </label>
-        <label className="grid gap-1 text-sm">
-          Priorité
-          <select name="priority" className="min-h-11 rounded-lg border px-3">
-            {priorities.map((priority) => (
-              <option key={priority}>{priority}</option>
-            ))}
-          </select>
-        </label>
-        <label className="grid gap-1 text-sm">
-          Première réponse (min)
-          <input
-            required
-            min="1"
-            type="number"
-            name="firstResponseMinutes"
-            className="min-h-11 rounded-lg border px-3"
-          />
-        </label>
-        <label className="grid gap-1 text-sm">
-          Résolution (min)
-          <input required min="1" type="number" name="resolutionMinutes" className="min-h-11 rounded-lg border px-3" />
-        </label>
-        <button className="min-h-11 rounded-lg bg-blue-700 px-4 text-white md:col-start-4">Créer</button>
-      </form>
-      {visibleError ? <ErrorState message={visibleError} retry={() => void load()} /> : null}
-      {loading ? (
-        <LoadingState />
-      ) : items.length === 0 ? (
-        <EmptyState>Aucune politique SLA.</EmptyState>
-      ) : (
-        <div className="overflow-x-auto rounded-xl border bg-white">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr>
-                <th className="p-3">Catégorie</th>
-                <th className="p-3">Priorité</th>
-                <th className="p-3">Première réponse</th>
-                <th className="p-3">Résolution</th>
-                <th className="p-3">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((item) => (
-                <tr className="border-t" key={item.id}>
-                  <td className="p-3">{item.categoryName ?? item.categoryId}</td>
-                  <td className="p-3">{item.priority}</td>
-                  <td className="p-3">{item.firstResponseMinutes} min</td>
-                  <td className="p-3">{item.resolutionMinutes} min</td>
-                  <td className="p-3">
-                    <button onClick={() => void edit(item)} className="min-h-11 rounded-lg border px-3">
-                      Modifier
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <ResourceDialog open={formOpen} onOpenChange={setFormOpen} title={editing ? 'Modifier la politique SLA' : 'Nouvelle politique SLA'}>
+        <form action={save} className="grid gap-4 sm:grid-cols-2">
+          <label className="grid gap-2 text-sm font-medium sm:col-span-2">Catégorie
+            <select required name="categoryId" defaultValue={editing?.categoryId ?? ''} className="h-10 rounded-lg border bg-background px-3">
+              <option value="" disabled>Sélectionner une catégorie</option>
+              {(categories.data ?? []).map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+            </select>
+          </label>
+          <label className="grid gap-2 text-sm font-medium">Priorité
+            <select name="priority" defaultValue={editing?.priority ?? 'MEDIUM'} className="h-10 rounded-lg border bg-background px-3">
+              {priorities.map((priority) => <option key={priority} value={priority}>{labels[priority]}</option>)}
+            </select>
+          </label>
+          <span />
+          <label className="grid gap-2 text-sm font-medium">Première réponse (min)
+            <Input required min="1" type="number" name="firstResponseMinutes" defaultValue={editing?.firstResponseMinutes} />
+          </label>
+          <label className="grid gap-2 text-sm font-medium">Résolution (min)
+            <Input required min="1" type="number" name="resolutionMinutes" defaultValue={editing?.resolutionMinutes} />
+          </label>
+          <Button type="submit" className="justify-self-end sm:col-span-2">Enregistrer</Button>
+        </form>
+      </ResourceDialog>
+      {error || policies.error ? <ErrorState message={error || String(policies.error)} retry={() => void policies.refetch()} /> : null}
+      {policies.isPending ? <LoadingState /> : policies.data?.length ? (
+        <DataTable rows={policies.data} columns={columns} getRowKey={(item) => item.id} caption="Politiques SLA" />
+      ) : <EmptyState>Aucune politique SLA.</EmptyState>}
     </AdminSection>
   );
 }

@@ -11,6 +11,9 @@ type Create = { readonly name: string; readonly description?: string; readonly t
 export const listCategories = async (signal?: AbortSignal) =>
   envelope(categorySchema.array()).parse(await apiRequest('/api/v1/categories', { signal }));
 
+export const getCategory = async (id: string, signal?: AbortSignal) =>
+  envelope(categorySchema).parse(await apiRequest(`/api/v1/categories/${id}`, { signal }));
+
 /**
  * Crée une nouvelle catégorie
  * @param body - Données de la catégorie à créer

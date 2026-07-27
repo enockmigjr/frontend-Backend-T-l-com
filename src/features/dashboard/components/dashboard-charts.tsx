@@ -1,66 +1,103 @@
 'use client';
 
-import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 import type { DashboardData } from '../api/dashboard-api';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+
+const statusColors = ['#1d4ed8', '#0f766e', '#b54708', '#64748b', '#7c3aed', '#b42318', '#0369a1'];
 
 function ChartFrame({
   title,
   summary,
   children,
-}: {
-  readonly title: string;
-  readonly summary: string;
-  readonly children: React.ReactNode;
-}) {
+  className,
+}: Readonly<{ title: string; summary: string; children: React.ReactNode; className?: string }>) {
   return (
-    <figure className="rounded-xl border border-zinc-200 bg-white p-5">
-      <figcaption>
-        <h2 className="font-semibold text-zinc-950">{title}</h2>
-        <p className="mt-1 text-sm text-zinc-600">{summary}</p>
-      </figcaption>
-      <div className="mt-5 h-64" aria-hidden="true">
+    <Card className={`gap-0 overflow-hidden py-0 shadow-sm ${className ?? ''}`}>
+      <CardHeader className="border-b px-5 py-4">
+        <CardTitle className="text-base">{title}</CardTitle>
+        <CardDescription>{summary}</CardDescription>
+      </CardHeader>
+      <CardContent className="h-72 p-4" aria-hidden="true">
         {children}
-      </div>
-    </figure>
+      </CardContent>
+    </Card>
   );
 }
 
-export default function DashboardCharts({ data }: { readonly data: DashboardData }) {
+export default function DashboardCharts({ data }: Readonly<{ data: DashboardData }>) {
   const statuses = data.statuses.data;
   const trend = data.resolution.trend.map((item) => ({
     ...item,
-    label: new Date(item.period).toLocaleDateString('fr-FR'),
+    label: new Date(item.period).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }),
   }));
+  const priorities = data.priorities.data.map((item) => ({
+    ...item,
+    label: { LOW: 'Faible', MEDIUM: 'Moyenne', HIGH: 'Haute', CRITICAL: 'Critique' }[item.priority],
+  }));
+
   return (
-    <div className="grid gap-5 xl:grid-cols-2">
+    <section className="grid gap-5 xl:grid-cols-2">
       <ChartFrame
-        title="Tickets par statut"
-        summary={`${statuses.reduce((sum, item) => sum + item.count, 0)} tickets répartis sur ${statuses.length} statuts.`}
-      >
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={statuses}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="status" hide />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="count" fill="#1d4ed8" />
-          </BarChart>
-        </ResponsiveContainer>
-      </ChartFrame>
-      <ChartFrame
+        className="xl:col-span-2"
         title="Temps moyen de résolution"
-        summary={`Moyenne ${data.resolution.overall.avgResolutionTimeMinutes} min; médiane ${data.resolution.overall.medianResolutionTimeMinutes} min; P90 ${data.resolution.overall.p90ResolutionTimeMinutes} min.`}
+        summary={`Médiane ${Math.round(data.resolution.overall.medianResolutionTimeMinutes)} min · P90 ${Math.round(data.resolution.overall.p90ResolutionTimeMinutes)} min`}
       >
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={trend}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="label" />
-            <YAxis />
-            <Tooltip />
-            <Line type="monotone" dataKey="avgResolutionTimeMinutes" stroke="#b45309" strokeWidth={3} />
+          <LineChart data={trend} margin={{ top: 12, right: 12, left: -10, bottom: 0 }}>
+            <CartesianGrid vertical={false} stroke="#e5e7eb" />
+            <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+            <Tooltip contentStyle={{ borderRadius: 10, borderColor: '#dce3ea' }} />
+            <Line
+              type="monotone"
+              dataKey="avgResolutionTimeMinutes"
+              name="Temps moyen"
+              stroke="#1d4ed8"
+              strokeWidth={3}
+              dot={{ r: 3, fill: '#1d4ed8' }}
+            />
           </LineChart>
         </ResponsiveContainer>
       </ChartFrame>
-    </div>
+      <ChartFrame
+        title="Répartition par statut"
+        summary={`${statuses.reduce((sum, item) => sum + item.count, 0)} tickets sur ${statuses.length} statuts actifs`}
+      >
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie data={statuses} dataKey="count" nameKey="status" innerRadius={58} outerRadius={92} paddingAngle={2}>
+              {statuses.map((item, index) => <Cell key={item.status} fill={statusColors[index % statusColors.length]} />)}
+            </Pie>
+            <Tooltip contentStyle={{ borderRadius: 10, borderColor: '#dce3ea' }} />
+          </PieChart>
+        </ResponsiveContainer>
+      </ChartFrame>
+      <ChartFrame title="Priorités et violations SLA" summary="Comparez le volume et les dépassements par niveau de priorité">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={priorities} margin={{ top: 10, right: 8, left: -16, bottom: 0 }}>
+            <CartesianGrid vertical={false} stroke="#e5e7eb" />
+            <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fontSize: 11 }} />
+            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+            <Tooltip contentStyle={{ borderRadius: 10, borderColor: '#dce3ea' }} />
+            <Bar dataKey="count" name="Tickets" fill="#1d4ed8" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="slaBreaches" name="SLA dépassés" fill="#b42318" radius={[4, 4, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+      </ChartFrame>
+    </section>
   );
 }

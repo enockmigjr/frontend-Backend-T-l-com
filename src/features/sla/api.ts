@@ -5,6 +5,8 @@ type Create = components['schemas']['CreateSlaPolicyDto'];
 type Update = components['schemas']['UpdateSlaPolicyDto'];
 export const listPolicies = async (signal?: AbortSignal) =>
   envelope(slaPolicySchema.array()).parse(await apiRequest('/api/v1/sla-policies', { signal }));
+export const getPolicy = async (id: string, signal?: AbortSignal) =>
+  envelope(slaPolicySchema).parse(await apiRequest(`/api/v1/sla-policies/${id}`, { signal }));
 export const createPolicy = async (body: Create) =>
   envelope(slaPolicySchema).parse(await apiRequest('/api/v1/sla-policies', { method: 'POST', body }));
 export const updatePolicy = async (id: string, body: Update) =>

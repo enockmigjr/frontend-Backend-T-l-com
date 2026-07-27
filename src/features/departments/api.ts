@@ -4,6 +4,8 @@ import { actionSchema, departmentSchema, envelope } from '@/features/users/api/v
 type Create = components['schemas']['CreateDepartmentDto'];
 export const listDepartments = async (signal?: AbortSignal) =>
   envelope(departmentSchema.array()).parse(await apiRequest('/api/v1/departments', { signal }));
+export const getDepartment = async (id: string, signal?: AbortSignal) =>
+  envelope(departmentSchema).parse(await apiRequest(`/api/v1/departments/${id}`, { signal }));
 export const createDepartment = async (body: Create) =>
   envelope(departmentSchema).parse(await apiRequest('/api/v1/departments', { method: 'POST', body }));
 export const updateDepartment = async (id: string, body: Partial<Create>) =>

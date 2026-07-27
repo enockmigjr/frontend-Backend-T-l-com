@@ -1,16 +1,16 @@
 'use client';
 
 import { useEffect } from 'react';
-import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { RadioTower } from 'lucide-react';
 import { getCurrentUser } from '@/lib/auth/session';
-import { navigationForRole } from './navigation';
-import { LoadingState } from '@/components/ui/states';
-import { UserMenu } from './user-menu';
-import { cn } from '@/lib/utils/cn';
+import { ApiError } from '@/lib/api/errors';
 import { subscribeSessionSignals } from '@/lib/auth/session-channel';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { AppSidebar } from './app-sidebar';
+import { AppTopbar } from './app-topbar';
 
 export function AppShell({ children }: Readonly<{ children: React.ReactNode }>) {
   const pathname = usePathname();
@@ -19,76 +19,78 @@ export function AppShell({ children }: Readonly<{ children: React.ReactNode }>) 
   const userQuery = useQuery({
     queryKey: ['session', 'me'],
     queryFn: ({ signal }) => getCurrentUser(signal),
-    retry: false,
+    retry: (count, error) => !(error instanceof ApiError && error.status === 401) && count < 2,
+    staleTime: 60_000,
   });
+
   useEffect(() => {
-    if (userQuery.error) router.replace(`/login?retour=${encodeURIComponent(pathname)}`);
+    if (userQuery.error instanceof ApiError && userQuery.error.status === 401) {
+      router.replace(`/login?retour=${encodeURIComponent(pathname)}`);
+    }
     if (userQuery.data?.mustChangePassword) router.replace('/change-password');
   }, [pathname, router, userQuery.data, userQuery.error]);
+
   useEffect(
     () =>
       subscribeSessionSignals((signal) => {
         if (signal === 'logout') {
           queryClient.clear();
           router.replace('/login');
-          router.refresh();
           return;
         }
         void queryClient.invalidateQueries({ queryKey: ['session', 'me'] });
-        router.refresh();
       }),
     [queryClient, router],
   );
-  if (!userQuery.data)
+
+  if (userQuery.isPending) return <ShellSkeleton />;
+  if (!userQuery.data) {
     return (
-      <main id="contenu">
-        <LoadingState label="Vérification de la session…" />
+      <main id="contenu" className="grid min-h-dvh place-items-center bg-muted/30 p-6">
+        <div className="max-w-md rounded-xl border bg-card p-6 text-center shadow-sm">
+          <h1 className="text-lg font-semibold">Session momentanément indisponible</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Votre page n’a pas été perdue. Vérifiez la connexion au serveur puis réessayez.
+          </p>
+          <Button className="mt-5" onClick={() => void userQuery.refetch()}>
+            Réessayer
+          </Button>
+        </div>
       </main>
     );
-  const items = navigationForRole(userQuery.data.role);
+  }
+
   return (
-    <div className="min-h-dvh lg:grid lg:grid-cols-[16rem_1fr]">
-      <aside className="border-b border-slate-200 bg-slate-950 text-white lg:sticky lg:top-0 lg:h-dvh lg:border-b-0 lg:border-r">
-        <div className="flex h-16 items-center gap-3 px-4 lg:h-20 lg:px-6">
-          <span className="grid size-10 place-items-center rounded-xl bg-blue-600">
-            <RadioTower aria-hidden className="size-5" />
-          </span>
-          <div>
-            <p className="font-bold tracking-tight">KAMGOKO</p>
-            <p className="text-xs text-slate-400">Centre d’opérations</p>
-          </div>
-        </div>
-        <nav
-          aria-label="Navigation principale"
-          className="flex gap-1 overflow-x-auto px-3 pb-3 lg:block lg:space-y-1 lg:overflow-visible lg:pb-0"
-        >
-          {items.map((item) => {
-            const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.href}
-                href={{ pathname: item.href }}
-                aria-current={active ? 'page' : undefined}
-                className={cn(
-                  'flex min-h-11 shrink-0 items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-300 transition hover:bg-slate-800 hover:text-white',
-                  active && 'bg-blue-600 text-white hover:bg-blue-600',
-                )}
-              >
-                <Icon aria-hidden className="size-4" />
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-      </aside>
-      <div className="min-w-0">
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-end border-b border-slate-200 bg-white/95 px-4 backdrop-blur sm:px-6">
-          <UserMenu user={userQuery.data} />
-        </header>
-        <main id="contenu" className="mx-auto w-full max-w-[100rem] p-4 sm:p-6 lg:p-8">
-          {children}
+    <SidebarProvider>
+      <AppSidebar user={userQuery.data} />
+      <SidebarInset className="min-w-0 bg-[#f5f7fa]">
+        <AppTopbar user={userQuery.data} />
+        <main id="contenu" className="w-full flex-1 p-4 sm:p-6 lg:p-8">
+          <div className="mx-auto w-full max-w-[100rem]">{children}</div>
         </main>
+      </SidebarInset>
+    </SidebarProvider>
+  );
+}
+
+function ShellSkeleton() {
+  return (
+    <div className="flex min-h-dvh bg-[#f5f7fa]">
+      <div className="hidden w-64 border-r bg-white p-4 md:block">
+        <Skeleton className="h-10 w-40" />
+        <div className="mt-10 space-y-3">
+          {Array.from({ length: 7 }, (_, index) => (
+            <Skeleton key={index} className="h-9 w-full" />
+          ))}
+        </div>
+      </div>
+      <div className="flex-1">
+        <div className="h-16 border-b bg-white" />
+        <div className="space-y-5 p-6">
+          <Skeleton className="h-9 w-72" />
+          <Skeleton className="h-32 w-full" />
+          <Skeleton className="h-80 w-full" />
+        </div>
       </div>
     </div>
   );
