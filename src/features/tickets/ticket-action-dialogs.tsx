@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { ResourceDialog } from '@/components/ui/resource-dialog';
+import { ErrorAlert } from '@/features/auth/error-alert';
 import type { CurrentUser } from '@/lib/auth/session';
 import type { Ticket } from './schemas';
 import { TicketDeletePanel } from './ticket-delete-panel';
@@ -76,10 +77,12 @@ export function PanelDialog({
 export function AssignmentForm({
   users,
   busy,
+  error,
   onAssign,
 }: Readonly<{
   users: readonly { id: string; firstName: string; lastName: string; isActive: boolean }[];
   busy: boolean;
+  error?: unknown;
   onAssign: (id: string) => void;
 }>) {
   const [id, setId] = useState('');
@@ -91,6 +94,7 @@ export function AssignmentForm({
       }}
       className="space-y-4"
     >
+      {error ? <ErrorAlert error={error} /> : null}
       <label className="grid gap-1.5 text-sm font-medium">
         Agent
         <select

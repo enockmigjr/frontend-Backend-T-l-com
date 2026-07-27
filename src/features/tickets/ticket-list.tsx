@@ -22,6 +22,7 @@ export function TicketList({ filters, query }: Readonly<{ filters: Filters; quer
     queryFn: () => ticketsApi.list(filters),
     placeholderData: keepPreviousData,
   });
+  const departments = useQuery({ queryKey: ['departments'], queryFn: ticketsApi.departments });
   const start = useMutation({
     mutationFn: (id: string) => ticketsApi.transition(id, 'start'),
     onSuccess: async () => {
@@ -90,6 +91,10 @@ export function TicketList({ filters, query }: Readonly<{ filters: Filters; quer
                   <TicketRow
                     key={ticket.id}
                     ticket={ticket}
+                    teamName={
+                      ticket.assignedTeamName ??
+                      departments.data?.find((department) => department.id === ticket.assignedTeamId)?.name
+                    }
                     canStart={Boolean(
                       user.data &&
                       (user.data.id === ticket.assignedTo ||

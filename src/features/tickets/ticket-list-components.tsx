@@ -20,9 +20,10 @@ import { TicketPriorityBadge, TicketStatusBadge } from './ticket-badges';
 
 export function TicketRow({
   ticket,
+  teamName,
   canStart,
   onStart,
-}: Readonly<{ ticket: TicketListItem; canStart: boolean; onStart: () => void }>) {
+}: Readonly<{ ticket: TicketListItem; teamName?: string | null; canStart: boolean; onStart: () => void }>) {
   const overdue =
     ticket.slaBreached || (ticket.resolutionDueAt ? new Date(ticket.resolutionDueAt).getTime() < Date.now() : false);
   return (
@@ -45,7 +46,7 @@ export function TicketRow({
       <td className="px-4 py-3">
         <p className="font-medium">{ticket.assigneeName || 'Non assigné'}</p>
         <p className="mt-0.5 text-xs text-muted-foreground">
-          {ticket.assignedTeamName || ticket.departmentName || 'Équipe non renseignée'}
+          {teamName || ticket.departmentName || 'Équipe non renseignée'}
         </p>
       </td>
       <td className="px-4 py-3">

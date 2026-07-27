@@ -11,6 +11,7 @@ import { toast } from '@/components/ui/toast';
 import { ErrorAlert } from '@/features/auth/error-alert';
 import { useCurrentUser } from '@/features/auth/use-current-user';
 import { ticketsApi } from './api';
+import { AttachmentPreview } from './attachment-preview';
 import { formatBytes, formatDate } from './presentation';
 import { ticketKeys } from './query-keys';
 import type { z } from 'zod';
@@ -318,14 +319,7 @@ function AttachmentChips({ files }: Readonly<{ files: readonly Attachment[] }>) 
   return (
     <div className="mt-3 flex flex-wrap gap-2">
       {files.map((file) => (
-        <a
-          key={file.id}
-          href={`/api/v1/attachments/${file.id}/download`}
-          className="inline-flex items-center gap-1.5 rounded-md border bg-muted/40 px-2 py-1 text-xs font-medium hover:bg-muted"
-        >
-          <Paperclip className="size-3" />
-          {file.originalFilename}
-        </a>
+        <AttachmentPreview key={file.id} file={file} label />
       ))}
     </div>
   );
@@ -351,6 +345,7 @@ function FileLibrary({
               {file.commentId ? 'Commentaire' : file.internalNoteId ? 'Note interne' : 'Ticket'}
             </p>
             <div className="mt-2 flex justify-end gap-1">
+              <AttachmentPreview file={file} />
               <Button
                 nativeButton={false}
                 variant="ghost"

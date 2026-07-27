@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { ResourceDialog } from '@/components/ui/resource-dialog';
 import { Textarea } from '@/components/ui/textarea';
+import { ErrorAlert } from '@/features/auth/error-alert';
 
 export type DialogAction = 'pending-customer' | 'pending-third-party' | 'resolve' | 'reopen' | 'close';
 
@@ -10,6 +11,7 @@ interface TicketTransitionDialogProps {
   readonly action: DialogAction;
   readonly text: string;
   readonly busy: boolean;
+  readonly error?: unknown;
   readonly onText: (value: string) => void;
   readonly onCancel: () => void;
   readonly onConfirm: () => void;
@@ -27,6 +29,7 @@ export function TicketTransitionDialog({
   action,
   text,
   busy,
+  error,
   onText,
   onCancel,
   onConfirm,
@@ -48,6 +51,7 @@ export function TicketTransitionDialog({
       }
     >
       <div className="space-y-4">
+        {error ? <ErrorAlert error={error} /> : null}
         {requiresReason ? (
           <label className="grid gap-1.5 text-sm font-medium">
             {action === 'resolve' ? 'Résumé de la résolution' : 'Raison'}

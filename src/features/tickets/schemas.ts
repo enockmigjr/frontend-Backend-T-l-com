@@ -24,6 +24,8 @@ export const ticketListItemSchema = z.object({
   categoryId: z.string().uuid(),
   categoryName: z.string().nullable().optional(),
   assignedTo: z.string().uuid().nullable().optional(),
+  assignedTeamId: z.string().uuid().optional(),
+  departmentId: z.string().uuid().optional(),
   assigneeName: z.string().nullable().optional(),
   departmentName: z.string().nullable().optional(),
   assignedTeamName: z.string().nullable().optional(),

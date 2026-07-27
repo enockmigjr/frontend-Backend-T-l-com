@@ -22,6 +22,7 @@ import { TicketSlaCard } from './ticket-sla-card';
 export function TicketDetail({ id }: Readonly<{ id: string }>) {
   const realtime = useRealtimeSync(id);
   const result = useQuery({ queryKey: ticketKeys.detail(id), queryFn: () => ticketsApi.get(id) });
+  const departments = useQuery({ queryKey: ['departments'], queryFn: ticketsApi.departments });
   if (result.isPending) return <TicketDetailSkeleton />;
   if (result.error) {
     if (result.error instanceof ApiError && result.error.status === 403) {
@@ -36,6 +37,10 @@ export function TicketDetail({ id }: Readonly<{ id: string }>) {
   }
   const ticket = result.data;
   const assignee = ticket.assignee ? `${ticket.assignee.firstName} ${ticket.assignee.lastName}` : ticket.assigneeName;
+  const assignedTeamName =
+    ticket.assignedTeamName ??
+    ticket.assignedTeam?.name ??
+    departments.data?.find((department) => department.id === ticket.assignedTeamId)?.name;
 
   return (
     <div className="space-y-4">
@@ -100,11 +105,7 @@ export function TicketDetail({ id }: Readonly<{ id: string }>) {
                 label="Département demandeur"
                 value={ticket.departmentName ?? ticket.department?.name}
               />
-              <Info
-                icon={Building2}
-                label="Équipe assignée"
-                value={ticket.assignedTeamName ?? ticket.assignedTeam?.name}
-              />
+              <Info icon={Building2} label="Équipe assignée" value={assignedTeamName} />
               <Info icon={UserRound} label="Agent assigné" value={assignee ?? 'Non assigné'} />
               <Info
                 icon={UserRoundPlus}

@@ -36,6 +36,8 @@ export const ticketsApi = {
         categoryId: true,
         categoryName: true,
         assignedTo: true,
+        assignedTeamId: true,
+        departmentId: true,
         assigneeName: true,
         departmentName: true,
         assignedTeamName: true,

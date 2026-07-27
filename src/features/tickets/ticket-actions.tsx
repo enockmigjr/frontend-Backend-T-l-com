@@ -151,6 +151,7 @@ export function TicketActions({ ticket }: Readonly<{ ticket: Ticket }>) {
           <AssignmentForm
             users={users.data?.data ?? []}
             busy={assignment.isPending}
+            error={assignment.error}
             onAssign={(id) => assignment.mutate({ action: ticket.assignedTo ? 'reassign' : 'assign', userId: id })}
           />
         ) : null}
@@ -160,6 +161,7 @@ export function TicketActions({ ticket }: Readonly<{ ticket: Ticket }>) {
           action={dialog}
           text={text}
           busy={transition.isPending}
+          error={transition.error}
           onText={setText}
           onCancel={() => setDialog(undefined)}
           onConfirm={submitDialog}
