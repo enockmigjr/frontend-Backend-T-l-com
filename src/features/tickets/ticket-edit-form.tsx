@@ -44,13 +44,12 @@ export function TicketEditForm({
   const field = 'min-h-11 w-full rounded-lg border px-3 py-2';
   return (
     <form
-      className="mt-4 space-y-4 rounded-lg border bg-white p-4"
+      className="space-y-4"
       onSubmit={(event) => {
         event.preventDefault();
         update.mutate();
       }}
     >
-      <h3 className="font-semibold">Modifier le ticket</h3>
       {update.error ? <ErrorAlert error={update.error} /> : null}
       {allowed.has('title') ? (
         <div>

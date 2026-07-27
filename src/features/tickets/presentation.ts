@@ -23,3 +23,17 @@ export function formatBytes(value: number): string {
   if (value < 1024 * 1024) return `${Math.round(value / 1024)} Ko`;
   return `${(value / 1024 / 1024).toFixed(1)} Mo`;
 }
+
+export function formatRemaining(value?: string | null): string {
+  if (!value) return 'Non défini';
+  const remaining = new Date(value).getTime() - Date.now();
+  const minutes = Math.max(1, Math.round(Math.abs(remaining) / 60_000));
+  const hours = Math.floor(minutes / 60);
+  const label =
+    hours >= 24
+      ? `${Math.floor(hours / 24)} j ${hours % 24} h`
+      : hours > 0
+        ? `${hours} h ${minutes % 60} min`
+        : `${minutes} min`;
+  return remaining < 0 ? `Dépassé de ${label}` : `${label} restant`;
+}

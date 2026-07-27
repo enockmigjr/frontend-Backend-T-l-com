@@ -1,6 +1,6 @@
 @import 'tailwindcss';
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -117,9 +117,12 @@ html[data-navigation-tone='teal'] {
   background: var(--navigation-accent);
 }
 
-.app-sidebar-item[data-active='true'] {
+.app-sidebar-item[data-active],
+.app-sidebar-item[aria-current='page'] {
   background: var(--navigation-soft);
   color: var(--navigation-text);
+  box-shadow: inset 3px 0 0 var(--navigation-accent);
+  font-weight: 600;
 }
 
 .app-topbar {

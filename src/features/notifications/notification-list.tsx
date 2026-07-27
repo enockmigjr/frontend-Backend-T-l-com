@@ -1,20 +1,28 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Bell, CheckCheck } from 'lucide-react';
+import { Bell, CheckCheck, ChevronLeft, ChevronRight, CircleAlert, FileCheck2, Inbox, TicketCheck } from 'lucide-react';
 import Link from 'next/link';
-import { useRealtimeSync } from '@/features/realtime/use-realtime-sync';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Panel, PageHeader } from '@/components/ui/panel';
 import { RealtimeStatus } from '@/features/realtime/realtime-status';
+import { useRealtimeSync } from '@/features/realtime/use-realtime-sync';
 import { ErrorAlert } from '@/features/auth/error-alert';
 import type { ApiPage } from '@/features/auth/api-client';
 import { formatDate } from '@/features/tickets/presentation';
-import { notificationsApi, type NotificationItem } from './api';
+import { notificationDestination, notificationsApi, type NotificationItem } from './api';
+
+type View = 'all' | 'unread';
 
 export function NotificationList() {
   const realtime = useRealtimeSync();
   const client = useQueryClient();
-  const queryKey = ['notifications', 1] as const;
-  const result = useQuery({ queryKey, queryFn: () => notificationsApi.list(1) });
+  const [view, setView] = useState<View>('all');
+  const [page, setPage] = useState(1);
+  const queryKey = ['notifications', 'page', page] as const;
+  const list = useQuery({ queryKey, queryFn: () => notificationsApi.list(page) });
+  const unread = useQuery({ queryKey: ['notifications', 'unread'], queryFn: notificationsApi.unread });
   const refresh = () => client.invalidateQueries({ queryKey: ['notifications'] });
   const mark = useMutation({
     mutationFn: notificationsApi.markRead,
@@ -22,6 +30,9 @@ export function NotificationList() {
       await client.cancelQueries({ queryKey });
       const previous = client.getQueryData<ApiPage<readonly NotificationItem[]>>(queryKey);
       client.setQueryData<ApiPage<readonly NotificationItem[]>>(queryKey, (current) => markRead(current, id));
+      client.setQueryData<readonly NotificationItem[]>(['notifications', 'unread'], (current) =>
+        current?.filter((item) => item.id !== id),
+      );
       return previous;
     },
     onError: (_error, _id, previous) => client.setQueryData(queryKey, previous),
@@ -30,69 +41,180 @@ export function NotificationList() {
   const markAll = useMutation({
     mutationFn: notificationsApi.markAllRead,
     onMutate: async () => {
-      await client.cancelQueries({ queryKey });
+      await client.cancelQueries({ queryKey: ['notifications'] });
       const previous = client.getQueryData<ApiPage<readonly NotificationItem[]>>(queryKey);
       client.setQueryData<ApiPage<readonly NotificationItem[]>>(queryKey, (current) => markRead(current));
+      client.setQueryData(['notifications', 'unread'], []);
       return previous;
     },
     onError: (_error, _variables, previous) => client.setQueryData(queryKey, previous),
     onSettled: refresh,
   });
-  const unread = result.data?.data.filter((item) => !item.isRead).length ?? 0;
+  const items = view === 'unread' ? unread.data : list.data?.data;
+  const error = list.error ?? unread.error ?? mark.error ?? markAll.error;
 
   return (
     <div className="space-y-5">
-      <header className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="flex items-center gap-2 text-2xl font-bold">
-            <Bell aria-hidden size={24} />
-            Notifications
-          </h1>
-          <p className="text-sm text-slate-600">
-            {unread} notification{unread > 1 ? 's' : ''} non lue{unread > 1 ? 's' : ''}
-          </p>
-          <RealtimeStatus {...realtime} />
+      <PageHeader
+        title="Notifications"
+        description="Retrouvez les changements qui demandent votre attention."
+        actions={
+          <Button
+            type="button"
+            variant="outline"
+            disabled={!unread.data?.length || markAll.isPending}
+            onClick={() => markAll.mutate()}
+          >
+            <CheckCheck />
+            Tout marquer comme lu
+          </Button>
+        }
+      />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex rounded-lg border bg-background p-1">
+          <ViewButton
+            selected={view === 'all'}
+            onClick={() => {
+              setView('all');
+              setPage(1);
+            }}
+          >
+            Toutes
+          </ViewButton>
+          <ViewButton selected={view === 'unread'} onClick={() => setView('unread')}>
+            Non lues{' '}
+            <span className="rounded-full bg-primary/10 px-1.5 text-xs text-primary">{unread.data?.length ?? 0}</span>
+          </ViewButton>
         </div>
-        <button
-          disabled={unread === 0 || markAll.isPending}
-          onClick={() => markAll.mutate()}
-          className="flex min-h-11 items-center gap-2 rounded-lg border bg-white px-4 py-2 text-sm font-medium disabled:opacity-50"
-        >
-          <CheckCheck aria-hidden size={18} />
-          Tout marquer comme lu
-        </button>
-      </header>
-      {result.isPending ? (
-        <div className="rounded-xl border bg-white p-8 text-center" role="status">
-          Chargement des notifications…
-        </div>
+        <RealtimeStatus {...realtime} />
+      </div>
+      {error ? <ErrorAlert error={error} /> : null}
+      {(list.isPending || unread.isPending) && !items ? <NotificationSkeleton /> : null}
+      {items ? (
+        <Panel className="overflow-hidden">
+          <ul className="divide-y">
+            {items.map((item) => (
+              <NotificationRow
+                key={item.id}
+                item={item}
+                onRead={() => {
+                  if (!item.isRead) mark.mutate(item.id);
+                }}
+              />
+            ))}
+          </ul>
+          {items.length === 0 ? <EmptyNotifications unreadOnly={view === 'unread'} /> : null}
+        </Panel>
       ) : null}
-      {result.error || mark.error || markAll.error ? (
-        <ErrorAlert error={result.error ?? mark.error ?? markAll.error} />
-      ) : null}
-      {result.data ? (
-        <ul className="divide-y rounded-xl border bg-white">
-          {result.data.data.map((item) => (
-            <NotificationRow
-              key={item.id}
-              item={item}
-              onRead={() => {
-                if (!item.isRead) mark.mutate(item.id);
-              }}
-            />
-          ))}
-        </ul>
-      ) : null}
-      {result.data?.data.length === 0 ? (
-        <div className="rounded-xl border bg-white p-10 text-center">
-          <h2 className="font-semibold">Aucune notification</h2>
-          <p className="text-sm text-slate-600">Les événements importants apparaîtront ici.</p>
-        </div>
+      {view === 'all' && list.data && list.data.meta.totalPages > 1 ? (
+        <nav className="flex items-center justify-between text-sm" aria-label="Pagination des notifications">
+          <span className="text-muted-foreground">
+            Page {list.data.meta.page} sur {list.data.meta.totalPages}
+          </span>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              disabled={page <= 1}
+              aria-label="Page précédente"
+              onClick={() => setPage((value) => Math.max(1, value - 1))}
+            >
+              <ChevronLeft />
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              disabled={page >= list.data.meta.totalPages}
+              aria-label="Page suivante"
+              onClick={() => setPage((value) => value + 1)}
+            >
+              <ChevronRight />
+            </Button>
+          </div>
+        </nav>
       ) : null}
     </div>
   );
 }
 
+function NotificationRow({ item, onRead }: Readonly<{ item: NotificationItem; onRead: () => void }>) {
+  const Icon = notificationIcon(item.type);
+  return (
+    <li className={item.isRead ? 'bg-background' : 'bg-primary/[0.035]'}>
+      <Link
+        href={notificationDestination(item)}
+        onClick={onRead}
+        className="grid grid-cols-[2.5rem_1fr_auto] gap-3 px-4 py-4 transition-colors hover:bg-muted/40 sm:px-5"
+      >
+        <span
+          className={`grid size-10 place-items-center rounded-full ${item.isRead ? 'bg-muted text-muted-foreground' : 'bg-primary/10 text-primary'}`}
+        >
+          <Icon aria-hidden className="size-4.5" />
+        </span>
+        <span className="min-w-0">
+          <span className="flex items-center gap-2">
+            <strong className="truncate text-sm">{item.title}</strong>
+            {!item.isRead ? (
+              <span className="size-2 shrink-0 rounded-full bg-primary">
+                <span className="sr-only">Non lue</span>
+              </span>
+            ) : null}
+          </span>
+          <span className="mt-1 line-clamp-2 text-sm leading-5 text-muted-foreground">{item.message}</span>
+        </span>
+        <time className="hidden whitespace-nowrap text-xs text-muted-foreground sm:block" dateTime={item.createdAt}>
+          {formatDate(item.createdAt)}
+        </time>
+      </Link>
+    </li>
+  );
+}
+function notificationIcon(type: string) {
+  if (type.includes('SLA')) return CircleAlert;
+  if (type.includes('REPORT')) return FileCheck2;
+  if (type.includes('TICKET')) return TicketCheck;
+  return Bell;
+}
+function ViewButton({
+  selected,
+  onClick,
+  children,
+}: Readonly<{ selected: boolean; onClick: () => void; children: React.ReactNode }>) {
+  return (
+    <button
+      type="button"
+      aria-pressed={selected}
+      onClick={onClick}
+      className={`flex h-8 items-center gap-2 rounded-md px-3 text-sm font-medium ${selected ? 'bg-muted text-foreground shadow-sm' : 'text-muted-foreground'}`}
+    >
+      {children}
+    </button>
+  );
+}
+function EmptyNotifications({ unreadOnly }: Readonly<{ unreadOnly: boolean }>) {
+  return (
+    <div className="grid place-items-center px-6 py-16 text-center">
+      <span className="grid size-12 place-items-center rounded-full bg-muted">
+        <Inbox className="size-5 text-muted-foreground" />
+      </span>
+      <h2 className="mt-4 font-semibold">{unreadOnly ? 'Vous êtes à jour' : 'Aucune notification'}</h2>
+      <p className="mt-1 text-sm text-muted-foreground">
+        {unreadOnly ? 'Toutes les notifications ont été consultées.' : 'Les événements importants apparaîtront ici.'}
+      </p>
+    </div>
+  );
+}
+function NotificationSkeleton() {
+  return (
+    <Panel className="space-y-2 p-4" role="status" aria-label="Chargement des notifications">
+      {Array.from({ length: 5 }, (_, index) => (
+        <div key={index} className="h-16 animate-pulse rounded-lg bg-muted/50" />
+      ))}
+    </Panel>
+  );
+}
 function markRead(
   page: ApiPage<readonly NotificationItem[]> | undefined,
   id?: string,
@@ -103,37 +225,4 @@ function markRead(
     ...page,
     data: page.data.map((item) => (!item.isRead && (!id || item.id === id) ? { ...item, isRead: true, readAt } : item)),
   };
-}
-
-function NotificationRow({ item, onRead }: Readonly<{ item: NotificationItem; onRead: () => void }>) {
-  const content = (
-    <>
-      <div className="flex items-start justify-between gap-3">
-        <h2 className="font-semibold">{item.title}</h2>
-        {!item.isRead ? (
-          <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-blue-600">
-            <span className="sr-only">Non lue</span>
-          </span>
-        ) : null}
-      </div>
-      <p className="mt-1 text-sm text-slate-700">{item.message}</p>
-      <time className="mt-2 block text-xs text-slate-500" dateTime={item.createdAt}>
-        {formatDate(item.createdAt)}
-      </time>
-    </>
-  );
-  const className = `block px-5 py-4 hover:bg-slate-50 ${item.isRead ? '' : 'bg-blue-50/60'}`;
-  return (
-    <li>
-      {item.referenceType === 'ticket' && item.referenceId ? (
-        <Link href={`/tickets/${item.referenceId}`} onClick={onRead} className={className}>
-          {content}
-        </Link>
-      ) : (
-        <button type="button" onClick={onRead} className={`${className} min-h-11 w-full text-left`}>
-          {content}
-        </button>
-      )}
-    </li>
-  );
 }

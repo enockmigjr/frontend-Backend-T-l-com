@@ -48,9 +48,9 @@ function cookieValue(name: string): string | undefined {
     .join('=');
 }
 
-async function csrfToken(): Promise<string> {
+async function csrfToken(forceRefresh = false): Promise<string> {
   const existing = cookieValue('itsm-csrf-token') ?? cookieValue('__Host-csrf-token');
-  if (existing) return decodeURIComponent(existing);
+  if (existing && !forceRefresh) return decodeURIComponent(existing);
 
   const response = await fetch('/api/auth/csrf', { credentials: 'same-origin', cache: 'no-store' });
   const parsed = z
@@ -86,9 +86,17 @@ async function errorFrom(response: Response): Promise<ApiError> {
 export async function apiRequest<T>(path: string, schema: z.ZodType<T>, init: RequestInit = {}): Promise<T> {
   const method = init.method ?? 'GET';
   const headers = new Headers(init.headers);
-  if (mutation(method)) headers.set('x-csrf-token', await csrfToken());
   if (init.body && !(init.body instanceof FormData)) headers.set('content-type', 'application/json');
-  const response = await fetch(path, { ...init, method, headers, credentials: 'same-origin', cache: 'no-store' });
+  let response: Response | undefined;
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    if (mutation(method)) headers.set('x-csrf-token', await csrfToken(attempt > 0));
+    response = await fetch(path, { ...init, method, headers, credentials: 'same-origin', cache: 'no-store' });
+    if (response.ok || response.status !== 403 || attempt > 0) break;
+    const clone = response.clone();
+    const error = await errorFrom(clone);
+    if (error.code !== 'CSRF_INVALID') break;
+  }
+  if (!response) throw new ApiError('La requête n’a pas pu être envoyée.', 500);
   if (!response.ok) throw await errorFrom(response);
   if (response.status === 204) return schema.parse(undefined);
   const envelope = z

@@ -43,14 +43,13 @@ export function TicketEscalationForm({
   }
   return (
     <form
-      className="mt-4 space-y-4 rounded-lg border bg-white p-4"
+      className="space-y-4"
       onSubmit={(event) => {
         event.preventDefault();
         submit();
       }}
     >
       <div>
-        <h3 className="font-semibold">Escalader le ticket</h3>
         <p className="text-xs text-slate-600">
           Même équipe : escalade hiérarchique. Autre équipe : escalade fonctionnelle réservée à la supervision.
         </p>

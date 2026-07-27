@@ -14,6 +14,7 @@ const ticketEvents = [
   'ticket.assigned',
   'ticket.escalated',
   'ticket.resolved',
+  'ticket.closed',
   'ticket.reopened',
   'ticket.status_changed',
   'ticket.deassigned',

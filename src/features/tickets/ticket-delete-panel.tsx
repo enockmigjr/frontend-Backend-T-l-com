@@ -12,7 +12,7 @@ export function TicketDeletePanel({ ticketId, onClose }: Readonly<{ ticketId: st
     onSuccess: () => router.replace('/tickets'),
   });
   return (
-    <div className="mt-4 rounded-lg border border-red-300 bg-red-50 p-4">
+    <div className="rounded-lg border border-red-300 bg-red-50 p-4">
       <h3 className="font-semibold text-red-900">Supprimer ce ticket ?</h3>
       <p className="mt-1 text-sm text-red-800">
         La suppression est logique et retirera le ticket des vues opérationnelles.

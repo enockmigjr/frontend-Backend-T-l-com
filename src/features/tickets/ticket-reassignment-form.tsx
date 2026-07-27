@@ -33,14 +33,13 @@ export function TicketReassignmentForm({ ticket, onClose }: Readonly<{ ticket: T
   }
   return (
     <form
-      className="mt-4 space-y-4 rounded-lg border bg-white p-4"
+      className="space-y-4"
       onSubmit={(event) => {
         event.preventDefault();
         submit();
       }}
     >
       <div>
-        <h3 className="font-semibold">Réassigner le ticket</h3>
         <p className="text-xs text-slate-600">La cible doit être un agent actif de l’équipe assignée.</p>
       </div>
       {mutation.error ? <ErrorAlert error={mutation.error} /> : null}

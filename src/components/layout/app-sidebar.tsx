@@ -88,20 +88,27 @@ export function AppSidebar({ user }: Readonly<{ user: CurrentUser }>) {
                   disabled={state === 'collapsed'}
                   className="group/collapse flex w-full items-center rounded-md focus-visible:ring-2"
                 >
-                  <SidebarGroupLabel render={<span />} className="flex-1 cursor-pointer">{group}</SidebarGroupLabel>
+                  <SidebarGroupLabel render={<span />} className="flex-1 cursor-pointer">
+                    {group}
+                  </SidebarGroupLabel>
                   <ChevronDown className="mr-2 size-4 text-muted-foreground transition-transform group-data-panel-open/collapse:rotate-180 group-data-[collapsible=icon]:hidden" />
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                   <SidebarGroupContent>
                     <SidebarMenu>
                       {groupItems.map((item) => {
-                        const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                        const active = isNavigationActive(
+                          pathname,
+                          item.href,
+                          items.map((entry) => entry.href),
+                        );
                         const Icon = item.icon;
                         return (
                           <SidebarMenuItem key={item.href}>
                             <SidebarMenuButton
                               render={<Link href={item.href} onClick={closeMobile} />}
                               isActive={active}
+                              aria-current={active ? 'page' : undefined}
                               tooltip={item.label}
                               className="app-sidebar-item h-9"
                             >
@@ -124,6 +131,14 @@ export function AppSidebar({ user }: Readonly<{ user: CurrentUser }>) {
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
+  );
+}
+
+function isNavigationActive(pathname: string, href: string, hrefs: readonly string[]): boolean {
+  if (pathname === href) return true;
+  if (!pathname.startsWith(`${href}/`)) return false;
+  return !hrefs.some(
+    (candidate) => candidate !== href && candidate.startsWith(`${href}/`) && pathname.startsWith(candidate),
   );
 }
 

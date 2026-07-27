@@ -24,7 +24,12 @@ export const ticketListItemSchema = z.object({
   categoryId: z.string().uuid(),
   categoryName: z.string().nullable().optional(),
   assignedTo: z.string().uuid().nullable().optional(),
+  assigneeName: z.string().nullable().optional(),
+  departmentName: z.string().nullable().optional(),
+  assignedTeamName: z.string().nullable().optional(),
   customerName: z.string().nullable().optional(),
+  resolutionDueAt: z.string().nullable().optional(),
+  slaBreached: z.boolean().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 });
@@ -45,18 +50,20 @@ export const ticketSchema = ticketListItemSchema
     customerAccountNumber: z.string().nullable().optional(),
     customerContact: z.string().nullable().optional(),
     resolutionSummary: z.string().nullable().optional(),
-    firstResponseDueAt: z.string().optional(),
-    resolutionDueAt: z.string().optional(),
+    firstResponseAt: z.string().nullable().optional(),
+    firstResponseDueAt: z.string().nullable().optional(),
+    resolutionDueAt: z.string().nullable().optional(),
     resolvedAt: z.string().nullable().optional(),
     closedAt: z.string().nullable().optional(),
+    slaPausedAt: z.string().nullable().optional(),
+    accumulatedPauseMs: z.number().optional(),
     slaBreached: z.boolean().optional(),
-    assigneeName: z.string().nullable().optional(),
-    departmentName: z.string().nullable().optional(),
     category: namedEntitySchema.optional(),
     department: namedEntitySchema.optional(),
     assignedTeam: namedEntitySchema.optional(),
     assignee: userSchema.optional(),
     creator: userSchema.optional(),
+    creatorName: z.string().nullable().optional(),
   })
   .passthrough();
 
@@ -82,6 +89,9 @@ export const attachmentSchema = z
     mimeType: z.string(),
     fileSize: z.number(),
     uploadedBy: z.string().uuid(),
+    ticketId: z.string().uuid().nullable().optional(),
+    commentId: z.string().uuid().nullable().optional(),
+    internalNoteId: z.string().uuid().nullable().optional(),
     createdAt: z.string(),
   })
   .passthrough();

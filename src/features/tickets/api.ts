@@ -36,7 +36,12 @@ export const ticketsApi = {
         categoryId: true,
         categoryName: true,
         assignedTo: true,
+        assigneeName: true,
+        departmentName: true,
+        assignedTeamName: true,
         customerName: true,
+        resolutionDueAt: true,
+        slaBreached: true,
         createdAt: true,
         updatedAt: true,
       }),
@@ -74,8 +79,7 @@ export const ticketsApi = {
     apiRequest(`/api/v1/tickets/${id}/comments`, commentSchema, { method: 'POST', body: JSON.stringify({ content }) }),
   updateComment: (id: string, content: string) =>
     apiRequest(`/api/v1/comments/${id}`, commentSchema, { method: 'PATCH', body: JSON.stringify({ content }) }),
-  removeComment: (id: string) =>
-    apiRequest(`/api/v1/comments/${id}`, z.undefined(), { method: 'DELETE' }),
+  removeComment: (id: string) => apiRequest(`/api/v1/comments/${id}`, z.undefined(), { method: 'DELETE' }),
   notes: (id: string) => apiPage(`/api/v1/tickets/${id}/internal-notes?page=1&limit=100&order=asc`, noteSchema),
   addNote: (id: string, content: string) =>
     apiRequest(`/api/v1/tickets/${id}/internal-notes`, noteSchema, {
@@ -84,18 +88,18 @@ export const ticketsApi = {
     }),
   updateNote: (id: string, content: string) =>
     apiRequest(`/api/v1/internal-notes/${id}`, noteSchema, { method: 'PATCH', body: JSON.stringify({ content }) }),
-  removeNote: (id: string) =>
-    apiRequest(`/api/v1/internal-notes/${id}`, z.undefined(), { method: 'DELETE' }),
+  removeNote: (id: string) => apiRequest(`/api/v1/internal-notes/${id}`, z.undefined(), { method: 'DELETE' }),
   attachments: (id: string) => apiPage(`/api/v1/tickets/${id}/attachments?page=1&limit=100`, attachmentSchema),
   history: (id: string) => apiRequest(`/api/v1/tickets/${id}/history`, z.array(historySchema)),
-  upload: (id: string, file: File) => {
+  upload: (association: Readonly<{ ticketId?: string; commentId?: string; internalNoteId?: string }>, file: File) => {
     const body = new FormData();
-    body.set('ticketId', id);
+    Object.entries(association).forEach(([key, value]) => {
+      if (value) body.set(key, value);
+    });
     body.set('file', file);
     return apiRequest('/api/v1/attachments', attachmentSchema, { method: 'POST', body });
   },
-  removeAttachment: (id: string) =>
-    apiRequest(`/api/v1/attachments/${id}`, z.undefined(), { method: 'DELETE' }),
+  removeAttachment: (id: string) => apiRequest(`/api/v1/attachments/${id}`, z.undefined(), { method: 'DELETE' }),
   categories: () => apiRequest('/api/v1/categories', z.array(categorySchema)),
   departments: () => apiRequest('/api/v1/departments', z.array(departmentSchema)),
   users: () => apiPage('/api/v1/users?page=1&limit=100', userReferenceSchema),
