@@ -26,6 +26,7 @@ export interface NavigationItem {
 export const navigation: readonly NavigationItem[] = [
   { label: 'Tickets', href: '/tickets', icon: ClipboardList, group: 'Travail' },
   { label: 'Notifications', href: '/notifications', icon: Bell, group: 'Travail' },
+  { label: 'Paramètres', href: '/settings', icon: Settings, group: 'Travail' },
   {
     label: 'Tableau de bord',
     href: '/dashboard',
@@ -41,7 +42,7 @@ export const navigation: readonly NavigationItem[] = [
     group: 'Supervision',
     roles: ['ADMINISTRATOR', 'SUPERVISOR'],
   },
-  { label: 'Administration', href: '/admin', icon: Gauge, group: 'Administration', roles: ['ADMINISTRATOR'] },
+  { label: 'Vue d’ensemble', href: '/admin', icon: Gauge, group: 'Administration', roles: ['ADMINISTRATOR'] },
   {
     label: 'Utilisateurs',
     href: '/admin/users',
@@ -67,13 +68,6 @@ export const navigation: readonly NavigationItem[] = [
     label: 'Politiques SLA',
     href: '/admin/sla',
     icon: ShieldCheck,
-    group: 'Administration',
-    roles: ['ADMINISTRATOR'],
-  },
-  {
-    label: 'Paramètres',
-    href: '/admin/settings',
-    icon: Settings,
     group: 'Administration',
     roles: ['ADMINISTRATOR'],
   },

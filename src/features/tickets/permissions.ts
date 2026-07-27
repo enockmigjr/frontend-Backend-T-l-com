@@ -1,4 +1,4 @@
-import type { CurrentUser } from '@/features/auth/schemas';
+import type { CurrentUser } from '@/lib/auth/session';
 import type { Ticket } from './schemas';
 
 export function isElevated(user?: CurrentUser): boolean {

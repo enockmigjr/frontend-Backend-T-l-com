@@ -62,11 +62,10 @@ export function sanitizedUpstreamError(status: number) {
 }
 
 export async function refreshTokens(refreshToken: string): Promise<TokenPair | undefined> {
-  try {
-    const response = await backendJson('/api/v1/auth/refresh', 'POST', { refreshToken });
-    if (!response.ok) return undefined;
-    return tokenPairFromBackend(await parseBackendJson(response));
-  } catch {
-    return undefined;
-  }
+  const response = await backendJson('/api/v1/auth/refresh', 'POST', { refreshToken });
+  if (response.status === 401) return undefined;
+  if (!response.ok) throw new Error(`Refresh backend indisponible (${response.status})`);
+  const tokens = tokenPairFromBackend(await parseBackendJson(response));
+  if (!tokens) throw new Error('Réponse de refresh invalide');
+  return tokens;
 }

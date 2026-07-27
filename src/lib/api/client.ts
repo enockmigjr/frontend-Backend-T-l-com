@@ -20,9 +20,6 @@ export async function apiRequest(path: string, options: ApiRequestOptions = {}):
   const method = options.method ?? 'GET';
   const headers = new Headers(options.headers);
   let body: BodyInit | undefined;
-  if (isMutation(method)) {
-    headers.set('x-csrf-token', await getCsrfToken());
-  }
   if (options.idempotencyKey) headers.set('idempotency-key', options.idempotencyKey);
   if (!options.body) {
     body = undefined;
@@ -32,24 +29,31 @@ export async function apiRequest(path: string, options: ApiRequestOptions = {}):
     if (!headers.has('content-type')) headers.set('content-type', 'application/json');
     body = JSON.stringify(options.body);
   }
-  const response = await fetch(path, {
-    method,
-    body,
-    headers,
-    signal: options.signal,
-    credentials: 'same-origin',
-    cache: 'no-store',
-  });
-  const rotatedCsrfToken = response.headers.get('x-csrf-token');
-  if (rotatedCsrfToken) csrfToken = rotatedCsrfToken;
-  if (!response.ok) {
-    const payload: unknown = await response.json().catch(() => null);
-    if (response.status === 403 && toApiProblem(payload, 'Accès refusé').code === 'CSRF_INVALID') resetCsrfToken();
-    throw new ApiError(response.status, toApiProblem(payload, `La requête a échoué (${response.status}).`));
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    if (isMutation(method)) headers.set('x-csrf-token', await getCsrfToken());
+    const response = await fetch(path, {
+      method,
+      body,
+      headers,
+      signal: options.signal,
+      credentials: 'same-origin',
+      cache: 'no-store',
+    });
+    const rotatedCsrfToken = response.headers.get('x-csrf-token');
+    if (rotatedCsrfToken) csrfToken = rotatedCsrfToken;
+    if (!response.ok) {
+      const payload: unknown = await response.json().catch(() => null);
+      const problem = toApiProblem(payload, `La requête a échoué (${response.status}).`);
+      if (response.status === 403 && problem.code === 'CSRF_INVALID' && attempt === 0) {
+        resetCsrfToken();
+        continue;
+      }
+      throw new ApiError(response.status, problem);
+    }
+    if (response.status === 204) return undefined;
+    return response.json();
   }
-  if (response.status === 204) return undefined;
-  const payload: unknown = await response.json();
-  return payload;
+  throw new ApiError(403, { code: 'CSRF_INVALID', message: 'Protection CSRF invalide.' });
 }
 
 async function getCsrfToken(): Promise<string> {

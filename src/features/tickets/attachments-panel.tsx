@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Download, Paperclip, Trash2, Upload } from 'lucide-react';
 import { useRef } from 'react';
 import { ErrorAlert } from '@/features/auth/error-alert';
+import { useCurrentUser } from '@/features/auth/use-current-user';
 import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { toast } from '@/components/ui/toast';
@@ -13,6 +14,7 @@ import { ticketKeys } from './query-keys';
 
 export function AttachmentsPanel({ ticketId }: Readonly<{ ticketId: string }>) {
   const client = useQueryClient();
+  const user = useCurrentUser();
   const input = useRef<HTMLInputElement>(null);
   const attachments = useQuery({
     queryKey: ticketKeys.attachments(ticketId),
@@ -38,7 +40,7 @@ export function AttachmentsPanel({ ticketId }: Readonly<{ ticketId: string }>) {
     <section className="rounded-xl border bg-card p-4 shadow-sm" aria-labelledby="attachments-title">
       <div className="flex items-center justify-between gap-3">
         <h2 id="attachments-title" className="flex items-center gap-2 font-semibold"><Paperclip />Pièces jointes</h2>
-        <Button variant="outline" size="sm" render={<label className="cursor-pointer" />}>
+        <Button nativeButton={false} variant="outline" size="sm" render={<label className="cursor-pointer" />}>
           <Upload />{upload.isPending ? 'Envoi…' : 'Ajouter'}
           <input
             ref={input}
@@ -64,14 +66,16 @@ export function AttachmentsPanel({ ticketId }: Readonly<{ ticketId: string }>) {
               <p className="text-xs text-muted-foreground">{formatBytes(file.fileSize)} · {formatDate(file.createdAt)}</p>
             </div>
             <div className="flex gap-1">
-              <Button variant="outline" size="icon" render={<a href={`/api/v1/attachments/${file.id}/download`} />} aria-label={`Télécharger ${file.originalFilename}`}><Download /></Button>
-              <ConfirmDialog
-                trigger={<Button variant="ghost" size="icon" aria-label={`Supprimer ${file.originalFilename}`}><Trash2 /></Button>}
-                title="Supprimer cette pièce jointe ?"
-                description="Le fichier ne sera plus disponible dans le ticket."
-                confirmLabel="Supprimer"
-                onConfirm={() => remove.mutate(file.id)}
-              />
+              <Button nativeButton={false} variant="outline" size="icon" render={<a href={`/api/v1/attachments/${file.id}/download`} />} aria-label={`Télécharger ${file.originalFilename}`}><Download /></Button>
+              {file.uploadedBy === user.data?.id || user.data?.role === 'SUPERVISOR' || user.data?.role === 'ADMINISTRATOR' ? (
+                <ConfirmDialog
+                  trigger={<Button variant="ghost" size="icon" aria-label={`Supprimer ${file.originalFilename}`}><Trash2 /></Button>}
+                  title="Supprimer cette pièce jointe ?"
+                  description="Le fichier ne sera plus disponible dans le ticket."
+                  confirmLabel="Supprimer"
+                  onConfirm={() => remove.mutate(file.id)}
+                />
+              ) : null}
             </div>
           </li>
         ))}

@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import { z } from 'zod';
 import { ticketKeys } from '@/features/tickets/query-keys';
+import { apiRequest } from '@/lib/api/client';
 
 const ticketPayloadSchema = z.object({ ticketId: z.string().uuid().optional(), eventId: z.string().uuid().optional() });
 const notificationPayloadSchema = z.object({ id: z.string().uuid().optional() });
@@ -51,6 +52,7 @@ export function useRealtimeSync(ticketId?: string) {
     const socket = io('/ws', { withCredentials: true, transports: ['websocket', 'polling'] });
     const acceptEvent = createEventDeduplicator();
     let hasConnected = false;
+    let refreshAttempted = false;
     const onTicket = (raw: unknown) => {
       const parsed = ticketPayloadSchema.safeParse(raw);
       if (!parsed.success) return;
@@ -72,6 +74,7 @@ export function useRealtimeSync(ticketId?: string) {
       void client.invalidateQueries({ queryKey: ['notifications'] });
     };
     const onConnect = () => {
+      refreshAttempted = false;
       setConnection('connected');
       setLastSyncedAt(new Date());
       if (hasConnected) {
@@ -81,6 +84,14 @@ export function useRealtimeSync(ticketId?: string) {
     };
     const onDisconnect = () => setConnection(navigator.onLine && socket.active ? 'reconnecting' : 'offline');
     const onReconnectAttempt = () => setConnection(navigator.onLine ? 'reconnecting' : 'offline');
+    const onConnectError = () => {
+      onReconnectAttempt();
+      if (refreshAttempted || !navigator.onLine) return;
+      refreshAttempted = true;
+      void apiRequest('/api/auth/refresh', { method: 'POST' })
+        .then(() => socket.connect())
+        .catch(() => undefined);
+    };
     const onOffline = () => setConnection('offline');
     const onOnline = () => {
       if (!socket.connected) setConnection('reconnecting');
@@ -89,7 +100,7 @@ export function useRealtimeSync(ticketId?: string) {
     socket.on('notification.created', onNotification);
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
-    socket.on('connect_error', onReconnectAttempt);
+    socket.on('connect_error', onConnectError);
     socket.io.on('reconnect_attempt', onReconnectAttempt);
     window.addEventListener('offline', onOffline);
     window.addEventListener('online', onOnline);
@@ -98,7 +109,7 @@ export function useRealtimeSync(ticketId?: string) {
       socket.off('notification.created', onNotification);
       socket.off('connect', onConnect);
       socket.off('disconnect', onDisconnect);
-      socket.off('connect_error', onReconnectAttempt);
+      socket.off('connect_error', onConnectError);
       socket.io.off('reconnect_attempt', onReconnectAttempt);
       window.removeEventListener('offline', onOffline);
       window.removeEventListener('online', onOnline);

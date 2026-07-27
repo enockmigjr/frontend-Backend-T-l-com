@@ -1,4 +1,4 @@
-import { authenticatedDestination } from '@/features/auth/login-form';
+import { authenticatedDestination } from '@/features/auth/redirects';
 
 describe('destination après connexion', () => {
   it.each([

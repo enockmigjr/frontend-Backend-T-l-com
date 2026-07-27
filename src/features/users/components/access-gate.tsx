@@ -1,6 +1,6 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { getCurrentUser, type CurrentUser } from '@/lib/auth/session';
+import type { CurrentUser } from '@/lib/auth/session';
+import { useCurrentUser as useSessionUser } from '@/features/auth/use-current-user';
 import { ErrorState, LoadingState } from './async-state';
 
 export function AccessGate({
@@ -26,18 +26,8 @@ export function AccessGate({
 }
 
 export function useCurrentUser() {
-  const [user, setUser] = useState<CurrentUser>();
-  const [failed, setFailed] = useState(false);
-  useEffect(() => {
-    const controller = new AbortController();
-    void getCurrentUser(controller.signal)
-      .then(setUser)
-      .catch(() => {
-        if (!controller.signal.aborted) setFailed(true);
-      });
-    return () => controller.abort();
-  }, []);
-  return { user, failed } as const;
+  const query = useSessionUser();
+  return { user: query.data, failed: query.isError } as const;
 }
 
 export const isAdmin = (user: CurrentUser) => user.role === 'ADMINISTRATOR';

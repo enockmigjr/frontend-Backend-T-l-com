@@ -1,17 +1,28 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { LoaderCircle, ShieldCheck } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { ArrowLeft, LoaderCircle, LogOut, ShieldCheck } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { changePassword } from './api';
 import { ErrorAlert } from './error-alert';
 import { changePasswordSchema, type ChangePasswordInput } from './schemas';
+import { getCurrentUser } from '@/lib/auth/session';
+import { authenticatedDestination, safeReturnPath } from './redirects';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useCurrentUser } from './use-current-user';
+import { useSessionActions } from './use-session-actions';
 
 export function ChangePasswordForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [error, setError] = useState<unknown>();
+  const currentUser = useCurrentUser();
+  const session = useSessionActions();
+  const mustLeaveSession = currentUser.isError || currentUser.data?.mustChangePassword;
   const {
     register,
     handleSubmit,
@@ -22,7 +33,8 @@ export function ChangePasswordForm() {
     setError(undefined);
     try {
       await changePassword(values);
-      router.replace('/tickets');
+      const user = await getCurrentUser();
+      router.replace(safeReturnPath(searchParams.get('retour')) ?? authenticatedDestination(user.role));
       router.refresh();
     } catch (caught) {
       setError(caught);
@@ -31,6 +43,23 @@ export function ChangePasswordForm() {
 
   return (
     <form className="space-y-4" onSubmit={handleSubmit(submit)} noValidate>
+      <Button
+        type="button"
+        variant="ghost"
+        className="-ml-2"
+        disabled={currentUser.isPending || session.pending}
+        onClick={() => {
+          if (mustLeaveSession) void session.logout(false);
+          else router.push(safeReturnPath(searchParams.get('retour')) ?? '/settings');
+        }}
+      >
+        {mustLeaveSession ? <LogOut /> : <ArrowLeft />}
+        {currentUser.isPending
+          ? 'Vérification…'
+          : mustLeaveSession
+            ? 'Annuler et se déconnecter'
+            : 'Retour aux paramètres'}
+      </Button>
       {error ? <ErrorAlert error={error} /> : null}
       {(['currentPassword', 'newPassword', 'confirmation'] as const).map((name) => {
         const labels = {
@@ -41,16 +70,14 @@ export function ChangePasswordForm() {
         const errorId = `${name}-error`;
         return (
           <div key={name}>
-            <label className="mb-1.5 block text-sm font-medium" htmlFor={name}>
-              {labels[name]}
-            </label>
-            <input
+            <Label className="mb-2" htmlFor={name}>{labels[name]}</Label>
+            <Input
               id={name}
               type="password"
               autoComplete={name === 'currentPassword' ? 'current-password' : 'new-password'}
               aria-invalid={Boolean(errors[name])}
               aria-describedby={errors[name] ? errorId : undefined}
-              className="min-h-11 w-full rounded-lg border px-3 py-2.5"
+              className="h-11"
               {...register(name)}
             />
             {errors[name] ? (
@@ -61,12 +88,14 @@ export function ChangePasswordForm() {
           </div>
         );
       })}
-      <p className="text-xs text-slate-600">
-        8 caractères minimum avec majuscule, minuscule, chiffre et caractère spécial.
-      </p>
-      <button
+      <div className="rounded-lg border bg-muted/50 p-3 text-xs leading-5 text-muted-foreground">
+        8 caractères minimum · une majuscule · une minuscule · un chiffre · un caractère spécial
+      </div>
+      <Button
+        type="submit"
         disabled={isSubmitting}
-        className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-blue-700 px-4 py-2.5 font-semibold text-white disabled:opacity-60"
+        size="lg"
+        className="w-full bg-blue-700 hover:bg-blue-800"
       >
         {isSubmitting ? (
           <LoaderCircle className="animate-spin" aria-hidden size={19} />
@@ -74,7 +103,7 @@ export function ChangePasswordForm() {
           <ShieldCheck aria-hidden size={19} />
         )}
         {isSubmitting ? 'Mise à jour…' : 'Mettre à jour'}
-      </button>
+      </Button>
     </form>
   );
 }

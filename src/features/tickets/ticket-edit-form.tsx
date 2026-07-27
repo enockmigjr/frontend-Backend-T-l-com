@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { ErrorAlert } from '@/features/auth/error-alert';
-import type { CurrentUser } from '@/features/auth/schemas';
+import type { CurrentUser } from '@/lib/auth/session';
 import { ticketsApi } from './api';
 import { editableFields } from './permissions';
 import { ticketKeys } from './query-keys';

@@ -1,4 +1,4 @@
-import type { CurrentUser } from '@/features/auth/schemas';
+import type { CurrentUser } from '@/lib/auth/session';
 import {
   canDeleteTicket,
   canEditTicket,
@@ -13,6 +13,8 @@ const otherId = '550e8400-e29b-41d4-a716-446655440001';
 const baseUser: CurrentUser = {
   id,
   email: 'agent@example.test',
+  firstName: 'Test',
+  lastName: 'Agent',
   departmentId: id,
   role: 'CUSTOMER_SERVICE_AGENT',
   mustChangePassword: false,

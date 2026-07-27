@@ -69,7 +69,10 @@ export function DiscussionPanel({ ticketId }: Readonly<{ ticketId: string }>) {
         {active.isPending ? <p role="status">Chargement…</p> : null}
         {active.error ? <ErrorAlert error={active.error} /> : null}
         {active.data?.data.map((entry) => {
-          const canManage = entry.authorId === user.data?.id || user.data?.role === 'ADMINISTRATOR';
+          const canManage =
+            entry.authorId === user.data?.id ||
+            user.data?.role === 'SUPERVISOR' ||
+            user.data?.role === 'ADMINISTRATOR';
           return (
             <article key={entry.id} className={`rounded-lg border p-3 ${mode === 'notes' ? 'border-amber-200 bg-amber-50' : 'bg-muted/45'}`}>
               <header className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">

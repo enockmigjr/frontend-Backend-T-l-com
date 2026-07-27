@@ -1,5 +1,7 @@
 import { AppShell } from '@/components/layout/app-shell';
+import { cookies } from 'next/headers';
 
-export default function PortalLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <AppShell>{children}</AppShell>;
+export default async function PortalLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const store = await cookies();
+  return <AppShell sidebarDefaultOpen={store.get('sidebar_state')?.value !== 'false'}>{children}</AppShell>;
 }

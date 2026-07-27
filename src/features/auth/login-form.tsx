@@ -2,21 +2,23 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Eye, EyeOff, LoaderCircle, LogIn } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useState, useSyncExternalStore } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 import { useForm } from 'react-hook-form';
 import { login } from './api';
 import { ErrorAlert } from './error-alert';
 import { loginSchema, type LoginInput } from './schemas';
+import { getCurrentUser } from '@/lib/auth/session';
+import { authenticatedDestination, safeReturnPath } from './redirects';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const subscribeToHydration = () => () => undefined;
 
-export function authenticatedDestination(role: Awaited<ReturnType<typeof login>>['role']): string {
-  return role === 'ADMINISTRATOR' || role === 'SUPERVISOR' ? '/dashboard' : '/tickets';
-}
-
 export function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [error, setError] = useState<unknown>();
   const isHydrated = useSyncExternalStore(
     subscribeToHydration,
@@ -29,12 +31,22 @@ export function LoginForm() {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<LoginInput>({ resolver: zodResolver(loginSchema) });
+  const returnPath = safeReturnPath(searchParams.get('retour'));
+
+  useEffect(() => {
+    const controller = new AbortController();
+    void getCurrentUser(controller.signal)
+      .then((user) => router.replace(returnPath ?? authenticatedDestination(user.role)))
+      .catch(() => undefined);
+    return () => controller.abort();
+  }, [returnPath, router]);
 
   async function submit(values: LoginInput) {
     setError(undefined);
     try {
       const user = await login(values);
-      router.replace(user.mustChangePassword ? '/change-password' : authenticatedDestination(user.role));
+      const destination = returnPath ?? authenticatedDestination(user.role);
+      router.replace(user.mustChangePassword ? `/change-password?retour=${encodeURIComponent(destination)}` : destination);
       router.refresh();
     } catch (caught) {
       setError(caught);
@@ -45,17 +57,15 @@ export function LoginForm() {
     <form className="space-y-5" onSubmit={handleSubmit(submit)} noValidate>
       {error ? <ErrorAlert error={error} /> : null}
       <div>
-        <label className="mb-1.5 block text-sm font-medium" htmlFor="email">
-          Adresse email
-        </label>
-        <input
+        <Label className="mb-2" htmlFor="email">Adresse email</Label>
+        <Input
           id="email"
           type="email"
           autoComplete="username"
           autoFocus
           aria-invalid={Boolean(errors.email)}
           aria-describedby={errors.email ? 'email-error' : undefined}
-          className="min-h-11 w-full rounded-lg border px-3 py-2.5"
+          className="h-11"
           {...register('email')}
         />
         {errors.email ? (
@@ -65,27 +75,27 @@ export function LoginForm() {
         ) : null}
       </div>
       <div>
-        <label className="mb-1.5 block text-sm font-medium" htmlFor="password">
-          Mot de passe
-        </label>
+        <Label className="mb-2" htmlFor="password">Mot de passe</Label>
         <div className="relative">
-          <input
+          <Input
             id="password"
             type={showPassword ? 'text' : 'password'}
             autoComplete="current-password"
             aria-invalid={Boolean(errors.password)}
             aria-describedby={errors.password ? 'password-error' : undefined}
-            className="min-h-11 w-full rounded-lg border px-3 py-2.5 pr-11"
+            className="h-11 pr-11"
             {...register('password')}
           />
-          <button
+          <Button
             type="button"
-            className="absolute inset-y-0 right-0 min-h-11 min-w-11 px-3"
+            variant="ghost"
+            size="icon"
+            className="absolute right-0 top-0 size-11"
             onClick={() => setShowPassword((shown) => !shown)}
             aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
           >
             {showPassword ? <EyeOff aria-hidden size={19} /> : <Eye aria-hidden size={19} />}
-          </button>
+          </Button>
         </div>
         {errors.password ? (
           <p id="password-error" className="mt-1 text-sm text-red-700">
@@ -93,9 +103,11 @@ export function LoginForm() {
           </p>
         ) : null}
       </div>
-      <button
+      <Button
+        type="submit"
         disabled={!isHydrated || isSubmitting}
-        className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-blue-700 px-4 py-2.5 font-semibold text-white disabled:opacity-60"
+        size="lg"
+        className="w-full bg-blue-700 hover:bg-blue-800"
       >
         {isSubmitting ? (
           <LoaderCircle className="animate-spin" aria-hidden size={19} />
@@ -103,7 +115,10 @@ export function LoginForm() {
           <LogIn aria-hidden size={19} />
         )}
         {isSubmitting ? 'Connexion…' : 'Se connecter'}
-      </button>
+      </Button>
+      <p className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+        <span className="size-1.5 rounded-full bg-emerald-500" />Connexion chiffrée et session protégée
+      </p>
     </form>
   );
 }

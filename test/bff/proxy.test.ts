@@ -8,11 +8,16 @@ import { proxyToBackend } from '@/lib/api/server-proxy';
 
 const fetchMock = jest.fn<Promise<Response>, [Request | URL | string, RequestInit?]>();
 
-function request(method: string, csrfToken?: string): NextRequest {
+function request(method: string, csrfToken?: string, accessToken = 'access-secret'): NextRequest {
+  const cookies = [
+    accessToken ? `access_token=${accessToken}` : '',
+    'itsm-refresh-token=refresh-secret',
+    csrfToken ? `itsm-csrf-token=${csrfToken}` : '',
+  ].filter(Boolean);
   const headers = new Headers({
     host: 'localhost:3000',
     origin: 'http://localhost:3000',
-    cookie: `access_token=access-secret; itsm-refresh-token=refresh-secret${csrfToken ? `; itsm-csrf-token=${csrfToken}` : ''}`,
+    cookie: cookies.join('; '),
   });
   if (csrfToken) headers.set('x-csrf-token', csrfToken);
   if (method === 'POST') headers.set('content-type', 'application/json');
@@ -66,6 +71,55 @@ describe('proxy HTTP du BFF', () => {
     const response = await proxyToBackend(request('POST', csrf), ['tickets']);
     expect(response.status).toBe(401);
     expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('renouvelle la session avant un GET quand le cookie access a expiré', async () => {
+    fetchMock
+      .mockResolvedValueOnce(
+        Response.json({ data: { accessToken: 'access-next', refreshToken: 'refresh-next', expiresIn: 900 } }),
+      )
+      .mockResolvedValueOnce(Response.json({ success: true, data: [] }));
+
+    const response = await proxyToBackend(request('GET', undefined, ''), ['tickets']);
+
+    expect(response.status).toBe(200);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    const upstream = fetchMock.mock.calls[1]?.[0];
+    expect(upstream).toBeInstanceOf(Request);
+    if (!(upstream instanceof Request)) throw new Error('Expected a Request');
+    expect(upstream.headers.get('authorization')).toBe('Bearer access-next');
+    expect(response.cookies.get('access_token')?.value).toBe('access-next');
+    expect(response.cookies.get('itsm-refresh-token')?.value).toBe('refresh-next');
+    expect(response.headers.get('x-csrf-token')).toBeTruthy();
+  });
+
+  it('renouvelle avant une mutation sans rejouer son body', async () => {
+    const csrf = createCsrfToken('refresh-secret');
+    fetchMock
+      .mockResolvedValueOnce(
+        Response.json({ data: { accessToken: 'access-next', refreshToken: 'refresh-next', expiresIn: 900 } }),
+      )
+      .mockResolvedValueOnce(Response.json({ success: true, data: { id: 'ticket-1' } }, { status: 201 }));
+
+    const response = await proxyToBackend(request('POST', csrf, ''), ['tickets']);
+
+    expect(response.status).toBe(201);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    const upstream = fetchMock.mock.calls[1]?.[0];
+    if (!(upstream instanceof Request)) throw new Error('Expected a Request');
+    expect(upstream.headers.get('authorization')).toBe('Bearer access-next');
+    expect(await upstream.json()).toEqual({ title: 'Incident' });
+  });
+
+  it('purge la session quand le refresh est refusé', async () => {
+    fetchMock.mockResolvedValueOnce(new Response(null, { status: 401 }));
+
+    const response = await proxyToBackend(request('GET', undefined, ''), ['tickets']);
+
+    expect(response.status).toBe(401);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(response.cookies.get('access_token')?.value).toBe('');
+    expect(response.cookies.get('itsm-refresh-token')?.value).toBe('');
   });
 
   it('bloque les routes capables d’exposer les jetons', async () => {

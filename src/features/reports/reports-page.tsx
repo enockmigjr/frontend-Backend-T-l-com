@@ -61,7 +61,7 @@ export function ReportsPage() {
     },
     {
       key: 'result', label: 'Résultat', cell: (item) => item.status === 'completed' ? (
-        <Button variant="outline" size="sm" render={<a href={`/api/v1/reports/${item.id}/download`} />}>
+        <Button nativeButton={false} variant="outline" size="sm" render={<a href={`/api/v1/reports/${item.id}/download`} />}>
           <Download />Télécharger
         </Button>
       ) : item.status === 'failed' ? (item.errorMessage || 'Échec sans détail') : 'Le statut est actualisé automatiquement',

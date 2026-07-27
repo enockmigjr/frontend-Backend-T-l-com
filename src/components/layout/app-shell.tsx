@@ -12,7 +12,10 @@ import { Button } from '@/components/ui/button';
 import { AppSidebar } from './app-sidebar';
 import { AppTopbar } from './app-topbar';
 
-export function AppShell({ children }: Readonly<{ children: React.ReactNode }>) {
+export function AppShell({
+  children,
+  sidebarDefaultOpen,
+}: Readonly<{ children: React.ReactNode; sidebarDefaultOpen: boolean }>) {
   const pathname = usePathname();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -61,9 +64,9 @@ export function AppShell({ children }: Readonly<{ children: React.ReactNode }>) 
   }
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={sidebarDefaultOpen}>
       <AppSidebar user={userQuery.data} />
-      <SidebarInset className="min-w-0 bg-[#f5f7fa]">
+      <SidebarInset className="min-w-0 bg-muted/35">
         <AppTopbar user={userQuery.data} />
         <main id="contenu" className="w-full flex-1 p-4 sm:p-6 lg:p-8">
           <div className="mx-auto w-full max-w-[100rem]">{children}</div>
@@ -75,8 +78,8 @@ export function AppShell({ children }: Readonly<{ children: React.ReactNode }>) 
 
 function ShellSkeleton() {
   return (
-    <div className="flex min-h-dvh bg-[#f5f7fa]">
-      <div className="hidden w-64 border-r bg-white p-4 md:block">
+    <div className="flex min-h-dvh bg-muted/35">
+      <div className="hidden w-64 border-r bg-background p-4 md:block">
         <Skeleton className="h-10 w-40" />
         <div className="mt-10 space-y-3">
           {Array.from({ length: 7 }, (_, index) => (
@@ -85,7 +88,7 @@ function ShellSkeleton() {
         </div>
       </div>
       <div className="flex-1">
-        <div className="h-16 border-b bg-white" />
+        <div className="h-16 border-b bg-background" />
         <div className="space-y-5 p-6">
           <Skeleton className="h-9 w-72" />
           <Skeleton className="h-32 w-full" />

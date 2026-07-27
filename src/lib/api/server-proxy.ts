@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
 import { backendUrl, refreshTokens } from './server-client';
-import { readAccessToken, readRefreshToken, setSessionCookies } from '@/lib/auth/cookies';
+import { clearSessionCookies, readAccessToken, readRefreshToken, setSessionCookies } from '@/lib/auth/cookies';
 import { issueCsrfToken, verifyCsrf } from '@/lib/auth/csrf';
 import { csrfFailure, gatewayFailure, noStoreJson, unauthorized } from '@/lib/auth/responses';
 import { withRefreshLock } from '@/lib/auth/refresh-lock';
@@ -103,6 +103,25 @@ function fromUpstream(upstream: Response): NextResponse {
   return new NextResponse(upstream.body, { status: upstream.status, headers: responseHeaders(upstream) });
 }
 
+async function refreshedProxy(
+  request: NextRequest,
+  segments: readonly string[],
+  refreshToken: string,
+): Promise<NextResponse> {
+  const tokens = await withRefreshLock(refreshToken, () => refreshTokens(refreshToken));
+  if (!tokens) {
+    const response = unauthorized();
+    clearSessionCookies(response);
+    return response;
+  }
+  const upstream = await sendUpstream(request, segments, tokens.accessToken);
+  const response = fromUpstream(upstream);
+  setSessionCookies(response, tokens);
+  const csrfToken = issueCsrfToken(response, tokens.refreshToken);
+  response.headers.set('x-csrf-token', csrfToken);
+  return response;
+}
+
 export async function proxyToBackend(request: NextRequest, segments: readonly string[]): Promise<NextResponse> {
   if (!validSegments(segments) || isBlockedAuthRoute(segments)) {
     return noStoreJson({ success: false, error: { code: 'ROUTE_NOT_FOUND', message: 'Route introuvable.' } }, 404);
@@ -110,22 +129,22 @@ export async function proxyToBackend(request: NextRequest, segments: readonly st
   if (!SAFE_METHODS.has(request.method) && !verifyCsrf(request)) return csrfFailure();
 
   const accessToken = readAccessToken(request);
-  if (!accessToken) return unauthorized();
+  const refreshToken = readRefreshToken(request);
+  if (!accessToken) {
+    if (!refreshToken) return unauthorized();
+    try {
+      return await refreshedProxy(request, segments, refreshToken);
+    } catch {
+      return gatewayFailure();
+    }
+  }
   try {
     let upstream = await sendUpstream(request, segments, accessToken);
     if (upstream.status !== 401 || !SAFE_METHODS.has(request.method)) return fromUpstream(upstream);
 
-    const refreshToken = readRefreshToken(request);
     if (!refreshToken) return fromUpstream(upstream);
     await upstream.body?.cancel();
-    const tokens = await withRefreshLock(refreshToken, () => refreshTokens(refreshToken));
-    if (!tokens) return unauthorized();
-    upstream = await sendUpstream(request, segments, tokens.accessToken);
-    const response = fromUpstream(upstream);
-    setSessionCookies(response, tokens);
-    const csrfToken = issueCsrfToken(response, tokens.refreshToken);
-    response.headers.set('x-csrf-token', csrfToken);
-    return response;
+    return refreshedProxy(request, segments, refreshToken);
   } catch {
     return gatewayFailure();
   }

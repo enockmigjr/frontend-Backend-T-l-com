@@ -1,7 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Button } from '@/components/ui/button';
-import { FieldFrame, Input } from '@/components/ui/field';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
 
 describe('primitives accessibles', () => {
   it('active un bouton au clavier', async () => {
@@ -14,9 +15,11 @@ describe('primitives accessibles', () => {
 
   it('associe le libellé et l’erreur au champ', () => {
     render(
-      <FieldFrame id="title" label="Titre" error="Le titre est requis">
+      <Field>
+        <FieldLabel htmlFor="title">Titre</FieldLabel>
         <Input id="title" aria-describedby="title-error" />
-      </FieldFrame>,
+        <FieldError id="title-error">Le titre est requis</FieldError>
+      </Field>,
     );
     expect(screen.getByLabelText('Titre')).toHaveAccessibleDescription('Le titre est requis');
   });
