@@ -8,6 +8,7 @@ export function AuditPagination({
   totalPages,
   total,
   limit,
+  pending,
   onPageChange,
   onLimitChange,
 }: Readonly<{
@@ -15,6 +16,7 @@ export function AuditPagination({
   totalPages: number;
   total: number;
   limit: number;
+  pending: boolean;
   onPageChange: (page: number) => void;
   onLimitChange: (limit: number) => void;
 }>) {
@@ -28,16 +30,29 @@ export function AuditPagination({
           Par page
           <select
             value={limit}
+            disabled={pending}
             onChange={(event) => onLimitChange(Number(event.target.value))}
             className="h-9 rounded-lg border bg-background px-2 text-foreground"
           >
             {[10, 20, 50, 100].map((value) => <option key={value}>{value}</option>)}
           </select>
         </label>
-        <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => onPageChange(page - 1)}>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={pending || page <= 1}
+          onClick={() => onPageChange(page - 1)}
+        >
           <ChevronLeft />Précédent
         </Button>
-        <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => onPageChange(page + 1)}>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={pending || page >= totalPages}
+          onClick={() => onPageChange(page + 1)}
+        >
           Suivant<ChevronRight />
         </Button>
       </div>

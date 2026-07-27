@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
 import { auditSchema } from '@/features/users/api/validation';
 import { AdminSection } from '@/features/users/components/admin-section';
@@ -24,6 +24,7 @@ export function AuditPage() {
   const query = useQuery({
     queryKey: ['audit', filters.toString()],
     queryFn: ({ signal }) => listAudit(filters, signal),
+    placeholderData: keepPreviousData,
   });
 
   function filter(formData: FormData) {
@@ -165,10 +166,11 @@ export function AuditPage() {
         <div className="grid gap-3">
           <DataTable rows={query.data.data} columns={columns} getRowKey={(item) => item.id} caption="Journal d’audit" />
           <AuditPagination
-            page={query.data.meta.page}
+            page={Number(filters.get('page') ?? query.data.meta.page)}
             totalPages={query.data.meta.totalPages}
             total={query.data.meta.total}
             limit={query.data.meta.limit}
+            pending={query.isFetching}
             onPageChange={(page) => updatePagination('page', page)}
             onLimitChange={(limit) => updatePagination('limit', limit)}
           />
