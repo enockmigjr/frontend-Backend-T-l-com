@@ -1,7 +1,23 @@
+/**
+ * ============================================================================
+ * FICHIER : frontend/src/lib/api/client.ts
+ * RÔLE : Client HTTP centralisé du Frontend React / Next.js (`apiRequest`).
+ * EXPLICATION (Pour non-développeurs) :
+ * Toutes les requêtes envoyées par le navigateur vers l'API backend passent par ce fichier.
+ * Il gère automatiquement :
+ * 1. L'injection des jetons de protection contre le piratage CSRF (`x-csrf-token`).
+ * 2. La conversion automatique du corps de la requête en JSON.
+ * 3. L'envoi optionnel des clés d'idempotence (`idempotency-key`) pour éviter les doublons.
+ * 4. La gestion propre des erreurs et le renouvellement automatique si un jeton CSRF a expiré.
+ * ============================================================================
+ */
+
 import { ApiError, toApiProblem } from './errors';
 
+/** Types des méthodes HTTP autorisées */
 type ApiMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
+/** Options de requête HTTP */
 export interface ApiRequestOptions {
   readonly method?: ApiMethod;
   readonly body?: BodyInit | Readonly<Record<string, unknown>>;
@@ -10,12 +26,19 @@ export interface ApiRequestOptions {
   readonly idempotencyKey?: string;
 }
 
+/** Jeton CSRF conservé en mémoire pour sécuriser les mutations (POST, PUT, DELETE) */
 let csrfToken: string | null = null;
 
+/**
+ * Réinitialise le jeton CSRF en mémoire.
+ */
 export function resetCsrfToken(): void {
   csrfToken = null;
 }
 
+/**
+ * Fonction universelle `apiRequest()` pour appeler l'API backend depuis le frontend.
+ */
 export async function apiRequest(path: string, options: ApiRequestOptions = {}): Promise<unknown> {
   const method = options.method ?? 'GET';
   const headers = new Headers(options.headers);
@@ -56,6 +79,9 @@ export async function apiRequest(path: string, options: ApiRequestOptions = {}):
   throw new ApiError(403, { code: 'CSRF_INVALID', message: 'Protection CSRF invalide.' });
 }
 
+/**
+ * Récupère le jeton CSRF auprès de l'API s'il n'est pas déjà présent en mémoire.
+ */
 async function getCsrfToken(): Promise<string> {
   if (csrfToken) return csrfToken;
   const response = await fetch('/api/auth/csrf', { credentials: 'same-origin', cache: 'no-store' });
@@ -65,11 +91,19 @@ async function getCsrfToken(): Promise<string> {
   return csrfToken;
 }
 
+/**
+ * Indique si la méthode HTTP modifie des données (mutation).
+ */
 function isMutation(method: ApiMethod): boolean {
   return method !== 'GET';
 }
+
+/**
+ * Vérifie si la réponse reçue contient un jeton CSRF valide.
+ */
 function isCsrfPayload(value: unknown): value is { data: { csrfToken: string } } {
   if (typeof value !== 'object' || value === null || !('data' in value)) return false;
   const data = value.data;
   return typeof data === 'object' && data !== null && 'csrfToken' in data && typeof data.csrfToken === 'string';
 }
+
