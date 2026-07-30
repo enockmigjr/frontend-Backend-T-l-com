@@ -13,6 +13,7 @@ export const statusSchema = z.enum([
   'REOPENED',
   'CANCELLED',
 ]);
+export const actorTypeSchema = z.enum(['INTERNAL', 'EXTERNAL_REQUESTER', 'SYSTEM']);
 
 export const ticketListItemSchema = z.object({
   id: z.string().uuid(),
@@ -46,7 +47,13 @@ export const ticketSchema = ticketListItemSchema
     description: z.string(),
     assignedTeamId: z.string().uuid(),
     departmentId: z.string().uuid(),
-    createdBy: z.string().uuid(),
+    createdBy: z.string().uuid().nullable(),
+    openedByUserId: z.string().uuid().nullable().optional(),
+    requesterId: z.string().uuid().nullable().optional(),
+    supportIntegrationId: z.string().uuid().nullable().optional(),
+    requesterName: z.string().nullable().optional(),
+    integrationName: z.string().nullable().optional(),
+    sourceChannel: z.enum(['INTERNAL', 'WEB_PORTAL', 'WIDGET', 'WORDPRESS', 'EMAIL', 'WHATSAPP', 'API']).optional(),
     slaPolicyId: z.string().uuid(),
     tags: z.string().nullable().optional(),
     customerAccountNumber: z.string().nullable().optional(),
@@ -64,7 +71,7 @@ export const ticketSchema = ticketListItemSchema
     department: namedEntitySchema.optional(),
     assignedTeam: namedEntitySchema.optional(),
     assignee: userSchema.optional(),
-    creator: userSchema.optional(),
+    creator: userSchema.nullable().optional(),
     creatorName: z.string().nullable().optional(),
   })
   .passthrough();
@@ -72,13 +79,17 @@ export const ticketSchema = ticketListItemSchema
 export const commentSchema = z.object({
   id: z.string().uuid(),
   ticketId: z.string().uuid(),
-  authorId: z.string().uuid(),
+  authorId: z.string().uuid().nullable(),
+  actorType: actorTypeSchema.default('INTERNAL'),
+  externalRequesterId: z.string().uuid().nullable().optional(),
+  supportIntegrationId: z.string().uuid().nullable().optional(),
   content: z.string(),
   createdAt: z.string(),
   updatedAt: z.string(),
-  authorFirstName: z.string().optional(),
-  authorLastName: z.string().optional(),
-  authorRole: z.string().optional(),
+  authorFirstName: z.string().nullable().optional(),
+  authorLastName: z.string().nullable().optional(),
+  authorRole: z.string().nullable().optional(),
+  requesterName: z.string().nullable().optional(),
 });
 export const noteSchema = commentSchema.extend({
   updatedAt: z.string().optional(),
@@ -90,17 +101,24 @@ export const attachmentSchema = z
     originalFilename: z.string(),
     mimeType: z.string(),
     fileSize: z.number(),
-    uploadedBy: z.string().uuid(),
+    uploadedBy: z.string().uuid().nullable(),
+    actorType: actorTypeSchema.default('INTERNAL'),
+    externalRequesterId: z.string().uuid().nullable().optional(),
+    supportIntegrationId: z.string().uuid().nullable().optional(),
     ticketId: z.string().uuid().nullable().optional(),
     commentId: z.string().uuid().nullable().optional(),
     internalNoteId: z.string().uuid().nullable().optional(),
+    supportMessageId: z.string().uuid().nullable().optional(),
     createdAt: z.string(),
   })
   .passthrough();
 export const historySchema = z.object({
   id: z.string().uuid(),
   ticketId: z.string().uuid(),
-  userId: z.string().uuid(),
+  userId: z.string().uuid().nullable(),
+  actorType: actorTypeSchema.default('INTERNAL'),
+  externalRequesterId: z.string().uuid().nullable().optional(),
+  supportIntegrationId: z.string().uuid().nullable().optional(),
   action: z.string(),
   createdAt: z.string(),
   oldValue: z.unknown().nullable().optional(),

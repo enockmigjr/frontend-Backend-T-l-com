@@ -110,7 +110,10 @@ export const settingSchema = z
 export const auditSchema = z
   .object({
     id: z.string().uuid(),
-    userId: z.string().uuid(),
+    userId: z.string().uuid().nullable(),
+    actorType: z.enum(['INTERNAL', 'EXTERNAL_REQUESTER', 'SYSTEM']).default('INTERNAL'),
+    externalRequesterId: z.string().uuid().nullable().optional(),
+    supportIntegrationId: z.string().uuid().nullable().optional(),
     action: z.string(),
     entityType: z.string(),
     entityId: z.string().uuid(),

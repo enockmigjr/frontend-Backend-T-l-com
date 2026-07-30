@@ -11,6 +11,7 @@ import { toast } from '@/components/ui/toast';
 import { ErrorAlert } from '@/features/auth/error-alert';
 import { useCurrentUser } from '@/features/auth/use-current-user';
 import { ticketsApi } from './api';
+import { actorLabel } from './actor-label';
 import { AttachmentPreview } from './attachment-preview';
 import { formatBytes, formatDate } from './presentation';
 import { ticketKeys } from './query-keys';
@@ -267,8 +268,17 @@ function validateFiles(files: readonly File[]): readonly File[] {
     toast.add({ title: 'Certains fichiers ont été ignorés', description: 'Maximum 3 fichiers de 10 Mo.' });
   return valid;
 }
-function entryAuthor(entry: { authorFirstName?: string; authorLastName?: string; authorName?: string }) {
-  return [entry.authorFirstName, entry.authorLastName].filter(Boolean).join(' ') || entry.authorName || 'Utilisateur';
+function entryAuthor(entry: {
+  actorType?: 'INTERNAL' | 'EXTERNAL_REQUESTER' | 'SYSTEM';
+  authorId?: string | null;
+  externalRequesterId?: string | null;
+  authorFirstName?: string | null;
+  authorLastName?: string | null;
+  authorName?: string;
+  requesterName?: string | null;
+}) {
+  const internalName = [entry.authorFirstName, entry.authorLastName].filter(Boolean).join(' ') || entry.authorName;
+  return actorLabel(entry, internalName, entry.requesterName);
 }
 function Tab({
   selected,
@@ -344,6 +354,7 @@ function FileLibrary({
               {formatBytes(file.fileSize)} ·{' '}
               {file.commentId ? 'Commentaire' : file.internalNoteId ? 'Note interne' : 'Ticket'}
             </p>
+            <p className="mt-0.5 text-xs text-muted-foreground">Ajouté par {actorLabel(file)}</p>
             <div className="mt-2 flex justify-end gap-1">
               <AttachmentPreview file={file} />
               <Button

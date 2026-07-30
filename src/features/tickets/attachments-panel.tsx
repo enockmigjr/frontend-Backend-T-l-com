@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { toast } from '@/components/ui/toast';
 import { ticketsApi } from './api';
+import { actorLabel } from './actor-label';
 import { formatBytes, formatDate } from './presentation';
 import { ticketKeys } from './query-keys';
 
@@ -76,6 +77,7 @@ export function AttachmentsPanel({ ticketId }: Readonly<{ ticketId: string }>) {
               <p className="text-xs text-muted-foreground">
                 {formatBytes(file.fileSize)} · {formatDate(file.createdAt)}
               </p>
+              <p className="text-xs text-muted-foreground">Ajouté par {actorLabel(file)}</p>
             </div>
             <div className="flex gap-1">
               <Button

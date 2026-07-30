@@ -17,4 +17,20 @@ describe('schémas de collaboration ticket', () => {
   it('conserve updatedAt obligatoire pour un commentaire', () => {
     expect(commentSchema.safeParse(listedEntry).success).toBe(false);
   });
+
+  it('accepte un commentaire externe sans auteur interne', () => {
+    expect(
+      commentSchema.parse({
+        ...listedEntry,
+        authorId: null,
+        actorType: 'EXTERNAL_REQUESTER',
+        externalRequesterId: '019fa300-b253-7004-84d0-b9972666825f',
+        updatedAt: listedEntry.createdAt,
+      }).actorType,
+    ).toBe('EXTERNAL_REQUESTER');
+  });
+
+  it('applique le fallback INTERNAL aux valeurs legacy', () => {
+    expect(noteSchema.parse(listedEntry).actorType).toBe('INTERNAL');
+  });
 });

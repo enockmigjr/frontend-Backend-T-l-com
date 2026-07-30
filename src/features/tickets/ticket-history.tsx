@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Activity, ArrowRight } from 'lucide-react';
 import { ErrorAlert } from '@/features/auth/error-alert';
 import { ticketsApi } from './api';
+import { actorLabel } from './actor-label';
 import { formatDate } from './presentation';
 import { ticketKeys } from './query-keys';
 
@@ -48,6 +49,7 @@ export function TicketHistory({ ticketId }: Readonly<{ ticketId: string }>) {
             className="relative text-sm before:absolute before:-left-[21px] before:top-1 before:size-2.5 before:rounded-full before:border-2 before:border-background before:bg-primary"
           >
             <p className="font-medium">{actionLabels[entry.action] ?? humanize(entry.action)}</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">{actorLabel(entry)}</p>
             <Change oldValue={entry.oldValue} newValue={entry.newValue} />
             <time className="mt-1 block text-xs text-muted-foreground" dateTime={entry.createdAt}>
               {formatDate(entry.createdAt)}

@@ -15,13 +15,15 @@ export function canOperate(ticket: Ticket, user?: CurrentUser): boolean {
 
 export function canEditTicket(ticket: Ticket, user?: CurrentUser): boolean {
   if (!user) return false;
-  return isElevated(user) || isAssigned(ticket, user) || (ticket.createdBy === user.id && ticket.status === 'NEW');
+  return (
+    isElevated(user) || isAssigned(ticket, user) || (internalOpenerId(ticket) === user.id && ticket.status === 'NEW')
+  );
 }
 
 export function canReopenTicket(ticket: Ticket, user?: CurrentUser, now = Date.now()): boolean {
   if (!user || ticket.status !== 'CLOSED') return false;
   if (isElevated(user)) return true;
-  if (user.role !== 'CUSTOMER_SERVICE_AGENT' || ticket.createdBy !== user.id || !ticket.closedAt) return false;
+  if (user.role !== 'CUSTOMER_SERVICE_AGENT' || internalOpenerId(ticket) !== user.id || !ticket.closedAt) return false;
   return now - new Date(ticket.closedAt).getTime() <= 30 * 24 * 60 * 60 * 1000;
 }
 
@@ -34,10 +36,14 @@ export function editableFields(ticket: Ticket, user?: CurrentUser): ReadonlySet<
   if (!user) return fields;
   const elevated = isElevated(user);
   const assigned = isAssigned(ticket, user);
-  const creatorOfNew = ticket.createdBy === user.id && ticket.status === 'NEW';
+  const creatorOfNew = internalOpenerId(ticket) === user.id && ticket.status === 'NEW';
   if (elevated || assigned || creatorOfNew) fields.add('title').add('description');
   if (elevated || creatorOfNew) fields.add('categoryId');
   if (elevated) fields.add('priority').add('severity');
   if (elevated || assigned) fields.add('tags');
   return fields;
+}
+
+function internalOpenerId(ticket: Ticket): string | null {
+  return ticket.openedByUserId ?? ticket.createdBy;
 }

@@ -14,6 +14,7 @@ import { getAudit, listAudit } from './api';
 import { AuditPagination } from './audit-pagination';
 import { AuditBlock } from './audit-detail';
 import { redact } from './redact';
+import { actorLabel } from '@/features/tickets/actor-label';
 
 type Audit = z.infer<typeof auditSchema>;
 
@@ -72,7 +73,11 @@ export function AuditPage() {
         </>
       ),
     },
-    { key: 'user', label: 'Utilisateur', cell: (item) => <code className="text-xs">{item.userId.slice(0, 8)}</code> },
+    {
+      key: 'user',
+      label: 'Acteur',
+      cell: (item) => <span className="text-xs font-medium">{actorLabel(item)}</span>,
+    },
     {
       key: 'detail',
       label: '',
@@ -143,6 +148,11 @@ export function AuditPage() {
             <AuditBlock title="Avant" value={redact(selected.oldValue)} />
             <AuditBlock title="Après" value={redact(selected.newValue)} />
             <div className="grid gap-3 rounded-lg bg-muted p-4 text-sm sm:grid-cols-2">
+              <p>
+                <span className="text-muted-foreground">Acteur</span>
+                <br />
+                {actorLabel(selected)}
+              </p>
               <p>
                 <span className="text-muted-foreground">Adresse IP</span>
                 <br />

@@ -11,6 +11,7 @@ import { ErrorAlert } from '@/features/auth/error-alert';
 import { RealtimeStatus } from '@/features/realtime/realtime-status';
 import { useRealtimeSync } from '@/features/realtime/use-realtime-sync';
 import { ticketsApi } from './api';
+import { sourceChannelLabel, ticketOpenerLabel } from './actor-label';
 import { DiscussionPanel } from './discussion-panel';
 import { formatDate } from './presentation';
 import { ticketKeys } from './query-keys';
@@ -107,14 +108,14 @@ export function TicketDetail({ id }: Readonly<{ id: string }>) {
               />
               <Info icon={Building2} label="Équipe assignée" value={assignedTeamName} />
               <Info icon={UserRound} label="Agent assigné" value={assignee ?? 'Non assigné'} />
-              <Info
-                icon={UserRoundPlus}
-                label="Créé par"
-                value={
-                  ticket.creatorName ??
-                  (ticket.creator ? `${ticket.creator.firstName} ${ticket.creator.lastName}` : undefined)
-                }
-              />
+              <Info icon={UserRoundPlus} label="Ouvert par" value={ticketOpenerLabel(ticket)} />
+              {ticket.requesterId ? (
+                <Info icon={UserRound} label="Demandeur" value={ticket.requesterName ?? 'Demandeur externe'} />
+              ) : null}
+              <Info icon={Hash} label="Canal" value={sourceChannelLabel(ticket.sourceChannel)} />
+              {ticket.integrationName ? (
+                <Info icon={Building2} label="Intégration" value={ticket.integrationName} />
+              ) : null}
               <Info icon={UserRound} label="Client" value={ticket.customerName ?? 'Non renseigné'} />
               <Info icon={Hash} label="Compte client" value={ticket.customerAccountNumber} />
               <Info icon={Phone} label="Contact client" value={ticket.customerContact} />

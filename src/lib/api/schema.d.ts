@@ -72,6 +72,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/attachments/{id}/preview': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Prévisualiser une pièce jointe visible */
+    get: operations['AttachmentsController_preview'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/audit-logs': {
     parameters: {
       query?: never;
@@ -101,7 +118,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Detail d'un evenement d'audit */
+    /** Détail d'un événement d'audit */
     get: operations['AuditLogsController_findOne'];
     put?: never;
     post?: never;
@@ -733,12 +750,29 @@ export interface paths {
       cookie?: never;
     };
     /**
-     * Telecharger le PDF d un rapport genere
-     * @description Telecharge le fichier PDF du rapport s il est prêt.
+     * Télécharger le PDF d un rapport généré
+     * @description Télécharge le fichier PDF du rapport s il est prêt.
      *
-     *     **Rôles autorises :** ADMINISTRATOR ou le SUPERVISOR ayant demande le rapport
+     *     **Rôles autorisés :** ADMINISTRATOR ou le SUPERVISOR ayant demandé le rapport
      */
     get: operations['ReportsController_downloadReport'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/reports/public/{id}/download': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Télécharger un rapport depuis un lien signé et temporaire */
+    get: operations['PublicReportsController_download'];
     put?: never;
     post?: never;
     delete?: never;
@@ -755,10 +789,10 @@ export interface paths {
       cookie?: never;
     };
     /**
-     * Rapport SLA sur une periode (synchrone — données JSON)
-     * @description Retourne les metriques SLA format JSON.
+     * Rapport SLA sur une période (synchrone — données JSON)
+     * @description Retourne les métriques SLA au format JSON.
      *
-     *     **Rôles autorises :** ADMINISTRATOR, SUPERVISOR
+     *     **Rôles autorisés :** ADMINISTRATOR, SUPERVISOR
      */
     get: operations['ReportsController_slaReport'];
     put?: never;
@@ -779,10 +813,10 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Generer un rapport SLA PDF (asynchrone)
-     * @description Lance la generation en arriere-plan du rapport SLA PDF.
+     * Générer un rapport SLA PDF (asynchrone)
+     * @description Lance la génération en arrière-plan du rapport SLA PDF.
      *
-     *     **Rôles autorises :** ADMINISTRATOR, SUPERVISOR
+     *     **Rôles autorisés :** ADMINISTRATOR, SUPERVISOR
      */
     post: operations['ReportsController_slaReportAsync'];
     delete?: never;
@@ -799,10 +833,10 @@ export interface paths {
       cookie?: never;
     };
     /**
-     * Obtenir les donnees du rapport d un ticket (synchrone — données JSON)
-     * @description Retourne les details du ticket sous format JSON.
+     * Obtenir les données du rapport d un ticket (synchrone — données JSON)
+     * @description Retourne les détails du ticket sous format JSON.
      *
-     *     **Rôles autorises :** ADMINISTRATOR, SUPERVISOR
+     *     **Rôles autorisés :** ADMINISTRATOR, SUPERVISOR
      */
     get: operations['ReportsController_getTicketReport'];
     put?: never;
@@ -823,10 +857,10 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Generer un rapport PDF detaille pour un ticket (asynchrone)
-     * @description Lance la generation en arriere-plan du rapport PDF.
+     * Générer un rapport PDF détaillé pour un ticket (asynchrone)
+     * @description Lance la génération en arrière-plan du rapport PDF.
      *
-     *     **Rôles autorises :** ADMINISTRATOR, SUPERVISOR
+     *     **Rôles autorisés :** ADMINISTRATOR, SUPERVISOR
      */
     post: operations['ReportsController_ticketReport'];
     delete?: never;
@@ -845,10 +879,10 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Generer un rapport hebdomadaire PDF (asynchrone)
-     * @description Lance la generation en arriere-plan du rapport hebdomadaire PDF.
+     * Générer un rapport hebdomadaire PDF (asynchrone)
+     * @description Lance la génération en arrière-plan du rapport hebdomadaire PDF.
      *
-     *     **Rôles autorises :** ADMINISTRATOR, SUPERVISOR
+     *     **Rôles autorisés :** ADMINISTRATOR uniquement
      */
     post: operations['ReportsController_weeklyReportAsync'];
     delete?: never;
@@ -1455,6 +1489,10 @@ export interface components {
       success: true;
     };
     Assignment: {
+      /** @enum {string} */
+      actorType: 'INTERNAL' | 'SYSTEM';
+      /** Format: uuid */
+      assignedBy: string | null;
       /** Format: date-time */
       createdAt: string;
       /** Format: uuid */
@@ -1463,6 +1501,8 @@ export interface components {
       id: string;
       reason?: string | null;
       /** Format: uuid */
+      ticketId: string;
+      /** Format: uuid */
       toUserId: string;
     };
     AssignmentPage: {
@@ -1470,17 +1510,27 @@ export interface components {
       meta: components['schemas']['PaginationMeta'];
     };
     AssignTicketDto: {
-      /** @description Raison de l'assignation */
+      /**
+       * @description Raison de l'assignation
+       * @example Compétence technique requise sur les équipements Cisco.
+       */
       reason?: string;
-      /** @description ID de l'utilisateur cible (UUID) */
+      /**
+       * @description ID de l'utilisateur cible (UUID)
+       * @example 018b3d6f-7e8c-7123-89ab-cdef01234567
+       */
       userId: string;
     };
     Attachment: {
+      /** @enum {string} */
+      actorType: 'INTERNAL' | 'EXTERNAL_REQUESTER' | 'SYSTEM';
       bucketName: string;
       /** Format: uuid */
       commentId?: string | null;
       /** Format: date-time */
       createdAt: string;
+      /** Format: uuid */
+      externalRequesterId?: string | null;
       fileSize: number;
       /** Format: uuid */
       id: string;
@@ -1490,25 +1540,35 @@ export interface components {
       objectKey: string;
       originalFilename: string;
       /** Format: uuid */
+      supportIntegrationId?: string | null;
+      /** Format: uuid */
+      supportMessageId?: string | null;
+      /** Format: uuid */
       ticketId?: string | null;
       /** Format: uuid */
-      uploadedBy: string;
+      uploadedBy: string | null;
     };
     AuditLog: {
       action: string;
+      /** @enum {string} */
+      actorType: 'INTERNAL' | 'EXTERNAL_REQUESTER' | 'SYSTEM';
       /** Format: date-time */
       createdAt: string;
       /** Format: uuid */
       entityId: string;
       entityType: string;
       /** Format: uuid */
+      externalRequesterId?: string | null;
+      /** Format: uuid */
       id: string;
       ipAddress?: string | null;
       newValue?: (Record<string, never> | unknown[] | string | number | boolean) | null;
       oldValue?: (Record<string, never> | unknown[] | string | number | boolean) | null;
+      /** Format: uuid */
+      supportIntegrationId?: string | null;
       userAgent?: string | null;
       /** Format: uuid */
-      userId: string;
+      userId: string | null;
     };
     Category: {
       /** Format: date-time */
@@ -1549,7 +1609,10 @@ export interface components {
       content: string;
     };
     CreateDepartmentDto: {
-      /** @description Description du département */
+      /**
+       * @description Description du département
+       * @example Service client — première ligne de support
+       */
       description?: string;
       /**
        * @description Nom du département
@@ -1570,7 +1633,7 @@ export interface components {
     CreateSlaPolicyDto: {
       /**
        * @description UUID de la catégorie couverte par cette politique
-       * @example 550e8400-e29b-41d4-a716-446655440000
+       * @example 018b3d6f-7e8c-7123-89ab-cdef01234567
        */
       categoryId: string;
       /**
@@ -1593,26 +1656,38 @@ export interface components {
     CreateTicketDto: {
       /**
        * @description ID de l'équipe assignée
-       * @example 550e8400-e29b-41d4-a716-446655440000
+       * @example 018b3d6f-7e8c-7123-89ab-cdef01234569
        */
       assignedTeamId: string;
       /**
        * @description ID de la catégorie
-       * @example 550e8400-e29b-41d4-a716-446655440000
+       * @example 018b3d6f-7e8c-7123-89ab-cdef01234567
        */
       categoryId: string;
-      /** @description Numéro de compte client */
+      /**
+       * @description Numéro de compte client
+       * @example CLI-884920
+       */
       customerAccountNumber?: string;
-      /** @description Contact du client */
+      /**
+       * @description Contact du client
+       * @example +33612345678
+       */
       customerContact?: string;
-      /** @description Nom du client */
+      /**
+       * @description Nom du client
+       * @example Société Telecom SARL
+       */
       customerName?: string;
       /**
        * @description ID du département propriétaire
-       * @example 550e8400-e29b-41d4-a716-446655440000
+       * @example 018b3d6f-7e8c-7123-89ab-cdef01234568
        */
       departmentId: string;
-      /** @description Description détaillée de l'incident */
+      /**
+       * @description Description détaillée de l'incident
+       * @example Absence complète de signal optique pour 150 abonnés.
+       */
       description: string;
       /**
        * @description Priorité du ticket
@@ -1626,7 +1701,10 @@ export interface components {
        * @enum {string}
        */
       severity: 'S1' | 'S2' | 'S3' | 'S4';
-      /** @description Tags (mots-clés séparés par des virgules) */
+      /**
+       * @description Tags (mots-clés séparés par des virgules)
+       * @example fiber,ftth,outage
+       */
       tags?: string;
       /**
        * @description Titre du ticket
@@ -1637,7 +1715,7 @@ export interface components {
     CreateUserDto: {
       /**
        * @description ID du département (UUID)
-       * @example 550e8400-e29b-41d4-a716-446655440000
+       * @example 018b3d6f-7e8c-7123-89ab-cdef01234567
        */
       departmentId: string;
       /**
@@ -1657,7 +1735,7 @@ export interface components {
        */
       lastName: string;
       /**
-       * @description Rôle
+       * @description Rôle RBAC
        * @example CUSTOMER_SERVICE_AGENT
        * @enum {string}
        */
@@ -1858,24 +1936,40 @@ export interface components {
       workloadWeights?: Record<string, never> | null;
     };
     EscalateTicketDto: {
-      /** @description ID du département cible (UUID) */
+      /**
+       * @description ID du département cible (UUID)
+       * @example 018b3d6f-7e8c-7123-89ab-cdef01234568
+       */
       departmentId: string;
-      /** @description Raison de l'escalade */
+      /**
+       * @description Raison de l'escalade
+       * @example Panne réseau niveau 2 nécessitant une intervention sur pylône.
+       */
       reason?: string;
-      /** @description ID de l'utilisateur cible (UUID) */
+      /**
+       * @description ID de l'utilisateur cible (UUID)
+       * @example 018b3d6f-7e8c-7123-89ab-cdef01234567
+       */
       userId: string;
     };
     InternalNote: {
-      authorFirstName?: string;
+      /** @enum {string} */
+      actorType?: 'INTERNAL' | 'EXTERNAL_REQUESTER' | 'SYSTEM';
+      authorFirstName?: string | null;
       /** Format: uuid */
-      authorId: string;
-      authorLastName?: string;
-      authorRole?: string;
+      authorId: string | null;
+      authorLastName?: string | null;
+      authorRole?: string | null;
       content: string;
       /** Format: date-time */
       createdAt: string;
       /** Format: uuid */
+      externalRequesterId?: string | null;
+      /** Format: uuid */
       id: string;
+      requesterName?: string | null;
+      /** Format: uuid */
+      supportIntegrationId?: string | null;
       /** Format: uuid */
       ticketId: string;
       /** Format: date-time */
@@ -1893,7 +1987,7 @@ export interface components {
       email: string;
       /**
        * Format: password
-       * @description Mot de passe (8 car. min, 1 maj, 1 min, 1 chiffre, 1 spécial)
+       * @description Mot de passe
        * @example Admin@1234
        */
       password: string;
@@ -1924,7 +2018,7 @@ export interface components {
     PendingTicketDto: {
       /**
        * @description Raison de la mise en attente
-       * @example En attente de confirmation du client pour planifier intervention.
+       * @example En attente de confirmation du client pour planifier l intervention.
        */
       reason?: string;
     };
@@ -1948,15 +2042,15 @@ export interface components {
       title?: string;
     };
     RefreshDto: {
-      /** @description Refresh token */
+      /** @description Refresh token à usage unique */
       refreshToken: string;
     };
     ReopenTicketDto: {
-      /** @description Notes supplementaires */
+      /** @description Notes supplémentaires */
       notes?: string;
       /**
-       * @description Raison de la reouverture (obligatoire pour la tracabilite)
-       * @example Le client signale que le probleme persiste malgre la cloture.
+       * @description Raison de la réouverture (obligatoire pour la traçabilité)
+       * @example Le client signale que le problème persiste malgré la résolution.
        */
       reason: string;
     };
@@ -1984,8 +2078,8 @@ export interface components {
     };
     ResolveTicketDto: {
       /**
-       * @description Resume de la resolution (optionnel mais recommande)
-       * @example Fibre optique reparee sur le noeud principal. Retablissement du service a 14h32.
+       * @description Résumé de la résolution (optionnel mais recommandé)
+       * @example Fibre optique réparée sur le nœud principal. Rétablissement du service à 14h32.
        */
       resolutionSummary?: string;
     };
@@ -2052,7 +2146,7 @@ export interface components {
       /** Format: date-time */
       createdAt: string;
       /** Format: uuid */
-      createdBy: string;
+      createdBy: string | null;
       creator?: components['schemas']['User'];
       customerAccountNumber?: string | null;
       customerContact?: string | null;
@@ -2073,9 +2167,15 @@ export interface components {
       firstResponseWarningSentAt?: string | null;
       /** Format: uuid */
       id: string;
+      integrationName?: string | null;
       metadata?: (Record<string, never> | unknown[] | string | number | boolean) | null;
+      /** Format: uuid */
+      openedByUserId?: string | null;
       /** @enum {string} */
       priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+      /** Format: uuid */
+      requesterId?: string | null;
+      requesterName?: string | null;
       /** Format: date-time */
       resolutionBreachedAt?: string | null;
       /** Format: date-time */
@@ -2093,6 +2193,8 @@ export interface components {
       /** Format: uuid */
       slaPolicyId: string;
       /** @enum {string} */
+      sourceChannel: 'INTERNAL' | 'WEB_PORTAL' | 'WIDGET' | 'WORDPRESS' | 'EMAIL' | 'WHATSAPP' | 'API';
+      /** @enum {string} */
       status:
         | 'NEW'
         | 'ASSIGNED'
@@ -2103,6 +2205,8 @@ export interface components {
         | 'CLOSED'
         | 'REOPENED'
         | 'CANCELLED';
+      /** Format: uuid */
+      supportIntegrationId?: string | null;
       tags?: string | null;
       ticketNumber: string;
       title: string;
@@ -2110,16 +2214,23 @@ export interface components {
       updatedAt: string;
     };
     TicketComment: {
-      authorFirstName?: string;
+      /** @enum {string} */
+      actorType: 'INTERNAL' | 'EXTERNAL_REQUESTER' | 'SYSTEM';
+      authorFirstName?: string | null;
       /** Format: uuid */
-      authorId: string;
-      authorLastName?: string;
-      authorRole?: string;
+      authorId: string | null;
+      authorLastName?: string | null;
+      authorRole?: string | null;
       content: string;
       /** Format: date-time */
       createdAt: string;
       /** Format: uuid */
+      externalRequesterId?: string | null;
+      /** Format: uuid */
       id: string;
+      requesterName?: string | null;
+      /** Format: uuid */
+      supportIntegrationId?: string | null;
       /** Format: uuid */
       ticketId: string;
       /** Format: date-time */
@@ -2127,17 +2238,23 @@ export interface components {
     };
     TicketHistory: {
       action: string;
+      /** @enum {string} */
+      actorType: 'INTERNAL' | 'EXTERNAL_REQUESTER' | 'SYSTEM';
       /** Format: date-time */
       createdAt: string;
+      /** Format: uuid */
+      externalRequesterId?: string | null;
       /** Format: uuid */
       id: string;
       metadata?: (Record<string, never> | unknown[] | string | number | boolean) | null;
       newValue?: (Record<string, never> | unknown[] | string | number | boolean) | null;
       oldValue?: (Record<string, never> | unknown[] | string | number | boolean) | null;
       /** Format: uuid */
+      supportIntegrationId?: string | null;
+      /** Format: uuid */
       ticketId: string;
       /** Format: uuid */
-      userId: string;
+      userId: string | null;
     };
     TicketListItem: {
       /** Format: uuid */
@@ -2239,9 +2356,12 @@ export interface components {
       content: string;
     };
     UpdateDepartmentDto: {
-      /** @description Nouvelle description */
+      /** @description Nouvelle description du département */
       description?: string;
-      /** @description Nouveau nom du département */
+      /**
+       * @description Nouveau nom du département
+       * @example Network Operations Center
+       */
       name?: string;
     };
     UpdateInternalNoteDto: {
@@ -2254,7 +2374,7 @@ export interface components {
     UpdateSettingDto: {
       /**
        * @description Description optionnelle
-       * @example Nouvelle limite de tickets
+       * @example Nouvelle limite de tickets simultanés par agent
        */
       description?: string;
       /**
@@ -2276,7 +2396,10 @@ export interface components {
       resolutionMinutes?: number;
     };
     UpdateTicketDto: {
-      /** @description UUID de la nouvelle categorie */
+      /**
+       * @description UUID de la nouvelle catégorie
+       * @example 018b3d6f-7e8c-7123-89ab-cdef01234567
+       */
       categoryId?: string;
       /** @description Nouvelle description */
       description?: string;
@@ -2284,20 +2407,36 @@ export interface components {
       priority?: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
       /** @enum {string} */
       severity?: 'S1' | 'S2' | 'S3' | 'S4';
-      /** @description Tags */
+      /**
+       * @description Tags ou mots-clés séparés par des virgules
+       * @example fiber,urgent,router
+       */
       tags?: string;
-      /** @description Nouveau titre */
+      /**
+       * @description Nouveau titre
+       * @example Panne Fibre - Zone Industrielle Nord
+       */
       title?: string;
     };
     UpdateUserDto: {
-      /** @description ID du département (UUID) */
+      /**
+       * @description ID du département (UUID)
+       * @example 018b3d6f-7e8c-7123-89ab-cdef01234567
+       */
       departmentId?: string;
-      /** @description Prénom */
+      /**
+       * @description Prénom
+       * @example Jean
+       */
       firstName?: string;
-      /** @description Nom de famille */
+      /**
+       * @description Nom de famille
+       * @example Dupont
+       */
       lastName?: string;
       /**
-       * @description Rôle
+       * @description Rôle RBAC
+       * @example TECHNICAL_SUPPORT_ENGINEER
        * @enum {string}
        */
       role?:
@@ -2507,6 +2646,37 @@ export interface operations {
       };
     };
   };
+  AttachmentsController_preview: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description UUID de la pièce jointe */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiSuccessResponse'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
   AuditLogsController_search: {
     parameters: {
       query?: {
@@ -2514,9 +2684,9 @@ export interface operations {
         page?: number;
         /** @description Date de fin (ISO 8601) */
         to?: unknown;
-        /** @description Date de debut (ISO 8601) */
+        /** @description Date de début (ISO 8601) */
         from?: unknown;
-        /** @description Type d'entite */
+        /** @description Type d'entité */
         entityType?: 'ticket' | 'user' | 'department' | 'sla_policy';
         /** @description Type d'action */
         action?:
@@ -2536,7 +2706,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Liste paginee des entrees d'audit. */
+      /** @description Liste paginée des entrées d'audit. */
       200: {
         headers: {
           [name: string]: unknown;
@@ -2568,14 +2738,14 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        /** @description UUID de l'entree d'audit */
+        /** @description UUID de l'entrée d'audit */
         id: string;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description Entree d'audit trouvee. */
+      /** @description Entrée d'audit trouvée. */
       200: {
         headers: {
           [name: string]: unknown;
@@ -2590,7 +2760,7 @@ export interface operations {
           };
         };
       };
-      /** @description Entree d'audit introuvable. */
+      /** @description Entrée d'audit introuvable. */
       404: {
         headers: {
           [name: string]: unknown;
@@ -4583,7 +4753,7 @@ export interface operations {
           };
         };
       };
-      /** @description Acces refuse (rôle insuffisant). */
+      /** @description Accès refusé (rôle insuffisant). */
       403: {
         headers: {
           [name: string]: unknown;
@@ -4662,7 +4832,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Fichier PDF retourne avec succes. */
+      /** @description Fichier PDF retourné avec succès. */
       200: {
         headers: {
           [name: string]: unknown;
@@ -4671,7 +4841,7 @@ export interface operations {
           'application/pdf': string;
         };
       };
-      /** @description Rapport non prêt ou echoue. */
+      /** @description Rapport non prêt ou échoué. */
       400: {
         headers: {
           [name: string]: unknown;
@@ -4680,7 +4850,7 @@ export interface operations {
           'application/pdf': string;
         };
       };
-      /** @description Acces refuse. */
+      /** @description Accès refusé. */
       403: {
         headers: {
           [name: string]: unknown;
@@ -4691,6 +4861,56 @@ export interface operations {
       };
       /** @description Rapport ou fichier introuvable. */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/pdf': string;
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  PublicReportsController_download: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description UUID du rapport */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Fichier PDF. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/pdf': string;
+        };
+      };
+      /** @description Signature invalide. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/pdf': string;
+        };
+      };
+      /** @description Lien expiré. */
+      410: {
         headers: {
           [name: string]: unknown;
         };
@@ -4723,7 +4943,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Metriques SLA. */
+      /** @description Métriques SLA. */
       200: {
         headers: {
           [name: string]: unknown;
@@ -4763,7 +4983,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Rapport SLA en cours de generation. */
+      /** @description Rapport SLA en cours de génération. */
       202: {
         headers: {
           [name: string]: unknown;
@@ -4801,7 +5021,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Donnees du rapport retournees. */
+      /** @description Données du rapport retournées. */
       200: {
         headers: {
           [name: string]: unknown;
@@ -4816,7 +5036,7 @@ export interface operations {
           };
         };
       };
-      /** @description Ticket non trouve. */
+      /** @description Ticket non trouvé. */
       404: {
         headers: {
           [name: string]: unknown;
@@ -4848,7 +5068,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Rapport en cours de generation. */
+      /** @description Rapport en cours de génération. */
       202: {
         headers: {
           [name: string]: unknown;
@@ -4883,7 +5103,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Rapport hebdomadaire en cours de generation. */
+      /** @description Rapport hebdomadaire en cours de génération. */
       202: {
         headers: {
           [name: string]: unknown;
