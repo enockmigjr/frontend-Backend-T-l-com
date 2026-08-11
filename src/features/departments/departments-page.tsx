@@ -32,7 +32,16 @@ export function DepartmentsPage() {
   async function save(formData: FormData) {
     setPending(true);
     setError(undefined);
-    const body = { name: String(formData.get('name')), description: String(formData.get('description')) || undefined };
+    const maxWorkloadPerAgent = Number(formData.get('maxWorkloadPerAgent')) || 100;
+    const assignmentStrategy = (String(formData.get('assignmentStrategy')) ||
+      'LEAST_LOADED') as 'ROUND_ROBIN' | 'LEAST_LOADED';
+    const body = {
+      name: String(formData.get('name')),
+      description: String(formData.get('description')) || undefined,
+      assignmentStrategy,
+      autoAssignmentEnabled: formData.get('autoAssignmentEnabled') !== null,
+      maxWorkloadPerAgent: Math.max(1, Math.min(1000, maxWorkloadPerAgent)),
+    };
     try {
       if (editing) await updateDepartment(editing.id, body);
       else await createDepartment(body);

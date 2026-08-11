@@ -15,10 +15,11 @@ export function CategoryDetail({
   if (query.isPending) return <LoadingState label="Chargement de la catégorie…" />;
   if (query.error) return <ErrorState message={query.error.message} retry={() => void query.refetch()} />;
   const item = query.data;
+  const roles = Array.isArray(item.targetRoles) && item.targetRoles.length > 0 ? item.targetRoles : item.targetRole ? [item.targetRole] : [];
   return (
     <dl className="grid gap-px overflow-hidden rounded-xl border bg-border sm:grid-cols-2">
       <Detail label="Nom" value={item.name} />
-      <Detail label="Rôle d’orientation" value={roleLabel(item.targetRole)} />
+      <Detail label="Rôles d'orientation" value={roles.length > 0 ? roles.map(roleLabel).join(', ') : 'Aucune orientation'} />
       <Detail label="Description" value={item.description || 'Aucune description'} wide />
       <Detail label="Créée le" value={new Date(item.createdAt).toLocaleString('fr-FR')} />
       <Detail label="Modifiée le" value={new Date(item.updatedAt).toLocaleString('fr-FR')} />

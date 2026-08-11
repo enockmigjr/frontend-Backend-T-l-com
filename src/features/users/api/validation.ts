@@ -26,6 +26,8 @@ export const userSchema = z
     departmentId: z.string().uuid(),
     departmentName: z.string().nullable().optional(),
     isActive: z.boolean(),
+    isAvailable: z.boolean().optional(),
+    absenceEndsAt: z.string().nullable().optional(),
     tempPassword: z.string().optional(),
   })
   .passthrough();
@@ -83,6 +85,7 @@ export const categorySchema = z
     name: z.string(),
     description: z.string().nullable().optional(),
     targetRole: z.string().nullable().optional(),
+    targetRoles: z.array(z.string()).optional(),
     createdAt: z.string(),
     updatedAt: z.string(),
   })

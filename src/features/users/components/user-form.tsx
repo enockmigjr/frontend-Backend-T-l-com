@@ -48,7 +48,15 @@ export function UserForm({
           role: String(data.get('role')) as CreateUser['role'],
           departmentId: String(data.get('departmentId')),
         };
-        void onSubmit(user ? values : { ...values, email: String(data.get('email')) });
+        void onSubmit(
+          user
+            ? {
+                ...values,
+                isAvailable: data.get('isAvailable') !== null,
+                absenceEndsAt: String(data.get('absenceEndsAt') || '').trim() || null,
+              }
+            : { ...values, email: String(data.get('email')) },
+        );
       }}
     >
       <FormField label="Prénom" name="firstName" defaultValue={user?.firstName} />
@@ -67,6 +75,18 @@ export function UserForm({
           {departments.map((department) => <option key={department.id} value={department.id}>{department.name}</option>)}
         </select>
       </label>
+      {user ? (
+        <>
+          <label className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2.5 text-sm">
+            <span className="font-medium">Disponible pour assignation</span>
+            <input type="checkbox" name="isAvailable" defaultChecked={user.isAvailable !== false} className="size-4" />
+          </label>
+          <label className="grid gap-1.5 text-sm">
+            <span className="font-medium">Fin d&apos;absence (optionnelle)</span>
+            <Input name="absenceEndsAt" type="date" defaultValue={user.absenceEndsAt ? user.absenceEndsAt.slice(0, 10) : ''} />
+          </label>
+        </>
+      ) : null}
       <DialogFooter className="sm:col-span-2">
         <Button type="submit" size="lg" disabled={pending}>
           {pending ? 'Enregistrement…' : user ? 'Enregistrer les modifications' : 'Créer le compte'}

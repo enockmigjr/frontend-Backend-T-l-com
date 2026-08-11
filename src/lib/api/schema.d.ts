@@ -618,6 +618,26 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/external-requesters/{id}/anonymize': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Anonymiser un demandeur public
+     * @description Efface le nom, la locale, les métadonnées et les valeurs d’identité chiffrées, révoque les appareils et challenges, puis écrit une trace d’audit. Les tickets restent rattachés au profil anonymisé.
+     */
+    post: operations['ExternalRequestersController_anonymize'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/external-requesters/{id}/merge': {
     parameters: {
       query?: never;
@@ -945,6 +965,26 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/public-support/conversations/{id}/bot': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Envoyer un message au bot de la conversation
+     * @description Répond avec le mode disabled/unavailable tant qu’aucun fournisseur IA n’est configuré : le formulaire reste le chemin de création.
+     */
+    post: operations['SupportBotController_reply'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/public-support/conversations/{id}/confirm': {
     parameters: {
       query?: never;
@@ -1041,6 +1081,40 @@ export interface paths {
     put?: never;
     /** Demander un code de vérification email */
     post: operations['ExternalIdentityController_requestEmail'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/public-support/knowledge/{slug}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Consulter un article public par slug */
+    get: operations['PublicKnowledgeController_findBySlug'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/public-support/knowledge/search': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Rechercher des articles publics de cette intégration */
+    get: operations['PublicKnowledgeController_search'];
+    put?: never;
+    post?: never;
     delete?: never;
     options?: never;
     head?: never;
@@ -1690,6 +1764,54 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/support-knowledge': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Liste paginée des articles de connaissance
+     * @description Articles éditorialisés, cloisonnés par intégration. Lecture ADMINISTRATOR/SUPERVISOR.
+     */
+    get: operations['SupportKnowledgeController_list'];
+    put?: never;
+    /**
+     * Créer un article de connaissance
+     * @description Crée l’article en brouillon avec sa première version et ses intégrations autorisées. Écriture ADMINISTRATOR.
+     */
+    post: operations['SupportKnowledgeController_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/support-knowledge/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Consulter un article avec son historique
+     * @description Détail, intégrations autorisées et versions append-only. Lecture ADMINISTRATOR/SUPERVISOR.
+     */
+    get: operations['SupportKnowledgeController_findOne'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Modifier, publier ou archiver un article
+     * @description Chaque changement de contenu crée une nouvelle version ; la publication et l’archivage sont tracés. Écriture ADMINISTRATOR.
+     */
+    patch: operations['SupportKnowledgeController_update'];
+    trace?: never;
+  };
   '/api/v1/tickets': {
     parameters: {
       query?: never;
@@ -2284,6 +2406,16 @@ export interface components {
       /** @enum {boolean} */
       success: true;
     };
+    BotMessageDto: {
+      /** @example Ma ligne coupe depuis hier. */
+      message: string;
+    };
+    BotReplyDto: {
+      /** @enum {string} */
+      mode: 'disabled' | 'unavailable' | 'reply';
+      reply?: Record<string, never> | null;
+      suggestedActions: string[];
+    };
     Category: {
       /** Format: date-time */
       createdAt: string;
@@ -2328,6 +2460,14 @@ export interface components {
        * @example NOC_ENGINEER
        */
       targetRole?: Record<string, never>;
+      /**
+       * @description Rôles d'agents ciblés par cette catégorie pour l'auto-assignation
+       * @example [
+       *       "NOC_ENGINEER",
+       *       "TECHNICAL_SUPPORT_ENGINEER"
+       *     ]
+       */
+      targetRoles?: string[];
     };
     CreateCommentDto: {
       /**
@@ -2343,15 +2483,35 @@ export interface components {
     };
     CreateDepartmentDto: {
       /**
+       * @description Algorithme d'assignation (LEAST_LOADED par défaut, ROUND_ROBIN alternatif)
+       * @default LEAST_LOADED
+       * @enum {string}
+       */
+      assignmentStrategy: 'ROUND_ROBIN' | 'LEAST_LOADED';
+      /**
+       * @description Active l'assignation automatique
+       * @default true
+       * @example true
+       */
+      autoAssignmentEnabled: boolean;
+      /**
        * @description Description du département
        * @example Service client — première ligne de support
        */
       description?: string;
       /**
+       * @description Charge maximale par agent
+       * @default 100
+       * @example 100
+       */
+      maxWorkloadPerAgent: number;
+      /**
        * @description Nom du département
        * @example Customer Care
        */
       name: string;
+      /** @description Pondération de la charge (priorité / sévérité) */
+      workloadWeights?: components['schemas']['WorkloadWeightsDto'];
     };
     CreatedUser: components['schemas']['User'] & {
       tempPassword: string;
@@ -2362,6 +2522,22 @@ export interface components {
        * @example Vérification du diagnostic NOC — le problème semble venir du routeur R7.
        */
       content: string;
+    };
+    CreateKnowledgeArticleDto: {
+      /** @description Contenu éditorial, explicitement public. */
+      content: string;
+      /** @description Intégrations autorisées à servir cet article. */
+      integrationIds?: string[];
+      /**
+       * @default fr
+       * @enum {string}
+       */
+      language: 'fr' | 'en';
+      /** @example coupure-internet */
+      slug: string;
+      summary?: string;
+      /** @example Coupure d’accès internet */
+      title: string;
     };
     CreatePublicCommentDto: {
       content: string;
@@ -2827,6 +3003,64 @@ export interface components {
       /** Format: date-time */
       updatedAt: string;
     };
+    KnowledgeArticleDetailDto: {
+      content: string;
+      /** Format: date-time */
+      createdAt: string;
+      id: string;
+      integrationCount: number;
+      integrations: components['schemas']['KnowledgeIntegrationRefDto'][];
+      language: string;
+      publishedAt?: Record<string, never> | null;
+      slug: string;
+      /** @enum {string} */
+      status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+      summary?: string | null;
+      title: string;
+      /** Format: date-time */
+      updatedAt: string;
+      versions: components['schemas']['KnowledgeArticleVersionDto'][];
+    };
+    KnowledgeArticleListItemDto: {
+      /** Format: date-time */
+      createdAt: string;
+      id: string;
+      integrationCount: number;
+      language: string;
+      publishedAt?: Record<string, never> | null;
+      slug: string;
+      /** @enum {string} */
+      status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+      summary?: string | null;
+      title: string;
+      /** Format: date-time */
+      updatedAt: string;
+    };
+    KnowledgeArticleVersionDto: {
+      content: string;
+      /** Format: date-time */
+      createdAt: string;
+      createdBy?: string | null;
+      language: string;
+      note?: string | null;
+      summary?: string | null;
+      title: string;
+      version: number;
+    };
+    KnowledgeIntegrationRefDto: {
+      id: string;
+      name: string;
+    };
+    KnowledgeSearchResultDto: {
+      content: string;
+      id: string;
+      language: string;
+      slug: string;
+      summary?: string | null;
+      title: string;
+      /** Format: date-time */
+      updatedAt: string;
+    };
     LoginData: components['schemas']['TokenPair'] & {
       user: components['schemas']['User'];
     };
@@ -3220,6 +3454,12 @@ export interface components {
       /** @description Clé publique de l'intégration */
       integrationKey: string;
     };
+    RequesterAnonymizedDto: {
+      /** @description Déjà anonymisé : aucune donnée supplémentaire n’a été modifiée. */
+      alreadyAnonymized: boolean;
+      anonymized: boolean;
+      requesterId: string;
+    };
     ResolveTicketDto: {
       /**
        * @description Résumé de la résolution (optionnel mais recommandé)
@@ -3526,6 +3766,14 @@ export interface components {
        * @example NOC_ENGINEER
        */
       targetRole?: Record<string, never>;
+      /**
+       * @description Rôles d'agents ciblés par cette catégorie pour l'auto-assignation
+       * @example [
+       *       "NOC_ENGINEER",
+       *       "TECHNICAL_SUPPORT_ENGINEER"
+       *     ]
+       */
+      targetRoles?: string[];
     };
     UpdateCommentDto: {
       /**
@@ -3535,13 +3783,30 @@ export interface components {
       content: string;
     };
     UpdateDepartmentDto: {
+      /**
+       * @description Algorithme d'assignation (LEAST_LOADED par défaut, ROUND_ROBIN alternatif)
+       * @enum {string}
+       */
+      assignmentStrategy?: 'ROUND_ROBIN' | 'LEAST_LOADED';
+      /**
+       * @description Active l'assignation automatique
+       * @example true
+       */
+      autoAssignmentEnabled?: boolean;
       /** @description Nouvelle description du département */
       description?: string;
+      /**
+       * @description Charge maximale par agent
+       * @example 100
+       */
+      maxWorkloadPerAgent?: number;
       /**
        * @description Nouveau nom du département
        * @example Network Operations Center
        */
       name?: string;
+      /** @description Pondération de la charge (priorité / sévérité) */
+      workloadWeights?: components['schemas']['WorkloadWeightsDto'];
     };
     UpdateInternalNoteDto: {
       /**
@@ -3549,6 +3814,18 @@ export interface components {
        * @example Diagnostic confirmé : remplacement du routeur R7 programmé pour ce soir 22h.
        */
       content: string;
+    };
+    UpdateKnowledgeArticleDto: {
+      content?: string;
+      integrationIds?: string[];
+      /** @enum {string} */
+      language?: 'fr' | 'en';
+      /** @description Motif conservé dans l’historique des versions. */
+      note?: string;
+      /** @enum {string} */
+      status?: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+      summary?: string;
+      title?: string;
     };
     UpdatePublicPreferencesDto: {
       displayName?: string;
@@ -3621,6 +3898,11 @@ export interface components {
     };
     UpdateUserDto: {
       /**
+       * @description Fin d'absence (ISO 8601)
+       * @example 2026-08-20T18:00:00.000Z
+       */
+      absenceEndsAt?: string | null;
+      /**
        * @description ID du département (UUID)
        * @example 018b3d6f-7e8c-7123-89ab-cdef01234567
        */
@@ -3630,6 +3912,11 @@ export interface components {
        * @example Jean
        */
       firstName?: string;
+      /**
+       * @description Disponibilité de l'agent (false = pause)
+       * @example true
+       */
+      isAvailable?: boolean;
       /**
        * @description Nom de famille
        * @example Dupont
@@ -3713,6 +4000,22 @@ export interface components {
       statusCode: number;
       /** @enum {boolean} */
       success: true;
+    };
+    WorkloadWeightsDto: {
+      /**
+       * @description Poids par priorité (LOW, MEDIUM, HIGH, CRITICAL)
+       * @example {
+       *       "HIGH": 3
+       *     }
+       */
+      priority?: Record<string, never>;
+      /**
+       * @description Poids par sévérité (S1 à S4)
+       * @example {
+       *       "S1": 5
+       *     }
+       */
+      severity?: Record<string, never>;
     };
   };
   responses: never;
@@ -5785,6 +6088,73 @@ export interface operations {
       };
     };
   };
+  ExternalRequestersController_anonymize: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Clé unique de 1 à 128 caractères, obligatoire pour cette mutation. */
+        'Idempotency-Key': string;
+      };
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Demandeur anonymisé. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            data: components['schemas']['RequesterAnonymizedDto'];
+            message?: string;
+            statusCode: number;
+            /** @enum {boolean} */
+            success: true;
+          };
+        };
+      };
+      /** @description Token JWT manquant ou expiré. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Rôle insuffisant — ADMINISTRATOR requis. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Demandeur introuvable. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
   ExternalRequestersController_merge: {
     parameters: {
       query?: never;
@@ -6602,6 +6972,68 @@ export interface operations {
       };
     };
   };
+  SupportBotController_reply: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Clé unique de 1 à 128 caractères, obligatoire pour cette mutation. */
+        'Idempotency-Key': string;
+      };
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['BotMessageDto'];
+      };
+    };
+    responses: {
+      /** @description Réponse du bot. */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            data: components['schemas']['BotReplyDto'];
+            message?: string;
+            statusCode: number;
+            /** @enum {boolean} */
+            success: true;
+          };
+        };
+      };
+      /** @description Conversation introuvable. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Conversation finalisée. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
   PublicSupportController_confirm: {
     parameters: {
       query?: never;
@@ -6793,6 +7225,91 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['VerificationRequestResponseDto'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  PublicKnowledgeController_findBySlug: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        slug: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Article trouvé. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            data: components['schemas']['KnowledgeSearchResultDto'];
+            message?: string;
+            statusCode: number;
+            /** @enum {boolean} */
+            success: true;
+          };
+        };
+      };
+      /** @description Article indisponible pour cette intégration. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  PublicKnowledgeController_search: {
+    parameters: {
+      query: {
+        /** @description Termes de recherche. */
+        q: string;
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Résultats de recherche. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            data: components['schemas']['KnowledgeSearchResultDto'][];
+            message?: string;
+            statusCode: number;
+            /** @enum {boolean} */
+            success: true;
+          };
         };
       };
       /** @description Erreur standardisée. */
@@ -8346,6 +8863,255 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  SupportKnowledgeController_list: {
+    parameters: {
+      query?: {
+        status?: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+        search?: string;
+        integrationId?: string;
+        page?: number;
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Liste paginée des articles. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            data: components['schemas']['KnowledgeArticleListItemDto'][];
+            message?: string;
+            meta: components['schemas']['PaginationMeta'];
+            statusCode: number;
+            /** @enum {boolean} */
+            success: true;
+          };
+        };
+      };
+      /** @description Token JWT manquant ou expiré. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Rôle insuffisant. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  SupportKnowledgeController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateKnowledgeArticleDto'];
+      };
+    };
+    responses: {
+      /** @description Article créé. */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            data: components['schemas']['KnowledgeArticleDetailDto'];
+            message?: string;
+            statusCode: number;
+            /** @enum {boolean} */
+            success: true;
+          };
+        };
+      };
+      /** @description Token JWT manquant ou expiré. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Rôle insuffisant. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  SupportKnowledgeController_findOne: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Article trouvé. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            data: components['schemas']['KnowledgeArticleDetailDto'];
+            message?: string;
+            statusCode: number;
+            /** @enum {boolean} */
+            success: true;
+          };
+        };
+      };
+      /** @description Token JWT manquant ou expiré. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Rôle insuffisant. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Article introuvable. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  SupportKnowledgeController_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateKnowledgeArticleDto'];
+      };
+    };
+    responses: {
+      /** @description Article mis à jour. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            data: components['schemas']['KnowledgeArticleDetailDto'];
+            message?: string;
+            statusCode: number;
+            /** @enum {boolean} */
+            success: true;
+          };
+        };
+      };
+      /** @description Token JWT manquant ou expiré. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Rôle insuffisant. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Article introuvable. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
       };
       /** @description Erreur standardisée. */
       default: {

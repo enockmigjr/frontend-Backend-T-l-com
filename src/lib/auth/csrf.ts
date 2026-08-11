@@ -73,7 +73,13 @@ export function hasTrustedOrigin(request: NextRequest): boolean {
   const host = request.headers.get('host');
   try {
     const expectedUrl = new URL(expected);
-    return origin === expectedUrl.origin && host === expectedUrl.host;
+    if (origin === expectedUrl.origin && host === expectedUrl.host) return true;
+    // Repli développement : une requête same-origin reste légitime quel que soit le port local,
+    // évitant les 403 CSRF quand PUBLIC_APP_ORIGIN ne correspond pas au port de démarrage.
+    if (process.env.NODE_ENV !== 'production' && origin && host) {
+      return origin === `${request.nextUrl.protocol}//${host}`;
+    }
+    return false;
   } catch {
     return false;
   }

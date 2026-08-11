@@ -26,10 +26,16 @@ const roles = {
   FIELD_TECHNICIAN: 'Technicien terrain',
 } as const;
 type Role = keyof typeof roles;
+type CategoryWithRoles = Category & { targetRoles?: string[] };
 const roleLabel = (role?: string | null) => (role ? (roles[role as Role] ?? role) : 'Aucune orientation');
 
+function categoryRoles(item: CategoryWithRoles): string[] {
+  if (Array.isArray(item.targetRoles) && item.targetRoles.length > 0) return item.targetRoles;
+  return item.targetRole ? [item.targetRole] : [];
+}
+
 export function CategoriesPage() {
-  const [editing, setEditing] = useState<Category | null>(null);
+  const [editing, setEditing] = useState<CategoryWithRoles | null>(null);
   const [selected, setSelected] = useState<Category>();
   const [pendingDelete, setPendingDelete] = useState<Category>();
   const [formOpen, setFormOpen] = useState(false);
@@ -38,7 +44,7 @@ export function CategoriesPage() {
     queryKey: ['categories'],
     queryFn: ({ signal }) => listCategories(signal).then((result) => result.data),
   });
-  const items = query.data ?? [];
+  const items = (query.data ?? []) as CategoryWithRoles[];
 
   function changeFormOpen(open: boolean) {
     setFormOpen(open);
@@ -48,10 +54,12 @@ export function CategoriesPage() {
 
   async function save(formData: FormData) {
     setError(undefined);
+    const targetRoles = formData.getAll('targetRoles').map(String).filter(Boolean);
     const body = {
       name: String(formData.get('name')).trim(),
       description: String(formData.get('description')).trim() || undefined,
-      targetRole: String(formData.get('targetRole')).trim() || undefined,
+      targetRole: targetRoles[0] ?? undefined,
+      targetRoles: targetRoles.length > 0 ? targetRoles : undefined,
     };
     try {
       if (editing) await updateCategory(editing.id, body);
@@ -71,7 +79,7 @@ export function CategoriesPage() {
     toast.add({ title: 'Catégorie supprimée' });
   }
 
-  const columns: DataColumn<Category>[] = [
+  const columns: DataColumn<CategoryWithRoles>[] = [
     { key: 'name', label: 'Catégorie', sortValue: (item) => item.name, cell: (item) => <strong>{item.name}</strong> },
     {
       key: 'description',
@@ -81,9 +89,10 @@ export function CategoriesPage() {
     },
     {
       key: 'role',
-      label: 'Orientation',
-      sortValue: (item) => item.targetRole,
-      cell: (item) => roleLabel(item.targetRole),
+      label: 'Rôles d’orientation',
+      sortValue: (item) => categoryRoles(item).join(', '),
+      cell: (item) =>
+        categoryRoles(item).length > 0 ? categoryRoles(item).map(roleLabel).join(', ') : 'Aucune orientation',
     },
     {
       key: 'actions',
@@ -131,7 +140,7 @@ export function CategoriesPage() {
         open={formOpen}
         onOpenChange={changeFormOpen}
         title={editing ? 'Modifier la catégorie' : 'Nouvelle catégorie'}
-        description="Le moteur d’assignation accepte actuellement un seul rôle cible par catégorie."
+        description="Orientez la catégorie vers un ou plusieurs rôles opérationnels pour l'auto-assignation."
       >
         <form action={save} className="grid min-w-0 gap-4">
           <MutationError error={error} />
@@ -143,21 +152,21 @@ export function CategoriesPage() {
             Description
             <Textarea name="description" defaultValue={editing?.description ?? ''} />
           </label>
-          <label className="grid min-w-0 gap-2 text-sm font-medium">
-            Rôle d’orientation
-            <select
-              name="targetRole"
-              defaultValue={editing?.targetRole ?? ''}
-              className="h-10 w-full min-w-0 truncate rounded-lg border bg-background px-3"
-            >
-              <option value="">Aucun</option>
-              {Object.entries(roles).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </label>
+          <fieldset className="grid gap-2 text-sm">
+            <legend className="font-medium">Rôles d&apos;orientation</legend>
+            <p className="text-xs text-muted-foreground">Plusieurs rôles peuvent être sélectionnés.</p>
+            <div className="grid gap-1.5">
+              {Object.entries(roles).map(([value, label]) => {
+                const checked = editing ? categoryRoles(editing).includes(value) : false;
+                return (
+                  <label key={value} className="flex items-center gap-2 rounded-lg border px-3 py-2">
+                    <input type="checkbox" name="targetRoles" value={value} defaultChecked={checked} />
+                    <span>{label}</span>
+                  </label>
+                );
+              })}
+            </div>
+          </fieldset>
           <Button type="submit" className="justify-self-end">
             Enregistrer
           </Button>

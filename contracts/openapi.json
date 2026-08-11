@@ -473,6 +473,45 @@
         ],
         "type": "object"
       },
+      "BotMessageDto": {
+        "properties": {
+          "message": {
+            "example": "Ma ligne coupe depuis hier.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "type": "object"
+      },
+      "BotReplyDto": {
+        "properties": {
+          "mode": {
+            "enum": [
+              "disabled",
+              "unavailable",
+              "reply"
+            ],
+            "type": "string"
+          },
+          "reply": {
+            "nullable": true,
+            "type": "object"
+          },
+          "suggestedActions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "mode",
+          "suggestedActions"
+        ],
+        "type": "object"
+      },
       "Category": {
         "properties": {
           "createdAt": {
@@ -584,6 +623,17 @@
             "description": "Rôle d'agent ciblé par cette catégorie pour l'auto-assignation",
             "example": "NOC_ENGINEER",
             "type": "object"
+          },
+          "targetRoles": {
+            "description": "Rôles d'agents ciblés par cette catégorie pour l'auto-assignation",
+            "example": [
+              "NOC_ENGINEER",
+              "TECHNICAL_SUPPORT_ENGINEER"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           }
         },
         "required": [
@@ -613,15 +663,44 @@
       },
       "CreateDepartmentDto": {
         "properties": {
+          "assignmentStrategy": {
+            "default": "LEAST_LOADED",
+            "description": "Algorithme d'assignation (LEAST_LOADED par défaut, ROUND_ROBIN alternatif)",
+            "enum": [
+              "ROUND_ROBIN",
+              "LEAST_LOADED"
+            ],
+            "type": "string"
+          },
+          "autoAssignmentEnabled": {
+            "default": true,
+            "description": "Active l'assignation automatique",
+            "example": true,
+            "type": "boolean"
+          },
           "description": {
             "description": "Description du département",
             "example": "Service client — première ligne de support",
             "type": "string"
           },
+          "maxWorkloadPerAgent": {
+            "default": 100,
+            "description": "Charge maximale par agent",
+            "example": 100,
+            "type": "number"
+          },
           "name": {
             "description": "Nom du département",
             "example": "Customer Care",
             "type": "string"
+          },
+          "workloadWeights": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WorkloadWeightsDto"
+              }
+            ],
+            "description": "Pondération de la charge (priorité / sévérité)"
           }
         },
         "required": [
@@ -657,6 +736,46 @@
           }
         },
         "required": [
+          "content"
+        ],
+        "type": "object"
+      },
+      "CreateKnowledgeArticleDto": {
+        "properties": {
+          "content": {
+            "description": "Contenu éditorial, explicitement public.",
+            "type": "string"
+          },
+          "integrationIds": {
+            "description": "Intégrations autorisées à servir cet article.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "language": {
+            "default": "fr",
+            "enum": [
+              "fr",
+              "en"
+            ],
+            "type": "string"
+          },
+          "slug": {
+            "example": "coupure-internet",
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "title": {
+            "example": "Coupure d’accès internet",
+            "type": "string"
+          }
+        },
+        "required": [
+          "slug",
+          "title",
           "content"
         ],
         "type": "object"
@@ -1943,6 +2062,223 @@
           "authorId",
           "content",
           "createdAt",
+          "updatedAt"
+        ],
+        "type": "object"
+      },
+      "KnowledgeArticleDetailDto": {
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "integrationCount": {
+            "type": "number"
+          },
+          "integrations": {
+            "items": {
+              "$ref": "#/components/schemas/KnowledgeIntegrationRefDto"
+            },
+            "type": "array"
+          },
+          "language": {
+            "type": "string"
+          },
+          "publishedAt": {
+            "nullable": true,
+            "type": "object"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "DRAFT",
+              "PUBLISHED",
+              "ARCHIVED"
+            ],
+            "type": "string"
+          },
+          "summary": {
+            "nullable": true,
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "versions": {
+            "items": {
+              "$ref": "#/components/schemas/KnowledgeArticleVersionDto"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "slug",
+          "title",
+          "status",
+          "language",
+          "integrationCount",
+          "createdAt",
+          "updatedAt",
+          "content",
+          "integrations",
+          "versions"
+        ],
+        "type": "object"
+      },
+      "KnowledgeArticleListItemDto": {
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "integrationCount": {
+            "type": "number"
+          },
+          "language": {
+            "type": "string"
+          },
+          "publishedAt": {
+            "nullable": true,
+            "type": "object"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "DRAFT",
+              "PUBLISHED",
+              "ARCHIVED"
+            ],
+            "type": "string"
+          },
+          "summary": {
+            "nullable": true,
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "slug",
+          "title",
+          "status",
+          "language",
+          "integrationCount",
+          "createdAt",
+          "updatedAt"
+        ],
+        "type": "object"
+      },
+      "KnowledgeArticleVersionDto": {
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdBy": {
+            "nullable": true,
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          },
+          "note": {
+            "nullable": true,
+            "type": "string"
+          },
+          "summary": {
+            "nullable": true,
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "version": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "version",
+          "title",
+          "content",
+          "language",
+          "createdAt"
+        ],
+        "type": "object"
+      },
+      "KnowledgeIntegrationRefDto": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "type": "object"
+      },
+      "KnowledgeSearchResultDto": {
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "summary": {
+            "nullable": true,
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "slug",
+          "title",
+          "content",
+          "language",
           "updatedAt"
         ],
         "type": "object"
@@ -3297,6 +3633,26 @@
         ],
         "type": "object"
       },
+      "RequesterAnonymizedDto": {
+        "properties": {
+          "alreadyAnonymized": {
+            "description": "Déjà anonymisé : aucune donnée supplémentaire n’a été modifiée.",
+            "type": "boolean"
+          },
+          "anonymized": {
+            "type": "boolean"
+          },
+          "requesterId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "anonymized",
+          "requesterId",
+          "alreadyAnonymized"
+        ],
+        "type": "object"
+      },
       "ResolveTicketDto": {
         "properties": {
           "resolutionSummary": {
@@ -4277,6 +4633,17 @@
             "description": "Nouveau rôle d'agent ciblé",
             "example": "NOC_ENGINEER",
             "type": "object"
+          },
+          "targetRoles": {
+            "description": "Rôles d'agents ciblés par cette catégorie pour l'auto-assignation",
+            "example": [
+              "NOC_ENGINEER",
+              "TECHNICAL_SUPPORT_ENGINEER"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -4298,14 +4665,40 @@
       },
       "UpdateDepartmentDto": {
         "properties": {
+          "assignmentStrategy": {
+            "description": "Algorithme d'assignation (LEAST_LOADED par défaut, ROUND_ROBIN alternatif)",
+            "enum": [
+              "ROUND_ROBIN",
+              "LEAST_LOADED"
+            ],
+            "type": "string"
+          },
+          "autoAssignmentEnabled": {
+            "description": "Active l'assignation automatique",
+            "example": true,
+            "type": "boolean"
+          },
           "description": {
             "description": "Nouvelle description du département",
             "type": "string"
+          },
+          "maxWorkloadPerAgent": {
+            "description": "Charge maximale par agent",
+            "example": 100,
+            "type": "number"
           },
           "name": {
             "description": "Nouveau nom du département",
             "example": "Network Operations Center",
             "type": "string"
+          },
+          "workloadWeights": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WorkloadWeightsDto"
+              }
+            ],
+            "description": "Pondération de la charge (priorité / sévérité)"
           }
         },
         "type": "object"
@@ -4322,6 +4715,45 @@
         "required": [
           "content"
         ],
+        "type": "object"
+      },
+      "UpdateKnowledgeArticleDto": {
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "integrationIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "language": {
+            "enum": [
+              "fr",
+              "en"
+            ],
+            "type": "string"
+          },
+          "note": {
+            "description": "Motif conservé dans l’historique des versions.",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "DRAFT",
+              "PUBLISHED",
+              "ARCHIVED"
+            ],
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
         "type": "object"
       },
       "UpdatePublicPreferencesDto": {
@@ -4458,6 +4890,12 @@
       },
       "UpdateUserDto": {
         "properties": {
+          "absenceEndsAt": {
+            "description": "Fin d'absence (ISO 8601)",
+            "example": "2026-08-20T18:00:00.000Z",
+            "nullable": true,
+            "type": "string"
+          },
           "departmentId": {
             "description": "ID du département (UUID)",
             "example": "018b3d6f-7e8c-7123-89ab-cdef01234567",
@@ -4467,6 +4905,11 @@
             "description": "Prénom",
             "example": "Jean",
             "type": "string"
+          },
+          "isAvailable": {
+            "description": "Disponibilité de l'agent (false = pause)",
+            "example": true,
+            "type": "boolean"
           },
           "lastName": {
             "description": "Nom de famille",
@@ -4688,6 +5131,25 @@
           "data",
           "message"
         ],
+        "type": "object"
+      },
+      "WorkloadWeightsDto": {
+        "properties": {
+          "priority": {
+            "description": "Poids par priorité (LOW, MEDIUM, HIGH, CRITICAL)",
+            "example": {
+              "HIGH": 3
+            },
+            "type": "object"
+          },
+          "severity": {
+            "description": "Poids par sévérité (S1 à S4)",
+            "example": {
+              "S1": 5
+            },
+            "type": "object"
+          }
+        },
         "type": "object"
       }
     },
@@ -8165,6 +8627,116 @@
         ]
       }
     },
+    "/api/v1/external-requesters/{id}/anonymize": {
+      "post": {
+        "description": "Efface le nom, la locale, les métadonnées et les valeurs d’identité chiffrées, révoque les appareils et challenges, puis écrit une trace d’audit. Les tickets restent rattachés au profil anonymisé.",
+        "operationId": "ExternalRequestersController_anonymize",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Clé unique de 1 à 128 caractères, obligatoire pour cette mutation.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/RequesterAnonymizedDto"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "maximum": 299,
+                      "minimum": 200,
+                      "type": "integer"
+                    },
+                    "success": {
+                      "enum": [
+                        true
+                      ],
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "statusCode",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Demandeur anonymisé."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Token JWT manquant ou expiré."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Rôle insuffisant — ADMINISTRATOR requis."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Demandeur introuvable."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Anonymiser un demandeur public",
+        "tags": [
+          "external-requesters"
+        ]
+      }
+    },
     "/api/v1/external-requesters/{id}/merge": {
       "post": {
         "description": "Rattache toutes les références du profil source au profil cible (même intégration), supprime les identités en doublon et écrit une trace d’audit. Écriture ADMINISTRATOR uniquement.",
@@ -9479,6 +10051,117 @@
         "x-api-audience": "public-support"
       }
     },
+    "/api/v1/public-support/conversations/{id}/bot": {
+      "post": {
+        "description": "Répond avec le mode disabled/unavailable tant qu’aucun fournisseur IA n’est configuré : le formulaire reste le chemin de création.",
+        "operationId": "SupportBotController_reply",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Clé unique de 1 à 128 caractères, obligatoire pour cette mutation.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BotMessageDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/BotReplyDto"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "maximum": 299,
+                      "minimum": 200,
+                      "type": "integer"
+                    },
+                    "success": {
+                      "enum": [
+                        true
+                      ],
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "statusCode",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Réponse du bot."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Conversation introuvable."
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Conversation finalisée."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "publicSession": []
+          }
+        ],
+        "summary": "Envoyer un message au bot de la conversation",
+        "tags": [
+          "Support public - bot"
+        ],
+        "x-api-audience": "public-support"
+      }
+    },
     "/api/v1/public-support/conversations/{id}/confirm": {
       "post": {
         "operationId": "PublicSupportController_confirm",
@@ -9805,6 +10488,173 @@
         "summary": "Demander un code de vérification email",
         "tags": [
           "Support public - identité"
+        ],
+        "x-api-audience": "public-support"
+      }
+    },
+    "/api/v1/public-support/knowledge/{slug}": {
+      "get": {
+        "operationId": "PublicKnowledgeController_findBySlug",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/KnowledgeSearchResultDto"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "maximum": 299,
+                      "minimum": 200,
+                      "type": "integer"
+                    },
+                    "success": {
+                      "enum": [
+                        true
+                      ],
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "statusCode",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Article trouvé."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Article indisponible pour cette intégration."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "publicSession": []
+          }
+        ],
+        "summary": "Consulter un article public par slug",
+        "tags": [
+          "Support public - connaissance"
+        ],
+        "x-api-audience": "public-support"
+      }
+    },
+    "/api/v1/public-support/knowledge/search": {
+      "get": {
+        "operationId": "PublicKnowledgeController_search",
+        "parameters": [
+          {
+            "description": "Termes de recherche.",
+            "in": "query",
+            "name": "q",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 5,
+              "maximum": 20,
+              "minimum": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "items": {
+                        "$ref": "#/components/schemas/KnowledgeSearchResultDto"
+                      },
+                      "type": "array"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "maximum": 299,
+                      "minimum": 200,
+                      "type": "integer"
+                    },
+                    "success": {
+                      "enum": [
+                        true
+                      ],
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "statusCode",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Résultats de recherche."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "publicSession": []
+          }
+        ],
+        "summary": "Rechercher des articles publics de cette intégration",
+        "tags": [
+          "Support public - connaissance"
         ],
         "x-api-audience": "public-support"
       }
@@ -12369,6 +13219,446 @@
         "summary": "Révoquer un appareil de confiance",
         "tags": [
           "support-integrations"
+        ]
+      }
+    },
+    "/api/v1/support-knowledge": {
+      "get": {
+        "description": "Articles éditorialisés, cloisonnés par intégration. Lecture ADMINISTRATOR/SUPERVISOR.",
+        "operationId": "SupportKnowledgeController_list",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "enum": [
+                "DRAFT",
+                "PUBLISHED",
+                "ARCHIVED"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "integrationId",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "items": {
+                        "$ref": "#/components/schemas/KnowledgeArticleListItemDto"
+                      },
+                      "type": "array"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PaginationMeta"
+                    },
+                    "statusCode": {
+                      "maximum": 299,
+                      "minimum": 200,
+                      "type": "integer"
+                    },
+                    "success": {
+                      "enum": [
+                        true
+                      ],
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "statusCode",
+                    "meta",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Liste paginée des articles."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Token JWT manquant ou expiré."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Rôle insuffisant."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Liste paginée des articles de connaissance",
+        "tags": [
+          "support-knowledge"
+        ]
+      },
+      "post": {
+        "description": "Crée l’article en brouillon avec sa première version et ses intégrations autorisées. Écriture ADMINISTRATOR.",
+        "operationId": "SupportKnowledgeController_create",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateKnowledgeArticleDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/KnowledgeArticleDetailDto"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "maximum": 299,
+                      "minimum": 200,
+                      "type": "integer"
+                    },
+                    "success": {
+                      "enum": [
+                        true
+                      ],
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "statusCode",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Article créé."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Token JWT manquant ou expiré."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Rôle insuffisant."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Créer un article de connaissance",
+        "tags": [
+          "support-knowledge"
+        ]
+      }
+    },
+    "/api/v1/support-knowledge/{id}": {
+      "get": {
+        "description": "Détail, intégrations autorisées et versions append-only. Lecture ADMINISTRATOR/SUPERVISOR.",
+        "operationId": "SupportKnowledgeController_findOne",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/KnowledgeArticleDetailDto"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "maximum": 299,
+                      "minimum": 200,
+                      "type": "integer"
+                    },
+                    "success": {
+                      "enum": [
+                        true
+                      ],
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "statusCode",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Article trouvé."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Token JWT manquant ou expiré."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Rôle insuffisant."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Article introuvable."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Consulter un article avec son historique",
+        "tags": [
+          "support-knowledge"
+        ]
+      },
+      "patch": {
+        "description": "Chaque changement de contenu crée une nouvelle version ; la publication et l’archivage sont tracés. Écriture ADMINISTRATOR.",
+        "operationId": "SupportKnowledgeController_update",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateKnowledgeArticleDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/KnowledgeArticleDetailDto"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "maximum": 299,
+                      "minimum": 200,
+                      "type": "integer"
+                    },
+                    "success": {
+                      "enum": [
+                        true
+                      ],
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "statusCode",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Article mis à jour."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Token JWT manquant ou expiré."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Rôle insuffisant."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Article introuvable."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Modifier, publier ou archiver un article",
+        "tags": [
+          "support-knowledge"
         ]
       }
     },

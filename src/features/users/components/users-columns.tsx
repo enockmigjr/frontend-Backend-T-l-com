@@ -44,7 +44,9 @@ export function userColumns({
       label: 'État',
       sortValue: (user) => Number(user.isActive),
       cell: (user) => (
-        <Badge variant={user.isActive ? 'secondary' : 'outline'}>{user.isActive ? 'Actif' : 'Désactivé'}</Badge>
+        <Badge variant={user.isActive ? (user.isAvailable === false ? 'outline' : 'secondary') : 'outline'}>
+          {!user.isActive ? 'Désactivé' : user.isAvailable === false ? 'En pause' : 'Actif'}
+        </Badge>
       ),
     },
     {

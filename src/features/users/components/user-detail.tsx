@@ -24,6 +24,18 @@ export function UserDetail({ id }: Readonly<{ id: string }>) {
         <Detail label="Rôle" value={roleLabels[user.role]} />
         <Detail label="Département" value={user.department?.name ?? user.departmentName ?? 'Non renseigné'} />
         <Detail label="État" value={user.isActive ? 'Actif' : 'Désactivé'} />
+        <Detail
+          label="Disponibilité"
+          value={
+            !user.isActive
+              ? 'Compte désactivé'
+              : user.isAvailable === false
+                ? 'En pause (indisponible)'
+                : user.absenceEndsAt && new Date(user.absenceEndsAt) > new Date()
+                  ? `En absence jusqu'au ${new Date(user.absenceEndsAt).toLocaleDateString('fr-FR')}`
+                  : 'Disponible'
+          }
+        />
         <Detail label="Dernière connexion" value={formatDate(user.lastLoginAt)} />
       </section>
       {stats ? (

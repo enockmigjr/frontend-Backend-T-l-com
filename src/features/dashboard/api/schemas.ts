@@ -27,6 +27,7 @@ export const overviewSchema = z.object({
     totalTracked: z.number().int(),
     breached: z.number().int(),
     atRisk: z.number().int(),
+    overdue: z.number().int().optional(),
     compliant: z.number().int(),
     complianceRate: z.number(),
   }),
@@ -79,6 +80,7 @@ export const resolutionSchema = z.object({
     avgResolutionTimeMinutes: z.number(),
     medianResolutionTimeMinutes: z.number(),
     p90ResolutionTimeMinutes: z.number(),
+    resolvedCount: z.number().int().optional(),
   }),
   trend: z.array(z.object({ period: z.string(), avgResolutionTimeMinutes: z.number() })),
 });

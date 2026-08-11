@@ -79,6 +79,7 @@ export function DashboardPage() {
 
 function DashboardContent({ data }: Readonly<{ data: DashboardData }>) {
   const critical = data.overview.byPriority.CRITICAL ?? 0;
+  const overdue = data.overview.sla.overdue ?? 0;
   const generatedAt = new Date(data.workload.generatedAt).toLocaleString('fr-FR', {
     dateStyle: 'medium',
     timeStyle: 'short',
@@ -88,6 +89,7 @@ function DashboardContent({ data }: Readonly<{ data: DashboardData }>) {
     { label: 'Tickets ouverts', value: data.overview.ticketVolume.openTickets, icon: RadioTower, tone: 'text-blue-700' },
     { label: 'Créés aujourd’hui', value: data.overview.ticketVolume.createdToday, icon: TicketCheck, tone: 'text-slate-700' },
     { label: 'Résolus aujourd’hui', value: data.overview.ticketVolume.resolvedToday, icon: CircleCheck, tone: 'text-emerald-700' },
+    { label: 'SLA en retard', value: overdue, icon: AlertTriangle, tone: 'text-red-700' },
     { label: 'Conformité SLA', value: `${data.overview.sla.complianceRate}%`, icon: CircleCheck, tone: 'text-emerald-700' },
     {
       label: 'Première réponse SLA',
@@ -104,7 +106,10 @@ function DashboardContent({ data }: Readonly<{ data: DashboardData }>) {
     },
     {
       label: 'Résolution moyenne',
-      value: `${Math.round(data.resolution.overall.avgResolutionTimeMinutes)} min`,
+      value:
+        (data.resolution.overall.resolvedCount ?? 0) === 0
+          ? '—'
+          : `${Math.round(data.resolution.overall.avgResolutionTimeMinutes)} min`,
       icon: Clock3,
       tone: 'text-amber-700',
     },
@@ -117,7 +122,7 @@ function DashboardContent({ data }: Readonly<{ data: DashboardData }>) {
         <Attention
           label="SLA dépassés"
           value={data.overview.sla.breached}
-          description={`${data.overview.sla.atRisk} supplémentaires à risque`}
+          description={`${data.overview.sla.atRisk} à risque · ${overdue} en retard`}
           critical={data.overview.sla.breached > 0}
         />
         <Attention

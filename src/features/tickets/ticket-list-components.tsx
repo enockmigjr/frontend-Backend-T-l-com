@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Panel } from '@/components/ui/panel';
 import { toast } from '@/components/ui/toast';
-import { formatDate, formatRemaining } from './presentation';
+import { formatDate, formatRemaining, statusLabels } from './presentation';
 import type { TicketListItem } from './schemas';
 import { TicketPriorityBadge, TicketStatusBadge } from './ticket-badges';
 
@@ -25,8 +25,10 @@ export function TicketRow({
   onStart,
 }: Readonly<{ ticket: TicketListItem; teamName?: string | null; canStart: boolean; onStart: () => void }>) {
   const [mountedAt] = useState(Date.now);
+  const closed = ticket.status === 'RESOLVED' || ticket.status === 'CLOSED' || ticket.status === 'CANCELLED';
   const overdue =
-    ticket.slaBreached || (ticket.resolutionDueAt ? new Date(ticket.resolutionDueAt).getTime() < mountedAt : false);
+    !closed &&
+    (ticket.slaBreached || (ticket.resolutionDueAt ? new Date(ticket.resolutionDueAt).getTime() < mountedAt : false));
   return (
     <tr className="group hover:bg-muted/25">
       <td className="px-4 py-3.5">
@@ -52,9 +54,9 @@ export function TicketRow({
       </td>
       <td className="px-4 py-3">
         <p className={overdue ? 'font-semibold text-red-700' : 'font-medium'}>
-          {formatRemaining(ticket.resolutionDueAt)}
+          {closed ? statusLabels[ticket.status] : formatRemaining(ticket.resolutionDueAt)}
         </p>
-        {ticket.resolutionDueAt ? (
+        {ticket.resolutionDueAt && !closed ? (
           <p className="mt-0.5 text-xs text-muted-foreground">{formatDate(ticket.resolutionDueAt)}</p>
         ) : null}
       </td>
