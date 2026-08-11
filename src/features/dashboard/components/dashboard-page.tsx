@@ -99,6 +99,12 @@ function DashboardContent({ data }: Readonly<{ data: DashboardData }>) {
     },
     { label: 'Agents actifs', value: data.workload.summary.totalAgents, icon: Users, tone: 'text-indigo-700' },
     {
+      label: 'Agents en pause/absence',
+      value: data.workload.summary.absentAgentsCount ?? 0,
+      icon: AlertTriangle,
+      tone: 'text-amber-700',
+    },
+    {
       label: 'Charge moyenne',
       value: `${data.workload.summary.avgTicketsPerAgent.toFixed(1)} ticket`,
       icon: Gauge,

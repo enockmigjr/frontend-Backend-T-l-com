@@ -58,6 +58,7 @@ export const workloadSchema = z.object({
   summary: z.object({
     totalAgents: z.number().int(),
     totalOpenTickets: z.number().int(),
+    absentAgentsCount: z.number().int().optional(),
     avgTicketsPerAgent: z.number(),
     unassignedTickets: z.number().int(),
   }),
@@ -67,10 +68,13 @@ export const workloadSchema = z.object({
       firstName: z.string().nullable().optional(),
       lastName: z.string().nullable().optional(),
       email: z.string().nullable().optional(),
+      isAvailable: z.boolean().nullable().optional(),
+      absenceEndsAt: z.string().nullable().optional(),
       openTicketsCount: z.number().int(),
       criticalTicketsCount: z.number().int(),
       highTicketsCount: z.number().int(),
       slaAtRiskCount: z.number().int(),
+      overdueTicketsCount: z.number().int().optional(),
     }),
   ),
 });

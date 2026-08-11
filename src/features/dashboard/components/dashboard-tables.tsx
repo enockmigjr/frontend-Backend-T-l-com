@@ -29,7 +29,8 @@ export function DashboardTables({ data }: { readonly data: DashboardData }) {
       <section className="overflow-x-auto rounded-xl border bg-white p-5">
         <h2 className="font-semibold">Charge des agents</h2>
         <p className="mt-1 text-sm text-zinc-600">
-          {data.workload.summary.unassignedTickets} ticket(s) non assigné(s).
+          {data.workload.summary.unassignedTickets} ticket(s) non assigné(s) ·{' '}
+          {data.workload.summary.absentAgentsCount ?? 0} agent(s) en pause ou en absence.
         </p>
         <table className="mt-3 w-full text-left text-sm">
           <thead>
@@ -38,6 +39,8 @@ export function DashboardTables({ data }: { readonly data: DashboardData }) {
               <th>Ouverts</th>
               <th>Critiques</th>
               <th>À risque SLA</th>
+              <th>En retard</th>
+              <th>Disponibilité</th>
             </tr>
           </thead>
           <tbody>
@@ -48,7 +51,17 @@ export function DashboardTables({ data }: { readonly data: DashboardData }) {
                 </td>
                 <td>{item.openTicketsCount}</td>
                 <td>{item.criticalTicketsCount}</td>
-                <td>{item.slaAtRiskCount}</td>
+                <td className={item.slaAtRiskCount > 0 ? 'font-semibold text-red-700' : ''}>{item.slaAtRiskCount}</td>
+                <td className={item.overdueTicketsCount ? 'font-semibold text-red-700' : ''}>
+                  {item.overdueTicketsCount ?? 0}
+                </td>
+                <td>
+                  {item.isAvailable === false
+                    ? 'En pause'
+                    : item.absenceEndsAt && new Date(item.absenceEndsAt) > new Date()
+                      ? 'En absence'
+                      : 'Disponible'}
+                </td>
               </tr>
             ))}
           </tbody>
