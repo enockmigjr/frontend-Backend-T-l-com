@@ -7,9 +7,12 @@ import {
   FolderCog,
   Gauge,
   History,
+  Plug,
+  Send,
   Settings,
   ShieldCheck,
   Users,
+  UsersRound,
 } from 'lucide-react';
 import type { UserRole } from '@/lib/auth/session';
 
@@ -70,6 +73,27 @@ export const navigation: readonly NavigationItem[] = [
     icon: ShieldCheck,
     group: 'Administration',
     roles: ['ADMINISTRATOR'],
+  },
+  {
+    label: 'Intégrations',
+    href: '/admin/integrations',
+    icon: Plug,
+    group: 'Administration',
+    roles: ['ADMINISTRATOR', 'SUPERVISOR'],
+  },
+  {
+    label: 'Livraisons externes',
+    href: '/admin/livraisons',
+    icon: Send,
+    group: 'Administration',
+    roles: ['ADMINISTRATOR', 'SUPERVISOR'],
+  },
+  {
+    label: 'Demandeurs publics',
+    href: '/admin/demandeurs',
+    icon: UsersRound,
+    group: 'Administration',
+    roles: ['ADMINISTRATOR', 'SUPERVISOR'],
   },
 ];
 

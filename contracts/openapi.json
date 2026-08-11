@@ -433,6 +433,46 @@
         ],
         "type": "object"
       },
+      "BootstrapGrantDataDto": {
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "expiresAt"
+        ],
+        "type": "object"
+      },
+      "BootstrapGrantResponseDto": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/BootstrapGrantDataDto"
+          },
+          "statusCode": {
+            "maximum": 299,
+            "minimum": 200,
+            "type": "number"
+          },
+          "success": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success",
+          "statusCode",
+          "data"
+        ],
+        "type": "object"
+      },
       "Category": {
         "properties": {
           "createdAt": {
@@ -484,6 +524,51 @@
         ],
         "type": "object"
       },
+      "ConfirmPublicTicketDto": {
+        "properties": {
+          "confirmed": {
+            "example": true,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "confirmed"
+        ],
+        "type": "object"
+      },
+      "ConsumeBootstrapDto": {
+        "properties": {
+          "code": {
+            "description": "Code opaque extrait du fragment puis envoyé en POST",
+            "maxLength": 128,
+            "minLength": 32,
+            "type": "string"
+          }
+        },
+        "required": [
+          "code"
+        ],
+        "type": "object"
+      },
+      "ConsumeEmailVerificationDto": {
+        "properties": {
+          "challengeId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "code": {
+            "example": "123456",
+            "maxLength": 6,
+            "minLength": 6,
+            "type": "string"
+          }
+        },
+        "required": [
+          "challengeId",
+          "code"
+        ],
+        "type": "object"
+      },
       "CreateCategoryDto": {
         "properties": {
           "description": {
@@ -513,6 +598,11 @@
             "example": "Information complémentaire sur la panne en cours — le technicien est sur place.",
             "maxLength": 5000,
             "minLength": 1,
+            "type": "string"
+          },
+          "correctsCommentId": {
+            "description": "Réponse précédente corrigée; la réponse originale reste immuable.",
+            "format": "uuid",
             "type": "string"
           }
         },
@@ -571,6 +661,29 @@
         ],
         "type": "object"
       },
+      "CreatePublicCommentDto": {
+        "properties": {
+          "content": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "content"
+        ],
+        "type": "object"
+      },
+      "CreatePublicConversationDto": {
+        "properties": {
+          "serviceKey": {
+            "example": "internet-fixe",
+            "maxLength": 80,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "CreateSlaPolicyDto": {
         "properties": {
           "categoryId": {
@@ -607,6 +720,43 @@
           "priority",
           "firstResponseMinutes",
           "resolutionMinutes"
+        ],
+        "type": "object"
+      },
+      "CreateSupportIntegrationDto": {
+        "properties": {
+          "allowedOrigins": {
+            "example": [
+              "https://photos.example.com"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "appearance": {
+            "type": "object"
+          },
+          "features": {
+            "type": "object"
+          },
+          "name": {
+            "example": "PhotoVault production",
+            "type": "string"
+          },
+          "quotaPolicy": {
+            "$ref": "#/components/schemas/IntegrationQuotaPolicyDto"
+          },
+          "routingPolicy": {
+            "type": "object"
+          },
+          "trustPolicy": {
+            "$ref": "#/components/schemas/IntegrationTrustPolicyDto"
+          }
+        },
+        "required": [
+          "name",
+          "allowedOrigins"
         ],
         "type": "object"
       },
@@ -1386,6 +1536,44 @@
         ],
         "type": "object"
       },
+      "DeviceRevokedDataDto": {
+        "properties": {
+          "revoked": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "revoked"
+        ],
+        "type": "object"
+      },
+      "DeviceRevokedResponseDto": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/DeviceRevokedDataDto"
+          },
+          "statusCode": {
+            "maximum": 299,
+            "minimum": 200,
+            "type": "number"
+          },
+          "success": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success",
+          "statusCode",
+          "data"
+        ],
+        "type": "object"
+      },
       "EscalateTicketDto": {
         "properties": {
           "departmentId": {
@@ -1408,6 +1596,284 @@
           "userId",
           "departmentId"
         ],
+        "type": "object"
+      },
+      "ExternalDeliveryListItemDto": {
+        "properties": {
+          "attemptCount": {
+            "type": "number"
+          },
+          "channel": {
+            "enum": [
+              "INTERNAL",
+              "WEB_PORTAL",
+              "WIDGET",
+              "WORDPRESS",
+              "EMAIL",
+              "WHATSAPP",
+              "API"
+            ],
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "deliveredAt": {
+            "nullable": true,
+            "type": "object"
+          },
+          "destinationKey": {
+            "description": "Clé de destination opaque (empreinte, jamais la valeur en clair).",
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "lastError": {
+            "description": "Catégorie d’erreur du dernier échec, sans contenu.",
+            "nullable": true,
+            "type": "object"
+          },
+          "outboxEventId": {
+            "description": "Événement outbox d’origine.",
+            "type": "string"
+          },
+          "providerMessageId": {
+            "nullable": true,
+            "type": "object"
+          },
+          "status": {
+            "enum": [
+              "PENDING",
+              "PROCESSING",
+              "DELIVERED",
+              "FAILED",
+              "DELIVERY_UNKNOWN"
+            ],
+            "type": "string"
+          },
+          "supportIntegrationId": {
+            "description": "Intégration de support concernée.",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "outboxEventId",
+          "supportIntegrationId",
+          "channel",
+          "destinationKey",
+          "status",
+          "attemptCount",
+          "createdAt",
+          "updatedAt"
+        ],
+        "type": "object"
+      },
+      "ExternalRequesterDetailDto": {
+        "properties": {
+          "anonymizedAt": {
+            "description": "Date d’anonymisation si le profil a été effacé.",
+            "nullable": true,
+            "type": "object"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "displayName": {
+            "nullable": true,
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          },
+          "lastSeenAt": {
+            "nullable": true,
+            "type": "object"
+          },
+          "locale": {
+            "type": "string"
+          },
+          "summary": {
+            "description": "Synthèse des impacts sans contenu des tickets ni des messages.",
+            "type": "object"
+          },
+          "supportIntegrationId": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "supportIntegrationId",
+          "locale",
+          "createdAt",
+          "updatedAt",
+          "summary"
+        ],
+        "type": "object"
+      },
+      "ExternalRequesterIdentityDto": {
+        "properties": {
+          "identityType": {
+            "enum": [
+              "EMAIL",
+              "PHONE",
+              "WORDPRESS"
+            ],
+            "type": "string"
+          },
+          "revokedAt": {
+            "nullable": true,
+            "type": "object"
+          },
+          "verifiedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "identityType",
+          "verifiedAt"
+        ],
+        "type": "object"
+      },
+      "ExternalRequesterListItemDto": {
+        "properties": {
+          "anonymizedAt": {
+            "description": "Date d’anonymisation si le profil a été effacé.",
+            "nullable": true,
+            "type": "object"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "displayName": {
+            "nullable": true,
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          },
+          "lastSeenAt": {
+            "nullable": true,
+            "type": "object"
+          },
+          "locale": {
+            "type": "string"
+          },
+          "supportIntegrationId": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "supportIntegrationId",
+          "locale",
+          "createdAt",
+          "updatedAt"
+        ],
+        "type": "object"
+      },
+      "IntegrationQuotaPolicyDto": {
+        "properties": {
+          "attachmentMaxBytes": {
+            "default": 10485760,
+            "maximum": 10485760,
+            "minimum": 1024,
+            "type": "number"
+          },
+          "attachmentUploadsPerHour": {
+            "default": 20,
+            "maximum": 200,
+            "minimum": 1,
+            "type": "number"
+          },
+          "attachmentUploadsPerIntegrationHour": {
+            "default": 1000,
+            "maximum": 10000,
+            "minimum": 10,
+            "type": "number"
+          },
+          "attachmentUploadsPerIpHour": {
+            "default": 50,
+            "maximum": 500,
+            "minimum": 1,
+            "type": "number"
+          },
+          "verificationAttemptsPerHour": {
+            "default": 10,
+            "maximum": 100,
+            "minimum": 1,
+            "type": "number"
+          },
+          "verificationAttemptsPerIntegrationHour": {
+            "default": 2000,
+            "maximum": 20000,
+            "minimum": 10,
+            "type": "number"
+          },
+          "verificationAttemptsPerIpHour": {
+            "default": 50,
+            "maximum": 2000,
+            "minimum": 1,
+            "type": "number"
+          },
+          "verificationRequestsPerHour": {
+            "default": 5,
+            "maximum": 100,
+            "minimum": 1,
+            "type": "number"
+          },
+          "verificationRequestsPerIntegrationHour": {
+            "default": 500,
+            "maximum": 10000,
+            "minimum": 10,
+            "type": "number"
+          },
+          "verificationRequestsPerIpHour": {
+            "default": 20,
+            "maximum": 1000,
+            "minimum": 1,
+            "type": "number"
+          }
+        },
+        "type": "object"
+      },
+      "IntegrationTrustPolicyDto": {
+        "properties": {
+          "policyVersion": {
+            "default": 1,
+            "minimum": 1,
+            "type": "number"
+          },
+          "renewalWindowDays": {
+            "default": 7,
+            "maximum": 30,
+            "minimum": 1,
+            "type": "number"
+          },
+          "trustedDeviceDays": {
+            "default": 90,
+            "maximum": 365,
+            "minimum": 1,
+            "type": "number"
+          }
+        },
         "type": "object"
       },
       "InternalNote": {
@@ -1612,6 +2078,977 @@
         },
         "type": "object"
       },
+      "PublicAppearanceDto": {
+        "properties": {
+          "accentColor": {
+            "pattern": "^#[0-9A-F]{6}$",
+            "type": "string"
+          },
+          "logoUrl": {
+            "format": "uri",
+            "type": "string"
+          },
+          "primaryColor": {
+            "pattern": "^#[0-9A-F]{6}$",
+            "type": "string"
+          },
+          "supportName": {
+            "type": "string"
+          },
+          "welcomeMessage": {
+            "type": "string"
+          },
+          "welcomeTitle": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PublicAttachmentDataDto": {
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "error": {
+            "nullable": true,
+            "type": "string"
+          },
+          "filename": {
+            "type": "string"
+          },
+          "fileSize": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "mimeType": {
+            "type": "string"
+          },
+          "scanStatus": {
+            "enum": [
+              "NOT_REQUIRED",
+              "QUARANTINED",
+              "PENDING",
+              "SCANNING",
+              "CLEAN",
+              "INFECTED",
+              "ERROR"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "filename",
+          "fileSize",
+          "scanStatus"
+        ],
+        "type": "object"
+      },
+      "PublicAttachmentListResponseDto": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/PublicAttachmentDataDto"
+            },
+            "type": "array"
+          },
+          "statusCode": {
+            "maximum": 299,
+            "minimum": 200,
+            "type": "number"
+          },
+          "success": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success",
+          "statusCode",
+          "data"
+        ],
+        "type": "object"
+      },
+      "PublicAttachmentResponseDto": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/PublicAttachmentDataDto"
+          },
+          "statusCode": {
+            "maximum": 299,
+            "minimum": 200,
+            "type": "number"
+          },
+          "success": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success",
+          "statusCode",
+          "data"
+        ],
+        "type": "object"
+      },
+      "PublicCatalogDataDto": {
+        "properties": {
+          "categories": {
+            "items": {
+              "$ref": "#/components/schemas/PublicCategoryDto"
+            },
+            "type": "array"
+          },
+          "services": {
+            "items": {
+              "$ref": "#/components/schemas/PublicServiceDto"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "categories",
+          "services"
+        ],
+        "type": "object"
+      },
+      "PublicCatalogResponseDto": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/PublicCatalogDataDto"
+          },
+          "statusCode": {
+            "maximum": 299,
+            "minimum": 200,
+            "type": "number"
+          },
+          "success": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success",
+          "statusCode",
+          "data"
+        ],
+        "type": "object"
+      },
+      "PublicCategoryDto": {
+        "properties": {
+          "description": {
+            "nullable": true,
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "type": "object"
+      },
+      "PublicCommentDataDto": {
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "content"
+        ],
+        "type": "object"
+      },
+      "PublicCommentResponseDto": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/PublicCommentDataDto"
+          },
+          "statusCode": {
+            "maximum": 299,
+            "minimum": 200,
+            "type": "number"
+          },
+          "success": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success",
+          "statusCode",
+          "data"
+        ],
+        "type": "object"
+      },
+      "PublicConversationDetailDataDto": {
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "draft": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PublicTicketDraftDataDto"
+              }
+            ],
+            "nullable": true
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "lastMessageAt": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "ticketId": {
+            "format": "uuid",
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "state",
+          "status",
+          "createdAt"
+        ],
+        "type": "object"
+      },
+      "PublicConversationDetailResponseDto": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/PublicConversationDetailDataDto"
+          },
+          "statusCode": {
+            "maximum": 299,
+            "minimum": 200,
+            "type": "number"
+          },
+          "success": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success",
+          "statusCode",
+          "data"
+        ],
+        "type": "object"
+      },
+      "PublicConversationStateDataDto": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "QUALIFY",
+              "DRAFT"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "state"
+        ],
+        "type": "object"
+      },
+      "PublicConversationStateResponseDto": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/PublicConversationStateDataDto"
+          },
+          "statusCode": {
+            "maximum": 299,
+            "minimum": 200,
+            "type": "number"
+          },
+          "success": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success",
+          "statusCode",
+          "data"
+        ],
+        "type": "object"
+      },
+      "PublicDraftSavedDataDto": {
+        "properties": {
+          "draft": {
+            "$ref": "#/components/schemas/PublicTicketDraftDataDto"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "QUALIFY",
+              "DRAFT"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "state",
+          "draft"
+        ],
+        "type": "object"
+      },
+      "PublicDraftSavedResponseDto": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/PublicDraftSavedDataDto"
+          },
+          "statusCode": {
+            "maximum": 299,
+            "minimum": 200,
+            "type": "number"
+          },
+          "success": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success",
+          "statusCode",
+          "data"
+        ],
+        "type": "object"
+      },
+      "PublicHandoffDataDto": {
+        "properties": {
+          "conversationId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "FOLLOW_UP_OR_HANDOFF"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "conversationId",
+          "state"
+        ],
+        "type": "object"
+      },
+      "PublicHandoffDto": {
+        "properties": {
+          "reason": {
+            "maxLength": 500,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PublicHandoffResponseDto": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/PublicHandoffDataDto"
+          },
+          "statusCode": {
+            "maximum": 299,
+            "minimum": 200,
+            "type": "number"
+          },
+          "success": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success",
+          "statusCode",
+          "data"
+        ],
+        "type": "object"
+      },
+      "PublicIntegrationConfigDataDto": {
+        "properties": {
+          "appearance": {
+            "$ref": "#/components/schemas/PublicAppearanceDto"
+          },
+          "features": {
+            "$ref": "#/components/schemas/PublicIntegrationFeaturesDto"
+          },
+          "frameAllowed": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "frameAllowed",
+          "appearance",
+          "features"
+        ],
+        "type": "object"
+      },
+      "PublicIntegrationConfigResponseDto": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/PublicIntegrationConfigDataDto"
+          },
+          "statusCode": {
+            "maximum": 299,
+            "minimum": 200,
+            "type": "number"
+          },
+          "success": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success",
+          "statusCode",
+          "data"
+        ],
+        "type": "object"
+      },
+      "PublicIntegrationFeaturesDto": {
+        "properties": {
+          "publicAttachments": {
+            "type": "boolean"
+          },
+          "publicBot": {
+            "type": "boolean"
+          },
+          "publicRealtime": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "publicAttachments",
+          "publicRealtime",
+          "publicBot"
+        ],
+        "type": "object"
+      },
+      "PublicPaginationMetaDto": {
+        "properties": {
+          "limit": {
+            "maximum": 100,
+            "minimum": 1,
+            "type": "number"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "total": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "totalPages": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "page",
+          "limit",
+          "total",
+          "totalPages"
+        ],
+        "type": "object"
+      },
+      "PublicPreferencesDataDto": {
+        "properties": {
+          "displayName": {
+            "nullable": true,
+            "type": "string"
+          },
+          "lastSeenAt": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "locale": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "locale"
+        ],
+        "type": "object"
+      },
+      "PublicPreferencesResponseDto": {
+        "properties": {
+          "data": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PublicPreferencesDataDto"
+              }
+            ],
+            "nullable": true
+          },
+          "statusCode": {
+            "maximum": 299,
+            "minimum": 200,
+            "type": "number"
+          },
+          "success": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success",
+          "statusCode",
+          "data"
+        ],
+        "type": "object"
+      },
+      "PublicServiceDto": {
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "label"
+        ],
+        "type": "object"
+      },
+      "PublicSessionDataDto": {
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "expiresIn": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "trustedDeviceExpiresAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "trustedDeviceToken": {
+            "type": "string"
+          },
+          "verified": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "accessToken",
+          "expiresIn",
+          "trustedDeviceToken",
+          "trustedDeviceExpiresAt"
+        ],
+        "type": "object"
+      },
+      "PublicSessionResponseDto": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/PublicSessionDataDto"
+          },
+          "statusCode": {
+            "maximum": 299,
+            "minimum": 200,
+            "type": "number"
+          },
+          "success": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success",
+          "statusCode",
+          "data"
+        ],
+        "type": "object"
+      },
+      "PublicTicketConfirmedDataDto": {
+        "properties": {
+          "conversationId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "ticketId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "ticketNumber": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "conversationId",
+          "ticketId",
+          "ticketNumber"
+        ],
+        "type": "object"
+      },
+      "PublicTicketConfirmedResponseDto": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/PublicTicketConfirmedDataDto"
+          },
+          "statusCode": {
+            "maximum": 299,
+            "minimum": 200,
+            "type": "number"
+          },
+          "success": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success",
+          "statusCode",
+          "data"
+        ],
+        "type": "object"
+      },
+      "PublicTicketDetailDto": {
+        "properties": {
+          "closedAt": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "firstResponseDueAt": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "resolutionDueAt": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "resolvedAt": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "RECEIVED",
+              "IN_PROGRESS",
+              "WAITING_FOR_CUSTOMER",
+              "RESOLVED",
+              "CLOSED"
+            ],
+            "type": "string"
+          },
+          "ticketNumber": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "ticketNumber",
+          "title",
+          "status",
+          "createdAt",
+          "updatedAt",
+          "description"
+        ],
+        "type": "object"
+      },
+      "PublicTicketDetailResponseDto": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/PublicTicketDetailDto"
+          },
+          "statusCode": {
+            "maximum": 299,
+            "minimum": 200,
+            "type": "number"
+          },
+          "success": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success",
+          "statusCode",
+          "data"
+        ],
+        "type": "object"
+      },
+      "PublicTicketDraftDataDto": {
+        "properties": {
+          "categoryId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "customerAccountNumber": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "impact": {
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH"
+            ],
+            "type": "string"
+          },
+          "serviceKey": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "urgency": {
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "categoryId",
+          "title",
+          "description",
+          "impact",
+          "urgency"
+        ],
+        "type": "object"
+      },
+      "PublicTicketListResponseDto": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/PublicTicketSummaryDto"
+            },
+            "type": "array"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PublicPaginationMetaDto"
+          },
+          "statusCode": {
+            "maximum": 299,
+            "minimum": 200,
+            "type": "number"
+          },
+          "success": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success",
+          "statusCode",
+          "data",
+          "meta"
+        ],
+        "type": "object"
+      },
+      "PublicTicketSummaryDto": {
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "RECEIVED",
+              "IN_PROGRESS",
+              "WAITING_FOR_CUSTOMER",
+              "RESOLVED",
+              "CLOSED"
+            ],
+            "type": "string"
+          },
+          "ticketNumber": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "ticketNumber",
+          "title",
+          "status",
+          "createdAt",
+          "updatedAt"
+        ],
+        "type": "object"
+      },
+      "PublicTimelineEntryDto": {
+        "properties": {
+          "author": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "correctsCommentId": {
+            "format": "uuid",
+            "nullable": true,
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "RECEIVED",
+              "IN_PROGRESS",
+              "WAITING_FOR_CUSTOMER",
+              "RESOLVED",
+              "CLOSED"
+            ],
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "COMMENT",
+              "STATUS"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "createdAt"
+        ],
+        "type": "object"
+      },
+      "PublicTimelineResponseDto": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/PublicTimelineEntryDto"
+            },
+            "type": "array"
+          },
+          "statusCode": {
+            "maximum": 299,
+            "minimum": 200,
+            "type": "number"
+          },
+          "success": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success",
+          "statusCode",
+          "data"
+        ],
+        "type": "object"
+      },
       "RecentTicket": {
         "properties": {
           "id": {
@@ -1770,6 +3207,27 @@
         ],
         "type": "object"
       },
+      "RequestEmailVerificationDto": {
+        "properties": {
+          "email": {
+            "example": "client@example.com",
+            "format": "email",
+            "maxLength": 255,
+            "type": "string"
+          },
+          "integrationKey": {
+            "description": "Clé publique de l'intégration",
+            "maxLength": 80,
+            "minLength": 16,
+            "type": "string"
+          }
+        },
+        "required": [
+          "integrationKey",
+          "email"
+        ],
+        "type": "object"
+      },
       "ResolveTicketDto": {
         "properties": {
           "resolutionSummary": {
@@ -1778,6 +3236,68 @@
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "RotateIntegrationSecretDto": {
+        "properties": {
+          "secret": {
+            "description": "Secret aléatoire de 32 octets encodé en base64url; il ne sera jamais renvoyé.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "secret"
+        ],
+        "type": "object"
+      },
+      "SavePublicTicketDraftDto": {
+        "properties": {
+          "categoryId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "customerAccountNumber": {
+            "maxLength": 100,
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 10000,
+            "minLength": 10,
+            "type": "string"
+          },
+          "impact": {
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH"
+            ],
+            "type": "string"
+          },
+          "serviceKey": {
+            "maxLength": 80,
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 255,
+            "minLength": 5,
+            "type": "string"
+          },
+          "urgency": {
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "categoryId",
+          "title",
+          "description",
+          "impact",
+          "urgency"
+        ],
         "type": "object"
       },
       "Setting": {
@@ -2610,6 +4130,69 @@
         ],
         "type": "object"
       },
+      "TrustedDeviceDataDto": {
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "current": {
+            "type": "boolean"
+          },
+          "expiresAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "lastUsedAt": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "revokedAt": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "current",
+          "createdAt",
+          "expiresAt"
+        ],
+        "type": "object"
+      },
+      "TrustedDeviceListResponseDto": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/TrustedDeviceDataDto"
+            },
+            "type": "array"
+          },
+          "statusCode": {
+            "maximum": 299,
+            "minimum": 200,
+            "type": "number"
+          },
+          "success": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success",
+          "statusCode",
+          "data"
+        ],
+        "type": "object"
+      },
       "UpdateCategoryDto": {
         "properties": {
           "description": {
@@ -2672,6 +4255,20 @@
         ],
         "type": "object"
       },
+      "UpdatePublicPreferencesDto": {
+        "properties": {
+          "displayName": {
+            "maxLength": 160,
+            "type": "string"
+          },
+          "locale": {
+            "example": "fr",
+            "maxLength": 16,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "UpdateSettingDto": {
         "properties": {
           "description": {
@@ -2703,6 +4300,47 @@
             "example": 480,
             "minimum": 1,
             "type": "number"
+          }
+        },
+        "type": "object"
+      },
+      "UpdateSupportIntegrationDto": {
+        "properties": {
+          "allowedOrigins": {
+            "example": [
+              "https://photos.example.com"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "appearance": {
+            "type": "object"
+          },
+          "features": {
+            "type": "object"
+          },
+          "name": {
+            "example": "PhotoVault production",
+            "type": "string"
+          },
+          "quotaPolicy": {
+            "$ref": "#/components/schemas/IntegrationQuotaPolicyDto"
+          },
+          "routingPolicy": {
+            "type": "object"
+          },
+          "status": {
+            "enum": [
+              "DRAFT",
+              "ACTIVE",
+              "SUSPENDED"
+            ],
+            "type": "string"
+          },
+          "trustPolicy": {
+            "$ref": "#/components/schemas/IntegrationTrustPolicyDto"
           }
         },
         "type": "object"
@@ -2904,6 +4542,84 @@
           "slaBreachedCount"
         ],
         "type": "object"
+      },
+      "VerificationRejectedDataDto": {
+        "properties": {
+          "verified": {
+            "enum": [
+              false
+            ],
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "verified"
+        ],
+        "type": "object"
+      },
+      "VerificationRejectedResponseDto": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/VerificationRejectedDataDto"
+          },
+          "statusCode": {
+            "maximum": 299,
+            "minimum": 200,
+            "type": "number"
+          },
+          "success": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success",
+          "statusCode",
+          "data"
+        ],
+        "type": "object"
+      },
+      "VerificationRequestDataDto": {
+        "properties": {
+          "challengeId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "challengeId"
+        ],
+        "type": "object"
+      },
+      "VerificationRequestResponseDto": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/VerificationRequestDataDto"
+          },
+          "message": {
+            "type": "string"
+          },
+          "statusCode": {
+            "maximum": 299,
+            "minimum": 200,
+            "type": "number"
+          },
+          "success": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success",
+          "statusCode",
+          "data",
+          "message"
+        ],
+        "type": "object"
       }
     },
     "securitySchemes": {
@@ -2911,6 +4627,28 @@
         "bearerFormat": "JWT",
         "scheme": "bearer",
         "type": "http"
+      },
+      "integrationAssertion": {
+        "bearerFormat": "IntegrationAssertion",
+        "description": "Assertion signée à usage unique d'une intégration",
+        "scheme": "bearer",
+        "type": "http"
+      },
+      "integrationKey": {
+        "in": "header",
+        "name": "x-integration-key",
+        "type": "apiKey"
+      },
+      "publicSession": {
+        "bearerFormat": "PublicSession",
+        "description": "Session courte du demandeur public",
+        "scheme": "bearer",
+        "type": "http"
+      },
+      "trustedDevice": {
+        "in": "header",
+        "name": "x-trusted-device",
+        "type": "apiKey"
       }
     }
   },
@@ -5856,6 +7594,508 @@
         ]
       }
     },
+    "/api/v1/external-deliveries": {
+      "get": {
+        "description": "Livraisons sortantes (email, futur WhatsApp) sans contenu ni secret. Lecture ADMINISTRATOR/SUPERVISOR.",
+        "operationId": "ExternalDeliveriesAdminController_list",
+        "parameters": [
+          {
+            "description": "Filtrer par intégration de support (UUID).",
+            "in": "query",
+            "name": "supportIntegrationId",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Canal de livraison.",
+            "in": "query",
+            "name": "channel",
+            "required": false,
+            "schema": {
+              "enum": [
+                "INTERNAL",
+                "WEB_PORTAL",
+                "WIDGET",
+                "WORDPRESS",
+                "EMAIL",
+                "WHATSAPP",
+                "API"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "Statut de livraison.",
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "enum": [
+                "PENDING",
+                "PROCESSING",
+                "DELIVERED",
+                "FAILED",
+                "DELIVERY_UNKNOWN"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "Numéro de page (commence à 1).",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "type": "number"
+            }
+          },
+          {
+            "description": "Éléments par page (max 100).",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "items": {
+                        "$ref": "#/components/schemas/ExternalDeliveryListItemDto"
+                      },
+                      "type": "array"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PaginationMeta"
+                    },
+                    "statusCode": {
+                      "maximum": 299,
+                      "minimum": 200,
+                      "type": "integer"
+                    },
+                    "success": {
+                      "enum": [
+                        true
+                      ],
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "statusCode",
+                    "meta",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Liste paginée des livraisons."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Token JWT manquant ou expiré."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Rôle insuffisant — ADMINISTRATOR ou SUPERVISOR requis."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Liste paginée des livraisons externes",
+        "tags": [
+          "external-deliveries"
+        ]
+      }
+    },
+    "/api/v1/external-deliveries/{id}": {
+      "get": {
+        "description": "Détail d’une livraison sans contenu ni secret. Lecture ADMINISTRATOR/SUPERVISOR.",
+        "operationId": "ExternalDeliveriesAdminController_findOne",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/ExternalDeliveryListItemDto"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "maximum": 299,
+                      "minimum": 200,
+                      "type": "integer"
+                    },
+                    "success": {
+                      "enum": [
+                        true
+                      ],
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "statusCode",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Livraison trouvée."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Token JWT manquant ou expiré."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Rôle insuffisant — ADMINISTRATOR ou SUPERVISOR requis."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Livraison introuvable."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Consulter une livraison externe",
+        "tags": [
+          "external-deliveries"
+        ]
+      }
+    },
+    "/api/v1/external-requesters": {
+      "get": {
+        "description": "Profils publics conservés côté serveur, sans compte interne. Jamais d’adresse email ou de secret en clair. Lecture ADMINISTRATOR/SUPERVISOR.",
+        "operationId": "ExternalRequestersController_list",
+        "parameters": [
+          {
+            "description": "Filtrer par intégration de support (UUID).",
+            "in": "query",
+            "name": "supportIntegrationId",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Recherche insensible à la casse sur le nom affiché.",
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filtrer les profils anonymisés (true) ou actifs (false).",
+            "in": "query",
+            "name": "anonymized",
+            "required": false,
+            "schema": {
+              "enum": [
+                "true",
+                "false"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "Numéro de page (commence à 1).",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "type": "number"
+            }
+          },
+          {
+            "description": "Éléments par page (max 100).",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "items": {
+                        "$ref": "#/components/schemas/ExternalRequesterListItemDto"
+                      },
+                      "type": "array"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PaginationMeta"
+                    },
+                    "statusCode": {
+                      "maximum": 299,
+                      "minimum": 200,
+                      "type": "integer"
+                    },
+                    "success": {
+                      "enum": [
+                        true
+                      ],
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "statusCode",
+                    "meta",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Liste paginée des demandeurs."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Token JWT manquant ou expiré."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Rôle insuffisant — ADMINISTRATOR ou SUPERVISOR requis."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Liste paginée des demandeurs publics",
+        "tags": [
+          "external-requesters"
+        ]
+      }
+    },
+    "/api/v1/external-requesters/{id}": {
+      "get": {
+        "description": "Détail avec synthèse des impacts (tickets, conversations, appareils, identités vérifiées) sans contenu ni valeur en clair.",
+        "operationId": "ExternalRequestersController_detail",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/ExternalRequesterDetailDto"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "maximum": 299,
+                      "minimum": 200,
+                      "type": "integer"
+                    },
+                    "success": {
+                      "enum": [
+                        true
+                      ],
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "statusCode",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Demandeur trouvé."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Token JWT manquant ou expiré."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Rôle insuffisant — ADMINISTRATOR ou SUPERVISOR requis."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Demandeur introuvable."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Consulter un demandeur public",
+        "tags": [
+          "external-requesters"
+        ]
+      }
+    },
     "/api/v1/health": {
       "get": {
         "operationId": "HealthController_liveness",
@@ -6500,6 +8740,1587 @@
         "tags": [
           "notifications"
         ]
+      }
+    },
+    "/api/v1/public-support/catalog": {
+      "get": {
+        "operationId": "PublicSupportController_catalog",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicCatalogResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "publicSession": []
+          }
+        ],
+        "summary": "Catalogue public autorisé pour cette intégration",
+        "tags": [
+          "Support public - demandes"
+        ],
+        "x-api-audience": "public-support"
+      }
+    },
+    "/api/v1/public-support/config": {
+      "get": {
+        "operationId": "PublicPortalConfigController_get",
+        "parameters": [
+          {
+            "description": "Clé publique de l'intégration",
+            "in": "query",
+            "name": "integrationKey",
+            "required": true,
+            "schema": {
+              "maxLength": 80,
+              "minLength": 16,
+              "type": "string"
+            }
+          },
+          {
+            "description": "Origine exacte demandant l'intégration en iframe",
+            "in": "query",
+            "name": "origin",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicIntegrationConfigResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [],
+        "summary": "Charger la configuration publique bornée d'une intégration",
+        "tags": [
+          "Support public - configuration"
+        ],
+        "x-api-audience": "public-support"
+      }
+    },
+    "/api/v1/public-support/conversations": {
+      "post": {
+        "operationId": "PublicSupportController_createConversation",
+        "parameters": [
+          {
+            "description": "Clé unique de 1 à 128 caractères, obligatoire pour cette mutation.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePublicConversationDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicConversationStateResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "publicSession": []
+          }
+        ],
+        "summary": "Démarrer une conversation de support",
+        "tags": [
+          "Support public - demandes"
+        ],
+        "x-api-audience": "public-support"
+      }
+    },
+    "/api/v1/public-support/conversations/{conversationId}/attachments": {
+      "get": {
+        "operationId": "PublicConversationAttachmentsController_list",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversationId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicAttachmentListResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "publicSession": []
+          }
+        ],
+        "summary": "Lister les fichiers de la conversation",
+        "tags": [
+          "Support public - pièces jointes pré-ticket"
+        ],
+        "x-api-audience": "public-support"
+      },
+      "post": {
+        "operationId": "PublicConversationAttachmentsController_upload",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversationId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "idempotency-key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Clé unique liée au contenu réel du fichier.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "file": {
+                    "format": "binary",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "file"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicAttachmentResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "publicSession": []
+          }
+        ],
+        "summary": "Déposer un fichier avant création du ticket",
+        "tags": [
+          "Support public - pièces jointes pré-ticket"
+        ],
+        "x-api-audience": "public-support"
+      }
+    },
+    "/api/v1/public-support/conversations/{conversationId}/attachments/{attachmentId}/download": {
+      "get": {
+        "operationId": "PublicConversationAttachmentsController_download",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversationId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "attachmentId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "publicSession": []
+          }
+        ],
+        "summary": "Télécharger un fichier pré-ticket sain",
+        "tags": [
+          "Support public - pièces jointes pré-ticket"
+        ],
+        "x-api-audience": "public-support"
+      }
+    },
+    "/api/v1/public-support/conversations/{conversationId}/attachments/{attachmentId}/status": {
+      "get": {
+        "operationId": "PublicConversationAttachmentsController_status",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversationId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "attachmentId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicAttachmentResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "publicSession": []
+          }
+        ],
+        "summary": "Consulter l'état du scan",
+        "tags": [
+          "Support public - pièces jointes pré-ticket"
+        ],
+        "x-api-audience": "public-support"
+      }
+    },
+    "/api/v1/public-support/conversations/{id}": {
+      "get": {
+        "operationId": "PublicConversationResumeController_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicConversationDetailResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "publicSession": []
+          }
+        ],
+        "summary": "Reprendre une conversation ou son brouillon",
+        "tags": [
+          "Support public - demandes"
+        ],
+        "x-api-audience": "public-support"
+      }
+    },
+    "/api/v1/public-support/conversations/{id}/confirm": {
+      "post": {
+        "operationId": "PublicSupportController_confirm",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Clé unique de 1 à 128 caractères, obligatoire pour cette mutation.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmPublicTicketDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicTicketConfirmedResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "publicSession": []
+          }
+        ],
+        "summary": "Confirmer et créer atomiquement le ticket",
+        "tags": [
+          "Support public - demandes"
+        ],
+        "x-api-audience": "public-support"
+      }
+    },
+    "/api/v1/public-support/conversations/{id}/draft": {
+      "patch": {
+        "operationId": "PublicSupportController_saveDraft",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SavePublicTicketDraftDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicDraftSavedResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "publicSession": []
+          }
+        ],
+        "summary": "Enregistrer le brouillon qualifié",
+        "tags": [
+          "Support public - demandes"
+        ],
+        "x-api-audience": "public-support"
+      }
+    },
+    "/api/v1/public-support/conversations/{id}/handoff": {
+      "post": {
+        "operationId": "PublicSupportController_handoff",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Clé unique de 1 à 128 caractères, obligatoire pour cette mutation.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublicHandoffDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicHandoffResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "publicSession": []
+          }
+        ],
+        "summary": "Demander explicitement un transfert humain",
+        "tags": [
+          "Support public - demandes"
+        ],
+        "x-api-audience": "public-support"
+      }
+    },
+    "/api/v1/public-support/identity/assertion/exchange": {
+      "post": {
+        "operationId": "ExternalIdentityController_exchangeAssertion",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicSessionResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "integrationAssertion": []
+          }
+        ],
+        "summary": "Échanger une assertion signée contre une session publique",
+        "tags": [
+          "Support public - identité"
+        ],
+        "x-api-audience": "public-support"
+      }
+    },
+    "/api/v1/public-support/identity/email/consume": {
+      "post": {
+        "operationId": "ExternalIdentityController_consumeEmail",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConsumeEmailVerificationDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/PublicSessionResponseDto"
+                    },
+                    {
+                      "$ref": "#/components/schemas/VerificationRejectedResponseDto"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [],
+        "summary": "Vérifier le code et ouvrir une session publique",
+        "tags": [
+          "Support public - identité"
+        ],
+        "x-api-audience": "public-support"
+      }
+    },
+    "/api/v1/public-support/identity/email/request": {
+      "post": {
+        "operationId": "ExternalIdentityController_requestEmail",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestEmailVerificationDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerificationRequestResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [],
+        "summary": "Demander un code de vérification email",
+        "tags": [
+          "Support public - identité"
+        ],
+        "x-api-audience": "public-support"
+      }
+    },
+    "/api/v1/public-support/preferences": {
+      "get": {
+        "operationId": "PublicSupportController_getPreferences",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicPreferencesResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "publicSession": []
+          }
+        ],
+        "summary": "Consulter le profil public conservé",
+        "tags": [
+          "Support public - demandes"
+        ],
+        "x-api-audience": "public-support"
+      },
+      "patch": {
+        "operationId": "PublicSupportController_updatePreferences",
+        "parameters": [
+          {
+            "description": "Clé unique de 1 à 128 caractères, obligatoire pour cette mutation.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePublicPreferencesDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicPreferencesResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "publicSession": []
+          }
+        ],
+        "summary": "Mettre à jour le nom et la langue du profil public",
+        "tags": [
+          "Support public - demandes"
+        ],
+        "x-api-audience": "public-support"
+      }
+    },
+    "/api/v1/public-support/session/bootstrap/consume": {
+      "post": {
+        "operationId": "ExternalIdentityController_consumeBootstrap",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConsumeBootstrapDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicSessionResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [],
+        "summary": "Consommer une fois un code de transfert",
+        "tags": [
+          "Support public - identité"
+        ],
+        "x-api-audience": "public-support"
+      }
+    },
+    "/api/v1/public-support/session/bootstrap/request": {
+      "post": {
+        "operationId": "ExternalIdentityController_requestBootstrap",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BootstrapGrantResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "publicSession": []
+          }
+        ],
+        "summary": "Créer un code de transfert iframe vers pleine page",
+        "tags": [
+          "Support public - identité"
+        ],
+        "x-api-audience": "public-support"
+      }
+    },
+    "/api/v1/public-support/session/devices": {
+      "get": {
+        "operationId": "PublicTrustedDevicesController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrustedDeviceListResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "publicSession": []
+          }
+        ],
+        "summary": "Lister les appareils de confiance du demandeur",
+        "tags": [
+          "Support public - appareils"
+        ],
+        "x-api-audience": "public-support"
+      }
+    },
+    "/api/v1/public-support/session/devices/{id}": {
+      "delete": {
+        "operationId": "PublicTrustedDevicesController_revoke",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceRevokedResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "publicSession": []
+          }
+        ],
+        "summary": "Révoquer un appareil de confiance précis",
+        "tags": [
+          "Support public - appareils"
+        ],
+        "x-api-audience": "public-support"
+      }
+    },
+    "/api/v1/public-support/session/restore": {
+      "post": {
+        "operationId": "ExternalIdentityController_restore",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-integration-key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-trusted-device",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicSessionResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "integrationKey": [],
+            "trustedDevice": []
+          }
+        ],
+        "summary": "Restaurer et faire tourner la confiance de l’appareil",
+        "tags": [
+          "Support public - identité"
+        ],
+        "x-api-audience": "public-support"
+      }
+    },
+    "/api/v1/public-support/session/revoke-device": {
+      "post": {
+        "operationId": "ExternalIdentityController_revokeDevice",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceRevokedResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "publicSession": []
+          }
+        ],
+        "summary": "Révoquer l’appareil courant",
+        "tags": [
+          "Support public - identité"
+        ],
+        "x-api-audience": "public-support"
+      }
+    },
+    "/api/v1/public-support/tickets": {
+      "get": {
+        "operationId": "PublicSupportController_listTickets",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicTicketListResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "publicSession": []
+          }
+        ],
+        "summary": "Lister uniquement les demandes du contact courant",
+        "tags": [
+          "Support public - demandes"
+        ],
+        "x-api-audience": "public-support"
+      }
+    },
+    "/api/v1/public-support/tickets/{id}": {
+      "get": {
+        "operationId": "PublicSupportController_ticket",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicTicketDetailResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "publicSession": []
+          }
+        ],
+        "summary": "Consulter une demande publique",
+        "tags": [
+          "Support public - demandes"
+        ],
+        "x-api-audience": "public-support"
+      }
+    },
+    "/api/v1/public-support/tickets/{id}/comments": {
+      "post": {
+        "operationId": "PublicSupportController_addComment",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Clé unique de 1 à 128 caractères, obligatoire pour cette mutation.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePublicCommentDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicCommentResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "publicSession": []
+          }
+        ],
+        "summary": "Ajouter un commentaire demandeur",
+        "tags": [
+          "Support public - demandes"
+        ],
+        "x-api-audience": "public-support"
+      }
+    },
+    "/api/v1/public-support/tickets/{id}/timeline": {
+      "get": {
+        "operationId": "PublicSupportController_timeline",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicTimelineResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "publicSession": []
+          }
+        ],
+        "summary": "Consulter la timeline publique filtrée",
+        "tags": [
+          "Support public - demandes"
+        ],
+        "x-api-audience": "public-support"
+      }
+    },
+    "/api/v1/public-support/tickets/{ticketId}/attachments": {
+      "get": {
+        "operationId": "PublicAttachmentsController_list",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "ticketId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicAttachmentListResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "publicSession": []
+          }
+        ],
+        "summary": "Lister les pièces jointes et leur état de scan",
+        "tags": [
+          "Support public - pièces jointes"
+        ],
+        "x-api-audience": "public-support"
+      },
+      "post": {
+        "operationId": "PublicAttachmentsController_upload",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "ticketId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "idempotency-key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Clé unique liée au contenu réel du fichier.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "file": {
+                    "format": "binary",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "file"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicAttachmentResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "publicSession": []
+          }
+        ],
+        "summary": "Déposer une pièce jointe en quarantaine",
+        "tags": [
+          "Support public - pièces jointes"
+        ],
+        "x-api-audience": "public-support"
+      }
+    },
+    "/api/v1/public-support/tickets/{ticketId}/attachments/{attachmentId}/download": {
+      "get": {
+        "operationId": "PublicAttachmentsController_download",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "ticketId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "attachmentId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "publicSession": []
+          }
+        ],
+        "summary": "Télécharger uniquement une pièce jointe déclarée saine",
+        "tags": [
+          "Support public - pièces jointes"
+        ],
+        "x-api-audience": "public-support"
+      }
+    },
+    "/api/v1/public-support/tickets/{ticketId}/attachments/{attachmentId}/status": {
+      "get": {
+        "operationId": "PublicAttachmentsController_status",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "ticketId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "attachmentId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicAttachmentResponseDto"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "publicSession": []
+          }
+        ],
+        "summary": "Consulter l'état d'analyse d'une pièce jointe",
+        "tags": [
+          "Support public - pièces jointes"
+        ],
+        "x-api-audience": "public-support"
       }
     },
     "/api/v1/reports": {
@@ -7803,6 +11624,451 @@
         "summary": "Modifier les délais SLA (Admin)",
         "tags": [
           "sla"
+        ]
+      }
+    },
+    "/api/v1/support-integrations": {
+      "get": {
+        "operationId": "SupportIntegrationsController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiCollectionResponse"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Lister les intégrations sans exposer leurs secrets",
+        "tags": [
+          "support-integrations"
+        ]
+      },
+      "post": {
+        "operationId": "SupportIntegrationsController_create",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSupportIntegrationDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Créer une intégration de support en brouillon",
+        "tags": [
+          "support-integrations"
+        ]
+      }
+    },
+    "/api/v1/support-integrations/{id}": {
+      "get": {
+        "operationId": "SupportIntegrationsController_findOne",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Consulter une intégration",
+        "tags": [
+          "support-integrations"
+        ]
+      },
+      "patch": {
+        "operationId": "SupportIntegrationsController_update",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSupportIntegrationDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Modifier politiques, origines ou statut",
+        "tags": [
+          "support-integrations"
+        ]
+      }
+    },
+    "/api/v1/support-integrations/{id}/credentials": {
+      "get": {
+        "operationId": "SupportIntegrationsController_listCredentials",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiCollectionResponse"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Lister les versions de secret sans exposer leur valeur chiffrée",
+        "tags": [
+          "support-integrations"
+        ]
+      }
+    },
+    "/api/v1/support-integrations/{id}/credentials/{credentialId}/revoke": {
+      "post": {
+        "operationId": "SupportIntegrationsController_revokeSecret",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "credentialId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Révoquer une version de secret",
+        "tags": [
+          "support-integrations"
+        ]
+      }
+    },
+    "/api/v1/support-integrations/{id}/credentials/rotate": {
+      "post": {
+        "operationId": "SupportIntegrationsController_rotateSecret",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RotateIntegrationSecretDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Chiffrer une nouvelle version de secret sans la retourner",
+        "tags": [
+          "support-integrations"
+        ]
+      }
+    },
+    "/api/v1/support-integrations/{id}/devices": {
+      "get": {
+        "operationId": "SupportIntegrationsController_listDevices",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 25,
+              "maximum": 100,
+              "minimum": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiPaginatedResponse"
+                }
+              }
+            },
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Lister les appareils de confiance sans exposer leurs jetons",
+        "tags": [
+          "support-integrations"
+        ]
+      }
+    },
+    "/api/v1/support-integrations/{id}/devices/{deviceId}/revoke": {
+      "post": {
+        "operationId": "SupportIntegrationsController_revokeDevice",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "deviceId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Révoquer un appareil de confiance",
+        "tags": [
+          "support-integrations"
         ]
       }
     },

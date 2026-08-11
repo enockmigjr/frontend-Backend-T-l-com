@@ -538,6 +538,86 @@ export interface paths {
     patch: operations['DepartmentsController_update'];
     trace?: never;
   };
+  '/api/v1/external-deliveries': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Liste paginée des livraisons externes
+     * @description Livraisons sortantes (email, futur WhatsApp) sans contenu ni secret. Lecture ADMINISTRATOR/SUPERVISOR.
+     */
+    get: operations['ExternalDeliveriesAdminController_list'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/external-deliveries/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Consulter une livraison externe
+     * @description Détail d’une livraison sans contenu ni secret. Lecture ADMINISTRATOR/SUPERVISOR.
+     */
+    get: operations['ExternalDeliveriesAdminController_findOne'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/external-requesters': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Liste paginée des demandeurs publics
+     * @description Profils publics conservés côté serveur, sans compte interne. Jamais d’adresse email ou de secret en clair. Lecture ADMINISTRATOR/SUPERVISOR.
+     */
+    get: operations['ExternalRequestersController_list'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/external-requesters/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Consulter un demandeur public
+     * @description Détail avec synthèse des impacts (tickets, conversations, appareils, identités vérifiées) sans contenu ni valeur en clair.
+     */
+    get: operations['ExternalRequestersController_detail'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/health': {
     parameters: {
       query?: never;
@@ -697,6 +777,468 @@ export interface paths {
      *     **Rôles autorisés :** tous les utilisateurs authentifiés.
      */
     get: operations['NotificationsController_unread'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/public-support/catalog': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Catalogue public autorisé pour cette intégration */
+    get: operations['PublicSupportController_catalog'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/public-support/config': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Charger la configuration publique bornée d'une intégration */
+    get: operations['PublicPortalConfigController_get'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/public-support/conversations': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Démarrer une conversation de support */
+    post: operations['PublicSupportController_createConversation'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/public-support/conversations/{conversationId}/attachments': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Lister les fichiers de la conversation */
+    get: operations['PublicConversationAttachmentsController_list'];
+    put?: never;
+    /** Déposer un fichier avant création du ticket */
+    post: operations['PublicConversationAttachmentsController_upload'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/public-support/conversations/{conversationId}/attachments/{attachmentId}/download': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Télécharger un fichier pré-ticket sain */
+    get: operations['PublicConversationAttachmentsController_download'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/public-support/conversations/{conversationId}/attachments/{attachmentId}/status': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Consulter l'état du scan */
+    get: operations['PublicConversationAttachmentsController_status'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/public-support/conversations/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Reprendre une conversation ou son brouillon */
+    get: operations['PublicConversationResumeController_get'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/public-support/conversations/{id}/confirm': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Confirmer et créer atomiquement le ticket */
+    post: operations['PublicSupportController_confirm'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/public-support/conversations/{id}/draft': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Enregistrer le brouillon qualifié */
+    patch: operations['PublicSupportController_saveDraft'];
+    trace?: never;
+  };
+  '/api/v1/public-support/conversations/{id}/handoff': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Demander explicitement un transfert humain */
+    post: operations['PublicSupportController_handoff'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/public-support/identity/assertion/exchange': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Échanger une assertion signée contre une session publique */
+    post: operations['ExternalIdentityController_exchangeAssertion'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/public-support/identity/email/consume': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Vérifier le code et ouvrir une session publique */
+    post: operations['ExternalIdentityController_consumeEmail'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/public-support/identity/email/request': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Demander un code de vérification email */
+    post: operations['ExternalIdentityController_requestEmail'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/public-support/preferences': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Consulter le profil public conservé */
+    get: operations['PublicSupportController_getPreferences'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Mettre à jour le nom et la langue du profil public */
+    patch: operations['PublicSupportController_updatePreferences'];
+    trace?: never;
+  };
+  '/api/v1/public-support/session/bootstrap/consume': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Consommer une fois un code de transfert */
+    post: operations['ExternalIdentityController_consumeBootstrap'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/public-support/session/bootstrap/request': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Créer un code de transfert iframe vers pleine page */
+    post: operations['ExternalIdentityController_requestBootstrap'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/public-support/session/devices': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Lister les appareils de confiance du demandeur */
+    get: operations['PublicTrustedDevicesController_list'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/public-support/session/devices/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Révoquer un appareil de confiance précis */
+    delete: operations['PublicTrustedDevicesController_revoke'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/public-support/session/restore': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Restaurer et faire tourner la confiance de l’appareil */
+    post: operations['ExternalIdentityController_restore'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/public-support/session/revoke-device': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Révoquer l’appareil courant */
+    post: operations['ExternalIdentityController_revokeDevice'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/public-support/tickets': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Lister uniquement les demandes du contact courant */
+    get: operations['PublicSupportController_listTickets'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/public-support/tickets/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Consulter une demande publique */
+    get: operations['PublicSupportController_ticket'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/public-support/tickets/{id}/comments': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Ajouter un commentaire demandeur */
+    post: operations['PublicSupportController_addComment'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/public-support/tickets/{id}/timeline': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Consulter la timeline publique filtrée */
+    get: operations['PublicSupportController_timeline'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/public-support/tickets/{ticketId}/attachments': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Lister les pièces jointes et leur état de scan */
+    get: operations['PublicAttachmentsController_list'];
+    put?: never;
+    /** Déposer une pièce jointe en quarantaine */
+    post: operations['PublicAttachmentsController_upload'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/public-support/tickets/{ticketId}/attachments/{attachmentId}/download': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Télécharger uniquement une pièce jointe déclarée saine */
+    get: operations['PublicAttachmentsController_download'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/public-support/tickets/{ticketId}/attachments/{attachmentId}/status': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Consulter l'état d'analyse d'une pièce jointe */
+    get: operations['PublicAttachmentsController_status'];
     put?: never;
     post?: never;
     delete?: never;
@@ -985,6 +1527,127 @@ export interface paths {
      *     **Rôles autorisés :** ADMINISTRATOR uniquement
      */
     patch: operations['SlaPoliciesController_update'];
+    trace?: never;
+  };
+  '/api/v1/support-integrations': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Lister les intégrations sans exposer leurs secrets */
+    get: operations['SupportIntegrationsController_list'];
+    put?: never;
+    /** Créer une intégration de support en brouillon */
+    post: operations['SupportIntegrationsController_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/support-integrations/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Consulter une intégration */
+    get: operations['SupportIntegrationsController_findOne'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Modifier politiques, origines ou statut */
+    patch: operations['SupportIntegrationsController_update'];
+    trace?: never;
+  };
+  '/api/v1/support-integrations/{id}/credentials': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Lister les versions de secret sans exposer leur valeur chiffrée */
+    get: operations['SupportIntegrationsController_listCredentials'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/support-integrations/{id}/credentials/{credentialId}/revoke': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Révoquer une version de secret */
+    post: operations['SupportIntegrationsController_revokeSecret'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/support-integrations/{id}/credentials/rotate': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Chiffrer une nouvelle version de secret sans la retourner */
+    post: operations['SupportIntegrationsController_rotateSecret'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/support-integrations/{id}/devices': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Lister les appareils de confiance sans exposer leurs jetons */
+    get: operations['SupportIntegrationsController_listDevices'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/support-integrations/{id}/devices/{deviceId}/revoke': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Révoquer un appareil de confiance */
+    post: operations['SupportIntegrationsController_revokeDevice'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
     trace?: never;
   };
   '/api/v1/tickets': {
@@ -1570,6 +2233,17 @@ export interface components {
       /** Format: uuid */
       userId: string | null;
     };
+    BootstrapGrantDataDto: {
+      code: string;
+      /** Format: date-time */
+      expiresAt: string;
+    };
+    BootstrapGrantResponseDto: {
+      data: components['schemas']['BootstrapGrantDataDto'];
+      statusCode: number;
+      /** @enum {boolean} */
+      success: true;
+    };
     Category: {
       /** Format: date-time */
       createdAt: string;
@@ -1586,6 +2260,20 @@ export interface components {
       currentPassword: string;
       /** @description Nouveau mot de passe (min 8 car., 1 maj, 1 min, 1 chiffre, 1 spécial) */
       newPassword: string;
+    };
+    ConfirmPublicTicketDto: {
+      /** @example true */
+      confirmed: boolean;
+    };
+    ConsumeBootstrapDto: {
+      /** @description Code opaque extrait du fragment puis envoyé en POST */
+      code: string;
+    };
+    ConsumeEmailVerificationDto: {
+      /** Format: uuid */
+      challengeId: string;
+      /** @example 123456 */
+      code: string;
     };
     CreateCategoryDto: {
       /** @description Description facultative de la catégorie */
@@ -1607,6 +2295,11 @@ export interface components {
        * @example Information complémentaire sur la panne en cours — le technicien est sur place.
        */
       content: string;
+      /**
+       * Format: uuid
+       * @description Réponse précédente corrigée; la réponse originale reste immuable.
+       */
+      correctsCommentId?: string;
     };
     CreateDepartmentDto: {
       /**
@@ -1630,6 +2323,13 @@ export interface components {
        */
       content: string;
     };
+    CreatePublicCommentDto: {
+      content: string;
+    };
+    CreatePublicConversationDto: {
+      /** @example internet-fixe */
+      serviceKey?: string;
+    };
     CreateSlaPolicyDto: {
       /**
        * @description UUID de la catégorie couverte par cette politique
@@ -1652,6 +2352,21 @@ export interface components {
        * @example 240
        */
       resolutionMinutes: number;
+    };
+    CreateSupportIntegrationDto: {
+      /**
+       * @example [
+       *       "https://photos.example.com"
+       *     ]
+       */
+      allowedOrigins: string[];
+      appearance?: Record<string, never>;
+      features?: Record<string, never>;
+      /** @example PhotoVault production */
+      name: string;
+      quotaPolicy?: components['schemas']['IntegrationQuotaPolicyDto'];
+      routingPolicy?: Record<string, never>;
+      trustPolicy?: components['schemas']['IntegrationTrustPolicyDto'];
     };
     CreateTicketDto: {
       /**
@@ -1935,6 +2650,16 @@ export interface components {
       updatedAt: string;
       workloadWeights?: Record<string, never> | null;
     };
+    DeviceRevokedDataDto: {
+      /** @enum {boolean} */
+      revoked: true;
+    };
+    DeviceRevokedResponseDto: {
+      data: components['schemas']['DeviceRevokedDataDto'];
+      statusCode: number;
+      /** @enum {boolean} */
+      success: true;
+    };
     EscalateTicketDto: {
       /**
        * @description ID du département cible (UUID)
@@ -1951,6 +2676,93 @@ export interface components {
        * @example 018b3d6f-7e8c-7123-89ab-cdef01234567
        */
       userId: string;
+    };
+    ExternalDeliveryListItemDto: {
+      attemptCount: number;
+      /** @enum {string} */
+      channel: 'INTERNAL' | 'WEB_PORTAL' | 'WIDGET' | 'WORDPRESS' | 'EMAIL' | 'WHATSAPP' | 'API';
+      /** Format: date-time */
+      createdAt: string;
+      deliveredAt?: Record<string, never> | null;
+      /** @description Clé de destination opaque (empreinte, jamais la valeur en clair). */
+      destinationKey: string;
+      id: string;
+      /** @description Catégorie d’erreur du dernier échec, sans contenu. */
+      lastError?: Record<string, never> | null;
+      /** @description Événement outbox d’origine. */
+      outboxEventId: string;
+      providerMessageId?: Record<string, never> | null;
+      /** @enum {string} */
+      status: 'PENDING' | 'PROCESSING' | 'DELIVERED' | 'FAILED' | 'DELIVERY_UNKNOWN';
+      /** @description Intégration de support concernée. */
+      supportIntegrationId: string;
+      /** Format: date-time */
+      updatedAt: string;
+    };
+    ExternalRequesterDetailDto: {
+      /** @description Date d’anonymisation si le profil a été effacé. */
+      anonymizedAt?: Record<string, never> | null;
+      /** Format: date-time */
+      createdAt: string;
+      displayName?: Record<string, never> | null;
+      id: string;
+      lastSeenAt?: Record<string, never> | null;
+      locale: string;
+      /** @description Synthèse des impacts sans contenu des tickets ni des messages. */
+      summary: Record<string, never>;
+      supportIntegrationId: string;
+      /** Format: date-time */
+      updatedAt: string;
+    };
+    ExternalRequesterIdentityDto: {
+      /** @enum {string} */
+      identityType: 'EMAIL' | 'PHONE' | 'WORDPRESS';
+      revokedAt?: Record<string, never> | null;
+      /** Format: date-time */
+      verifiedAt: string;
+    };
+    ExternalRequesterListItemDto: {
+      /** @description Date d’anonymisation si le profil a été effacé. */
+      anonymizedAt?: Record<string, never> | null;
+      /** Format: date-time */
+      createdAt: string;
+      displayName?: Record<string, never> | null;
+      id: string;
+      lastSeenAt?: Record<string, never> | null;
+      locale: string;
+      supportIntegrationId: string;
+      /** Format: date-time */
+      updatedAt: string;
+    };
+    IntegrationQuotaPolicyDto: {
+      /** @default 10485760 */
+      attachmentMaxBytes: number;
+      /** @default 20 */
+      attachmentUploadsPerHour: number;
+      /** @default 1000 */
+      attachmentUploadsPerIntegrationHour: number;
+      /** @default 50 */
+      attachmentUploadsPerIpHour: number;
+      /** @default 10 */
+      verificationAttemptsPerHour: number;
+      /** @default 2000 */
+      verificationAttemptsPerIntegrationHour: number;
+      /** @default 50 */
+      verificationAttemptsPerIpHour: number;
+      /** @default 5 */
+      verificationRequestsPerHour: number;
+      /** @default 500 */
+      verificationRequestsPerIntegrationHour: number;
+      /** @default 20 */
+      verificationRequestsPerIpHour: number;
+    };
+    IntegrationTrustPolicyDto: {
+      /** @default 1 */
+      policyVersion: number;
+      /** @default 7 */
+      renewalWindowDays: number;
+      /** @default 90 */
+      trustedDeviceDays: number;
     };
     InternalNote: {
       /** @enum {string} */
@@ -2022,6 +2834,269 @@ export interface components {
        */
       reason?: string;
     };
+    PublicAppearanceDto: {
+      accentColor?: string;
+      /** Format: uri */
+      logoUrl?: string;
+      primaryColor?: string;
+      supportName?: string;
+      welcomeMessage?: string;
+      welcomeTitle?: string;
+    };
+    PublicAttachmentDataDto: {
+      /** Format: date-time */
+      createdAt?: string;
+      error?: string | null;
+      filename: string;
+      fileSize: number;
+      /** Format: uuid */
+      id: string;
+      mimeType?: string;
+      /** @enum {string} */
+      scanStatus: 'NOT_REQUIRED' | 'QUARANTINED' | 'PENDING' | 'SCANNING' | 'CLEAN' | 'INFECTED' | 'ERROR';
+    };
+    PublicAttachmentListResponseDto: {
+      data: components['schemas']['PublicAttachmentDataDto'][];
+      statusCode: number;
+      /** @enum {boolean} */
+      success: true;
+    };
+    PublicAttachmentResponseDto: {
+      data: components['schemas']['PublicAttachmentDataDto'];
+      statusCode: number;
+      /** @enum {boolean} */
+      success: true;
+    };
+    PublicCatalogDataDto: {
+      categories: components['schemas']['PublicCategoryDto'][];
+      services: components['schemas']['PublicServiceDto'][];
+    };
+    PublicCatalogResponseDto: {
+      data: components['schemas']['PublicCatalogDataDto'];
+      statusCode: number;
+      /** @enum {boolean} */
+      success: true;
+    };
+    PublicCategoryDto: {
+      description?: string | null;
+      /** Format: uuid */
+      id: string;
+      name: string;
+    };
+    PublicCommentDataDto: {
+      content: string;
+      /** Format: uuid */
+      id: string;
+    };
+    PublicCommentResponseDto: {
+      data: components['schemas']['PublicCommentDataDto'];
+      statusCode: number;
+      /** @enum {boolean} */
+      success: true;
+    };
+    PublicConversationDetailDataDto: {
+      /** Format: date-time */
+      createdAt: string;
+      draft?: components['schemas']['PublicTicketDraftDataDto'] | null;
+      /** Format: uuid */
+      id: string;
+      /** Format: date-time */
+      lastMessageAt?: string | null;
+      state: string;
+      status: string;
+      /** Format: uuid */
+      ticketId?: string | null;
+    };
+    PublicConversationDetailResponseDto: {
+      data: components['schemas']['PublicConversationDetailDataDto'];
+      statusCode: number;
+      /** @enum {boolean} */
+      success: true;
+    };
+    PublicConversationStateDataDto: {
+      /** Format: uuid */
+      id: string;
+      /** @enum {string} */
+      state: 'QUALIFY' | 'DRAFT';
+    };
+    PublicConversationStateResponseDto: {
+      data: components['schemas']['PublicConversationStateDataDto'];
+      statusCode: number;
+      /** @enum {boolean} */
+      success: true;
+    };
+    PublicDraftSavedDataDto: {
+      draft: components['schemas']['PublicTicketDraftDataDto'];
+      /** Format: uuid */
+      id: string;
+      /** @enum {string} */
+      state: 'QUALIFY' | 'DRAFT';
+    };
+    PublicDraftSavedResponseDto: {
+      data: components['schemas']['PublicDraftSavedDataDto'];
+      statusCode: number;
+      /** @enum {boolean} */
+      success: true;
+    };
+    PublicHandoffDataDto: {
+      /** Format: uuid */
+      conversationId: string;
+      /** @enum {string} */
+      state: 'FOLLOW_UP_OR_HANDOFF';
+    };
+    PublicHandoffDto: {
+      reason?: string;
+    };
+    PublicHandoffResponseDto: {
+      data: components['schemas']['PublicHandoffDataDto'];
+      statusCode: number;
+      /** @enum {boolean} */
+      success: true;
+    };
+    PublicIntegrationConfigDataDto: {
+      appearance: components['schemas']['PublicAppearanceDto'];
+      features: components['schemas']['PublicIntegrationFeaturesDto'];
+      frameAllowed: boolean;
+      name: string;
+    };
+    PublicIntegrationConfigResponseDto: {
+      data: components['schemas']['PublicIntegrationConfigDataDto'];
+      statusCode: number;
+      /** @enum {boolean} */
+      success: true;
+    };
+    PublicIntegrationFeaturesDto: {
+      publicAttachments: boolean;
+      publicBot: boolean;
+      publicRealtime: boolean;
+    };
+    PublicPaginationMetaDto: {
+      limit: number;
+      page: number;
+      total: number;
+      totalPages: number;
+    };
+    PublicPreferencesDataDto: {
+      displayName?: string | null;
+      /** Format: date-time */
+      lastSeenAt?: string | null;
+      locale: string;
+    };
+    PublicPreferencesResponseDto: {
+      data: components['schemas']['PublicPreferencesDataDto'] | null;
+      statusCode: number;
+      /** @enum {boolean} */
+      success: true;
+    };
+    PublicServiceDto: {
+      key: string;
+      label: string;
+    };
+    PublicSessionDataDto: {
+      accessToken: string;
+      expiresIn: number;
+      /** Format: date-time */
+      trustedDeviceExpiresAt: string;
+      trustedDeviceToken: string;
+      verified?: boolean;
+    };
+    PublicSessionResponseDto: {
+      data: components['schemas']['PublicSessionDataDto'];
+      statusCode: number;
+      /** @enum {boolean} */
+      success: true;
+    };
+    PublicTicketConfirmedDataDto: {
+      /** Format: uuid */
+      conversationId: string;
+      /** Format: uuid */
+      ticketId: string;
+      ticketNumber: string;
+    };
+    PublicTicketConfirmedResponseDto: {
+      data: components['schemas']['PublicTicketConfirmedDataDto'];
+      statusCode: number;
+      /** @enum {boolean} */
+      success: true;
+    };
+    PublicTicketDetailDto: {
+      /** Format: date-time */
+      closedAt?: string | null;
+      /** Format: date-time */
+      createdAt: string;
+      description: string;
+      /** Format: date-time */
+      firstResponseDueAt?: string | null;
+      /** Format: uuid */
+      id: string;
+      /** Format: date-time */
+      resolutionDueAt?: string | null;
+      /** Format: date-time */
+      resolvedAt?: string | null;
+      /** @enum {string} */
+      status: 'RECEIVED' | 'IN_PROGRESS' | 'WAITING_FOR_CUSTOMER' | 'RESOLVED' | 'CLOSED';
+      ticketNumber: string;
+      title: string;
+      /** Format: date-time */
+      updatedAt: string;
+    };
+    PublicTicketDetailResponseDto: {
+      data: components['schemas']['PublicTicketDetailDto'];
+      statusCode: number;
+      /** @enum {boolean} */
+      success: true;
+    };
+    PublicTicketDraftDataDto: {
+      /** Format: uuid */
+      categoryId: string;
+      customerAccountNumber?: string;
+      description: string;
+      /** @enum {string} */
+      impact: 'LOW' | 'MEDIUM' | 'HIGH';
+      serviceKey?: string;
+      title: string;
+      /** @enum {string} */
+      urgency: 'LOW' | 'MEDIUM' | 'HIGH';
+    };
+    PublicTicketListResponseDto: {
+      data: components['schemas']['PublicTicketSummaryDto'][];
+      meta: components['schemas']['PublicPaginationMetaDto'];
+      statusCode: number;
+      /** @enum {boolean} */
+      success: true;
+    };
+    PublicTicketSummaryDto: {
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: uuid */
+      id: string;
+      /** @enum {string} */
+      status: 'RECEIVED' | 'IN_PROGRESS' | 'WAITING_FOR_CUSTOMER' | 'RESOLVED' | 'CLOSED';
+      ticketNumber: string;
+      title: string;
+      /** Format: date-time */
+      updatedAt: string;
+    };
+    PublicTimelineEntryDto: {
+      author?: string;
+      content?: string;
+      /** Format: uuid */
+      correctsCommentId?: string | null;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: uuid */
+      id: string;
+      /** @enum {string} */
+      status?: 'RECEIVED' | 'IN_PROGRESS' | 'WAITING_FOR_CUSTOMER' | 'RESOLVED' | 'CLOSED';
+      /** @enum {string} */
+      type: 'COMMENT' | 'STATUS';
+    };
+    PublicTimelineResponseDto: {
+      data: components['schemas']['PublicTimelineEntryDto'][];
+      statusCode: number;
+      /** @enum {boolean} */
+      success: true;
+    };
     RecentTicket: {
       /** Format: uuid */
       id?: string;
@@ -2076,12 +3151,37 @@ export interface components {
       /** Format: uuid */
       reportId: string;
     };
+    RequestEmailVerificationDto: {
+      /**
+       * Format: email
+       * @example client@example.com
+       */
+      email: string;
+      /** @description Clé publique de l'intégration */
+      integrationKey: string;
+    };
     ResolveTicketDto: {
       /**
        * @description Résumé de la résolution (optionnel mais recommandé)
        * @example Fibre optique réparée sur le nœud principal. Rétablissement du service à 14h32.
        */
       resolutionSummary?: string;
+    };
+    RotateIntegrationSecretDto: {
+      /** @description Secret aléatoire de 32 octets encodé en base64url; il ne sera jamais renvoyé. */
+      secret: string;
+    };
+    SavePublicTicketDraftDto: {
+      /** Format: uuid */
+      categoryId: string;
+      customerAccountNumber?: string;
+      description: string;
+      /** @enum {string} */
+      impact: 'LOW' | 'MEDIUM' | 'HIGH';
+      serviceKey?: string;
+      title: string;
+      /** @enum {string} */
+      urgency: 'LOW' | 'MEDIUM' | 'HIGH';
     };
     Setting: {
       /** Format: date-time */
@@ -2334,6 +3434,25 @@ export interface components {
       expiresIn: number;
       refreshToken: string;
     };
+    TrustedDeviceDataDto: {
+      /** Format: date-time */
+      createdAt: string;
+      current: boolean;
+      /** Format: date-time */
+      expiresAt: string;
+      /** Format: uuid */
+      id: string;
+      /** Format: date-time */
+      lastUsedAt?: string | null;
+      /** Format: date-time */
+      revokedAt?: string | null;
+    };
+    TrustedDeviceListResponseDto: {
+      data: components['schemas']['TrustedDeviceDataDto'][];
+      statusCode: number;
+      /** @enum {boolean} */
+      success: true;
+    };
     UpdateCategoryDto: {
       /** @description Nouvelle description facultative */
       description?: string;
@@ -2371,6 +3490,11 @@ export interface components {
        */
       content: string;
     };
+    UpdatePublicPreferencesDto: {
+      displayName?: string;
+      /** @example fr */
+      locale?: string;
+    };
     UpdateSettingDto: {
       /**
        * @description Description optionnelle
@@ -2394,6 +3518,23 @@ export interface components {
        * @example 480
        */
       resolutionMinutes?: number;
+    };
+    UpdateSupportIntegrationDto: {
+      /**
+       * @example [
+       *       "https://photos.example.com"
+       *     ]
+       */
+      allowedOrigins?: string[];
+      appearance?: Record<string, never>;
+      features?: Record<string, never>;
+      /** @example PhotoVault production */
+      name?: string;
+      quotaPolicy?: components['schemas']['IntegrationQuotaPolicyDto'];
+      routingPolicy?: Record<string, never>;
+      /** @enum {string} */
+      status?: 'DRAFT' | 'ACTIVE' | 'SUSPENDED';
+      trustPolicy?: components['schemas']['IntegrationTrustPolicyDto'];
     };
     UpdateTicketDto: {
       /**
@@ -2491,6 +3632,27 @@ export interface components {
       slaBreachedCount: number;
       totalAssigned: number;
       totalCreated: number;
+    };
+    VerificationRejectedDataDto: {
+      /** @enum {boolean} */
+      verified: false;
+    };
+    VerificationRejectedResponseDto: {
+      data: components['schemas']['VerificationRejectedDataDto'];
+      statusCode: number;
+      /** @enum {boolean} */
+      success: true;
+    };
+    VerificationRequestDataDto: {
+      /** Format: uuid */
+      challengeId: string;
+    };
+    VerificationRequestResponseDto: {
+      data: components['schemas']['VerificationRequestDataDto'];
+      message: string;
+      statusCode: number;
+      /** @enum {boolean} */
+      success: true;
     };
   };
   responses: never;
@@ -4305,6 +5467,264 @@ export interface operations {
       };
     };
   };
+  ExternalDeliveriesAdminController_list: {
+    parameters: {
+      query?: {
+        /** @description Filtrer par intégration de support (UUID). */
+        supportIntegrationId?: string;
+        /** @description Canal de livraison. */
+        channel?: 'INTERNAL' | 'WEB_PORTAL' | 'WIDGET' | 'WORDPRESS' | 'EMAIL' | 'WHATSAPP' | 'API';
+        /** @description Statut de livraison. */
+        status?: 'PENDING' | 'PROCESSING' | 'DELIVERED' | 'FAILED' | 'DELIVERY_UNKNOWN';
+        /** @description Numéro de page (commence à 1). */
+        page?: number;
+        /** @description Éléments par page (max 100). */
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Liste paginée des livraisons. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            data: components['schemas']['ExternalDeliveryListItemDto'][];
+            message?: string;
+            meta: components['schemas']['PaginationMeta'];
+            statusCode: number;
+            /** @enum {boolean} */
+            success: true;
+          };
+        };
+      };
+      /** @description Token JWT manquant ou expiré. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Rôle insuffisant — ADMINISTRATOR ou SUPERVISOR requis. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  ExternalDeliveriesAdminController_findOne: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Livraison trouvée. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            data: components['schemas']['ExternalDeliveryListItemDto'];
+            message?: string;
+            statusCode: number;
+            /** @enum {boolean} */
+            success: true;
+          };
+        };
+      };
+      /** @description Token JWT manquant ou expiré. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Rôle insuffisant — ADMINISTRATOR ou SUPERVISOR requis. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Livraison introuvable. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  ExternalRequestersController_list: {
+    parameters: {
+      query?: {
+        /** @description Filtrer par intégration de support (UUID). */
+        supportIntegrationId?: string;
+        /** @description Recherche insensible à la casse sur le nom affiché. */
+        search?: string;
+        /** @description Filtrer les profils anonymisés (true) ou actifs (false). */
+        anonymized?: 'true' | 'false';
+        /** @description Numéro de page (commence à 1). */
+        page?: number;
+        /** @description Éléments par page (max 100). */
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Liste paginée des demandeurs. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            data: components['schemas']['ExternalRequesterListItemDto'][];
+            message?: string;
+            meta: components['schemas']['PaginationMeta'];
+            statusCode: number;
+            /** @enum {boolean} */
+            success: true;
+          };
+        };
+      };
+      /** @description Token JWT manquant ou expiré. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Rôle insuffisant — ADMINISTRATOR ou SUPERVISOR requis. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  ExternalRequestersController_detail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Demandeur trouvé. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            data: components['schemas']['ExternalRequesterDetailDto'];
+            message?: string;
+            statusCode: number;
+            /** @enum {boolean} */
+            success: true;
+          };
+        };
+      };
+      /** @description Token JWT manquant ou expiré. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Rôle insuffisant — ADMINISTRATOR ou SUPERVISOR requis. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Demandeur introuvable. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
   HealthController_liveness: {
     parameters: {
       query?: never;
@@ -4706,6 +6126,970 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  PublicSupportController_catalog: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PublicCatalogResponseDto'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  PublicPortalConfigController_get: {
+    parameters: {
+      query: {
+        /** @description Clé publique de l'intégration */
+        integrationKey: string;
+        /** @description Origine exacte demandant l'intégration en iframe */
+        origin?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PublicIntegrationConfigResponseDto'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  PublicSupportController_createConversation: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Clé unique de 1 à 128 caractères, obligatoire pour cette mutation. */
+        'Idempotency-Key': string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreatePublicConversationDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PublicConversationStateResponseDto'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  PublicConversationAttachmentsController_list: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        conversationId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PublicAttachmentListResponseDto'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  PublicConversationAttachmentsController_upload: {
+    parameters: {
+      query?: never;
+      header: {
+        'idempotency-key': string;
+        /** @description Clé unique liée au contenu réel du fichier. */
+        'Idempotency-Key': string;
+      };
+      path: {
+        conversationId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'multipart/form-data': {
+          /** Format: binary */
+          file: string;
+        };
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PublicAttachmentResponseDto'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  PublicConversationAttachmentsController_download: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        conversationId: string;
+        attachmentId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/octet-stream': string;
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  PublicConversationAttachmentsController_status: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        conversationId: string;
+        attachmentId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PublicAttachmentResponseDto'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  PublicConversationResumeController_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PublicConversationDetailResponseDto'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  PublicSupportController_confirm: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Clé unique de 1 à 128 caractères, obligatoire pour cette mutation. */
+        'Idempotency-Key': string;
+      };
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ConfirmPublicTicketDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PublicTicketConfirmedResponseDto'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  PublicSupportController_saveDraft: {
+    parameters: {
+      query?: never;
+      header?: {
+        'Idempotency-Key'?: string;
+      };
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SavePublicTicketDraftDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PublicDraftSavedResponseDto'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  PublicSupportController_handoff: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Clé unique de 1 à 128 caractères, obligatoire pour cette mutation. */
+        'Idempotency-Key': string;
+      };
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['PublicHandoffDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PublicHandoffResponseDto'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  ExternalIdentityController_exchangeAssertion: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PublicSessionResponseDto'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  ExternalIdentityController_consumeEmail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ConsumeEmailVerificationDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json':
+            | components['schemas']['PublicSessionResponseDto']
+            | components['schemas']['VerificationRejectedResponseDto'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  ExternalIdentityController_requestEmail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RequestEmailVerificationDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['VerificationRequestResponseDto'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  PublicSupportController_getPreferences: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PublicPreferencesResponseDto'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  PublicSupportController_updatePreferences: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Clé unique de 1 à 128 caractères, obligatoire pour cette mutation. */
+        'Idempotency-Key': string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdatePublicPreferencesDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PublicPreferencesResponseDto'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  ExternalIdentityController_consumeBootstrap: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ConsumeBootstrapDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PublicSessionResponseDto'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  ExternalIdentityController_requestBootstrap: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['BootstrapGrantResponseDto'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  PublicTrustedDevicesController_list: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['TrustedDeviceListResponseDto'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  PublicTrustedDevicesController_revoke: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DeviceRevokedResponseDto'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  ExternalIdentityController_restore: {
+    parameters: {
+      query?: never;
+      header: {
+        'x-integration-key': string;
+        'x-trusted-device': string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PublicSessionResponseDto'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  ExternalIdentityController_revokeDevice: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DeviceRevokedResponseDto'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  PublicSupportController_listTickets: {
+    parameters: {
+      query?: {
+        page?: number;
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PublicTicketListResponseDto'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  PublicSupportController_ticket: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PublicTicketDetailResponseDto'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  PublicSupportController_addComment: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Clé unique de 1 à 128 caractères, obligatoire pour cette mutation. */
+        'Idempotency-Key': string;
+      };
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreatePublicCommentDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PublicCommentResponseDto'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  PublicSupportController_timeline: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PublicTimelineResponseDto'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  PublicAttachmentsController_list: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        ticketId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PublicAttachmentListResponseDto'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  PublicAttachmentsController_upload: {
+    parameters: {
+      query?: never;
+      header: {
+        'idempotency-key': string;
+        /** @description Clé unique liée au contenu réel du fichier. */
+        'Idempotency-Key': string;
+      };
+      path: {
+        ticketId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'multipart/form-data': {
+          /** Format: binary */
+          file: string;
+        };
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PublicAttachmentResponseDto'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  PublicAttachmentsController_download: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        ticketId: string;
+        attachmentId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/octet-stream': string;
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  PublicAttachmentsController_status: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        ticketId: string;
+        attachmentId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PublicAttachmentResponseDto'];
         };
       };
       /** @description Erreur standardisée. */
@@ -5479,6 +7863,285 @@ export interface operations {
         content: {
           'application/json': components['schemas']['ApiErrorResponse'];
         };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  SupportIntegrationsController_list: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiCollectionResponse'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  SupportIntegrationsController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateSupportIntegrationDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiSuccessResponse'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  SupportIntegrationsController_findOne: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiSuccessResponse'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  SupportIntegrationsController_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateSupportIntegrationDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiSuccessResponse'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  SupportIntegrationsController_listCredentials: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiCollectionResponse'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  SupportIntegrationsController_revokeSecret: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+        credentialId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  SupportIntegrationsController_rotateSecret: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RotateIntegrationSecretDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiSuccessResponse'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  SupportIntegrationsController_listDevices: {
+    parameters: {
+      query?: {
+        page?: number;
+        limit?: number;
+      };
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiPaginatedResponse'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  SupportIntegrationsController_revokeDevice: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+        deviceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
       /** @description Erreur standardisée. */
       default: {
