@@ -59,6 +59,10 @@ export default function DashboardCharts({ data }: Readonly<{ data: DashboardData
       ...item,
       agent: `${item.firstName ?? ''} ${item.lastName ?? ''}`.trim() || item.email || 'Agent',
     }));
+  const slaTrend = (data.sla.trend ?? []).map((item) => ({
+    ...item,
+    label: new Date(item.period).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }),
+  }));
 
   return (
     <section className="grid gap-5 xl:grid-cols-2">
@@ -95,6 +99,28 @@ export default function DashboardCharts({ data }: Readonly<{ data: DashboardData
             </Pie>
             <Tooltip contentStyle={{ borderRadius: 10, borderColor: '#dce3ea' }} />
           </PieChart>
+        </ResponsiveContainer>
+      </ChartFrame>
+      <ChartFrame
+        className="xl:col-span-2"
+        title="Taux de conformité SLA par jour"
+        summary={`${data.sla.summary.atRisk} ticket(s) à risque · ${data.sla.summary.overdue ?? 0} en retard`}
+      >
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={slaTrend} margin={{ top: 12, right: 12, left: -10, bottom: 0 }}>
+            <CartesianGrid vertical={false} stroke="#e5e7eb" />
+            <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+            <YAxis domain={[0, 100]} axisLine={false} tickLine={false} tick={{ fontSize: 12 }} unit="%" />
+            <Tooltip contentStyle={{ borderRadius: 10, borderColor: '#dce3ea' }} />
+            <Line
+              type="monotone"
+              dataKey="complianceRate"
+              name="Conformité SLA"
+              stroke="#0f766e"
+              strokeWidth={3}
+              dot={{ r: 3, fill: '#0f766e' }}
+            />
+          </LineChart>
         </ResponsiveContainer>
       </ChartFrame>
       <ChartFrame title="Priorités et violations SLA" summary="Comparez le volume et les dépassements par niveau de priorité">

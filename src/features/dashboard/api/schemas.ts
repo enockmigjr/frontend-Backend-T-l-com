@@ -47,11 +47,24 @@ export const slaSchema = z.object({
     compliant: z.number().int(),
     breached: z.number().int(),
     atRisk: z.number().int(),
+    overdue: z.number().int().optional(),
     complianceRate: z.number(),
     firstResponseComplianceRate: z.number(),
   }),
   byPriority: z.array(z.object({ priority }).passthrough()),
   byCategory: z.array(z.object({ category: z.string() }).passthrough()),
+  trend: z
+    .array(
+      z
+        .object({
+          period: z.string(),
+          complianceRate: z.number(),
+          totalTracked: z.number().int(),
+          breached: z.number().int(),
+        })
+        .passthrough(),
+    )
+    .optional(),
 });
 export const workloadSchema = z.object({
   generatedAt: z.string(),
