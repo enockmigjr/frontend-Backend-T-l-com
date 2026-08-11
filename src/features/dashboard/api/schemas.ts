@@ -75,6 +75,7 @@ export const workloadSchema = z.object({
       highTicketsCount: z.number().int(),
       slaAtRiskCount: z.number().int(),
       overdueTicketsCount: z.number().int().optional(),
+      lastActivityAt: z.string().nullable().optional(),
     }),
   ),
 });

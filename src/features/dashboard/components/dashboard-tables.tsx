@@ -41,6 +41,7 @@ export function DashboardTables({ data }: { readonly data: DashboardData }) {
               <th>À risque SLA</th>
               <th>En retard</th>
               <th>Disponibilité</th>
+              <th>Dernière activité</th>
             </tr>
           </thead>
           <tbody>
@@ -61,6 +62,9 @@ export function DashboardTables({ data }: { readonly data: DashboardData }) {
                     : item.absenceEndsAt && new Date(item.absenceEndsAt) > new Date()
                       ? 'En absence'
                       : 'Disponible'}
+                </td>
+                <td className={isInactive(item.lastActivityAt) ? 'text-red-700' : ''}>
+                  {formatLastActivity(item.lastActivityAt)}
                 </td>
               </tr>
             ))}
@@ -96,4 +100,17 @@ export function DashboardTables({ data }: { readonly data: DashboardData }) {
       </section>
     </div>
   );
+}
+
+function formatLastActivity(value?: string | null): string {
+  if (!value) return 'Aucune activité';
+  const elapsedHours = (Date.now() - new Date(value).getTime()) / 3_600_000;
+  if (elapsedHours < 1) return 'À l’instant';
+  if (elapsedHours < 24) return `Il y a ${Math.round(elapsedHours)} h`;
+  return `Il y a ${Math.round(elapsedHours / 24)} j`;
+}
+
+function isInactive(value?: string | null): boolean {
+  if (!value) return true;
+  return Date.now() - new Date(value).getTime() > 48 * 3_600_000;
 }
