@@ -1,6 +1,12 @@
 import { apiRequest } from '@/lib/api/client';
 import { envelope, pageEnvelope } from '@/features/users/api/validation';
-import { requesterDetailSchema, requesterSchema, type RequesterFilters } from './types';
+import {
+  mergePreviewSchema,
+  mergeResultSchema,
+  requesterDetailSchema,
+  requesterSchema,
+  type RequesterFilters,
+} from './types';
 
 export const listRequesters = async (filters: RequesterFilters, page = 1, limit = 20, signal?: AbortSignal) => {
   const query = new URLSearchParams({ page: String(page), limit: String(limit) });
@@ -12,3 +18,17 @@ export const listRequesters = async (filters: RequesterFilters, page = 1, limit 
 
 export const getRequester = async (id: string, signal?: AbortSignal) =>
   envelope(requesterDetailSchema).parse(await apiRequest(`/api/v1/external-requesters/${id}`, { signal }));
+
+export const mergePreview = async (id: string) =>
+  envelope(mergePreviewSchema).parse(
+    await apiRequest(`/api/v1/external-requesters/${id}/merge/preview`, { method: 'POST' }),
+  );
+
+export const mergeRequesters = async (id: string, targetRequesterId: string) =>
+  envelope(mergeResultSchema).parse(
+    await apiRequest(`/api/v1/external-requesters/${id}/merge`, {
+      method: 'POST',
+      body: { targetRequesterId },
+      idempotencyKey: crypto.randomUUID(),
+    }),
+  );

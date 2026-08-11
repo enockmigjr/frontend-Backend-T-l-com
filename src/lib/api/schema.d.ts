@@ -618,6 +618,46 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/external-requesters/{id}/merge': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Fusionner un demandeur public vers un profil cible
+     * @description Rattache toutes les références du profil source au profil cible (même intégration), supprime les identités en doublon et écrit une trace d’audit. Écriture ADMINISTRATOR uniquement.
+     */
+    post: operations['ExternalRequestersController_merge'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/external-requesters/{id}/merge/preview': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Aperçu d’une fusion de profils demandeur
+     * @description Impacts détaillés sans mutation : tickets, conversations, messages, appareils, identités et doublons potentiels. Lecture ADMINISTRATOR/SUPERVISOR.
+     */
+    post: operations['ExternalRequestersController_mergePreview'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/health': {
     parameters: {
       query?: never;
@@ -2803,6 +2843,26 @@ export interface components {
        * @example Admin@1234
        */
       password: string;
+    };
+    MergeRequesterDto: {
+      /** @description Profil cible de la fusion, dans la même intégration. */
+      targetRequesterId: string;
+    };
+    MergeRequesterPreviewDto: {
+      /** @description Identités vérifiées du profil source (types et dates uniquement, jamais la valeur). */
+      identities: components['schemas']['ExternalRequesterIdentityDto'][];
+      /** @description Références conservées telles quelles sur le profil source (historique immuable). */
+      kept: Record<string, never>;
+      /** @description Références qui seront rattachées au profil cible. */
+      moved: Record<string, never>;
+      requesterId: string;
+    };
+    MergeRequesterResultDto: {
+      displayNameAdopted: Record<string, never> | null;
+      identityCollisionsRemoved: number;
+      merged: boolean;
+      moved: components['schemas']['MergeRequesterPreviewDto'];
+      targetRequesterId: string;
     };
     Notification: {
       /** Format: date-time */
@@ -5697,6 +5757,150 @@ export interface operations {
         };
       };
       /** @description Rôle insuffisant — ADMINISTRATOR ou SUPERVISOR requis. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Demandeur introuvable. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  ExternalRequestersController_merge: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Clé unique de 1 à 128 caractères, obligatoire pour cette mutation. */
+        'Idempotency-Key': string;
+      };
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['MergeRequesterDto'];
+      };
+    };
+    responses: {
+      /** @description Fusion exécutée. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            data: components['schemas']['MergeRequesterResultDto'];
+            message?: string;
+            statusCode: number;
+            /** @enum {boolean} */
+            success: true;
+          };
+        };
+      };
+      /** @description Fusion refusée (profil anonymisé ou même profil). */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Token JWT manquant ou expiré. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Rôle insuffisant — ADMINISTRATOR requis. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Profil source ou cible introuvable. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  ExternalRequestersController_mergePreview: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Impacts de la fusion. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            data: components['schemas']['MergeRequesterPreviewDto'];
+            message?: string;
+            statusCode: number;
+            /** @enum {boolean} */
+            success: true;
+          };
+        };
+      };
+      /** @description Token JWT manquant ou expiré. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Rôle insuffisant. */
       403: {
         headers: {
           [name: string]: unknown;

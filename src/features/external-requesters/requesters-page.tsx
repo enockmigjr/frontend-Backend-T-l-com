@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight, Eye, Search } from 'lucide-react';
 import { AdminSection } from '@/features/users/components/admin-section';
 import { EmptyState, ErrorState, LoadingState } from '@/features/users/components/async-state';
+import { isAdmin, useCurrentUser } from '@/features/users/components/access-gate';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DataTable, type DataColumn } from '@/components/ui/data-table';
@@ -15,6 +16,8 @@ import { RequesterDetail } from './requester-detail';
 import type { ExternalRequester, ExternalRequesterDetail } from './types';
 
 export function RequestersPage() {
+  const { user } = useCurrentUser();
+  const canWrite = user ? isAdmin(user) : false;
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [submittedSearch, setSubmittedSearch] = useState('');
@@ -145,7 +148,16 @@ export function RequestersPage() {
         </>
       )}
       {selected ? (
-        <RequesterDetail requester={selected} open onOpenChange={(open) => { if (!open) setSelected(undefined); }} />
+        <RequesterDetail
+          requester={selected}
+          open
+          onOpenChange={(open) => { if (!open) setSelected(undefined); }}
+          canWrite={canWrite}
+          onMerged={() => {
+            setSelected(undefined);
+            void query.refetch();
+          }}
+        />
       ) : null}
     </AdminSection>
   );
