@@ -21,6 +21,28 @@ pnpm contract:generate
 pnpm dev
 ```
 
+## Comptes de démonstration
+
+### Login local (`AUTH_PROVIDER=local`)
+
+| Email | Mot de passe | Rôle |
+| ----- | ------------ | ---- |
+| `admin@telecom.local` | `Admin@1234` | ADMINISTRATOR |
+| `supervisor@telecom.local` | `Super@1234` | SUPERVISOR |
+| `agent-cc1@telecom.local` | `Agent@1234` | CUSTOMER_SERVICE_AGENT |
+
+### SSO Keycloak (`AUTH_PROVIDER=keycloak`)
+
+La page de login est redirigée vers Keycloak (`http://localhost:8081`, port 8081 car 8080 est utilisé par PhotoVault) :
+
+| Email | Mot de passe | Rôle |
+| ----- | ------------ | ---- |
+| `admin@telecom.local` | `Admin@1234` | ADMINISTRATOR |
+| `supervisor@telecom.local` | `Super@1234` | SUPERVISOR |
+| `agent.<ROLE>.<1..15>@telecom.local` | `Telecom@2026!` | 105 comptes seed (`make keycloak-seed`) |
+
+Console admin Keycloak : `http://localhost:8081/admin` — `admin` / `Admin@1234`.
+
 En développement, le cookie access utilise `access_token`, identique au défaut du gateway Nest, et les autres cookies utilisent le préfixe `itsm-`. En production, les trois noms doivent commencer par `__Host-`, être `Secure`, `Path=/` et sans `Domain`. Définir aussi `AUTH_CSRF_SECRET` avec au moins 32 caractères.
 
 Le BFF et le backend Nest doivent recevoir exactement le même nom de cookie access :
