@@ -151,6 +151,47 @@ export function DashboardTables({ data }: { readonly data: DashboardData }) {
           </table>
         </div>
       </section>
+      <section className="overflow-x-auto rounded-xl border bg-white p-5 xl:col-span-2">
+        <h2 className="font-semibold">Performance des agents</h2>
+        <p className="mt-1 text-sm text-zinc-600">
+          Résolutions et délais sur la période · violations SLA cumulées · dernière activité.
+        </p>
+        <table className="mt-3 w-full text-left text-sm">
+          <thead>
+            <tr>
+              <th className="py-2">Agent</th>
+              <th>Ouverts</th>
+              <th>Résolus</th>
+              <th>SLA dépassés</th>
+              <th>Délai moyen</th>
+              <th>En retard</th>
+              <th>Dernière activité</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.agentPerformance.data.map((item) => (
+              <tr className="border-t" key={item.agentId ?? item.email ?? ''}>
+                <td className="py-2">
+                  {[item.firstName, item.lastName].filter(Boolean).join(' ') || item.email || 'Agent'}
+                  {item.departmentName ? <p className="text-xs text-zinc-500">{item.departmentName}</p> : null}
+                </td>
+                <td>{item.openTicketsCount}</td>
+                <td>{item.resolvedInPeriod}</td>
+                <td className={item.slaBreachedCount > 0 ? 'font-semibold text-red-700' : ''}>
+                  {item.slaBreachedCount}
+                </td>
+                <td>{item.resolvedInPeriod > 0 ? `${item.avgResolutionMinutes} min` : '—'}</td>
+                <td className={item.overdueTicketsCount > 0 ? 'font-semibold text-red-700' : ''}>
+                  {item.overdueTicketsCount}
+                </td>
+                <td className={isInactive(item.lastActivityAt) ? 'text-red-700' : ''}>
+                  {formatLastActivity(item.lastActivityAt)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
     </div>
   );
 }

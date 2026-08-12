@@ -150,3 +150,28 @@ export const publicSupportSchema = z.object({
     }),
   ),
 });
+
+export const agentPerformanceSchema = z.object({
+  generatedAt: z.string(),
+  period: z.object({ from: z.string(), to: z.string() }),
+  data: z.array(
+    z.object({
+      agentId: z.string().uuid().nullable(),
+      firstName: z.string().nullable().optional(),
+      lastName: z.string().nullable().optional(),
+      email: z.string().nullable().optional(),
+      role: z.string().nullable().optional(),
+      isAvailable: z.boolean().nullable().optional(),
+      absenceEndsAt: z.string().nullable().optional(),
+      departmentName: z.string().nullable().optional(),
+      openTicketsCount: z.coerce.number().int(),
+      criticalTicketsCount: z.coerce.number().int(),
+      overdueTicketsCount: z.coerce.number().int(),
+      atRiskTicketsCount: z.coerce.number().int(),
+      resolvedInPeriod: z.coerce.number().int(),
+      slaBreachedCount: z.coerce.number().int(),
+      avgResolutionMinutes: z.coerce.number().int(),
+      lastActivityAt: z.string().nullable().optional(),
+    }),
+  ),
+});

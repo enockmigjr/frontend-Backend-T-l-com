@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { apiRequest } from '@/lib/api/client';
 import { envelope } from '@/features/users/api/validation';
 import {
+  agentPerformanceSchema,
   departmentsSchema,
   overviewSchema,
   prioritiesSchema,
@@ -21,6 +22,7 @@ const schemas = {
   'resolution-time': resolutionSchema,
   departments: departmentsSchema,
   'public-support': publicSupportSchema,
+  'agent-performance': agentPerformanceSchema,
 } as const;
 
 function dashboardPayload<T>(raw: unknown, schema: z.ZodType<T>): T {
@@ -42,6 +44,7 @@ export async function loadDashboard(from: string, to: string, signal?: AbortSign
     resolutionRaw,
     departmentsRaw,
     publicSupportRaw,
+    agentPerformanceRaw,
   ] =
     await Promise.all([
       apiRequest(`/api/v1/dashboard/overview?${query}`, { signal }),
@@ -52,6 +55,7 @@ export async function loadDashboard(from: string, to: string, signal?: AbortSign
       apiRequest(`/api/v1/dashboard/resolution-time?${query}`, { signal }),
       apiRequest(`/api/v1/dashboard/departments?${query}`, { signal }),
       apiRequest('/api/v1/dashboard/public-support', { signal }),
+      apiRequest(`/api/v1/dashboard/agent-performance?${query}`, { signal }),
     ]);
   return {
     overview: dashboardPayload(overviewRaw, schemas.overview),
@@ -62,6 +66,7 @@ export async function loadDashboard(from: string, to: string, signal?: AbortSign
     resolution: dashboardPayload(resolutionRaw, schemas['resolution-time']),
     departments: dashboardPayload(departmentsRaw, schemas.departments),
     publicSupport: dashboardPayload(publicSupportRaw, schemas['public-support']),
+    agentPerformance: dashboardPayload(agentPerformanceRaw, schemas['agent-performance']),
   };
 }
 
