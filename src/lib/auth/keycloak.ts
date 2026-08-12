@@ -17,12 +17,17 @@ export function keycloakEndpoints() {
   const issuer = process.env.KEYCLOAK_ISSUER;
   if (!issuer) throw new Error('KEYCLOAK_ISSUER is required for SSO');
   const origin = process.env.PUBLIC_APP_ORIGIN ?? 'http://localhost:3007';
+  // Le navigateur doit joindre l'URL publique (KEYCLOAK_ISSUER), mais les appels
+  // serveur (échange du code, refresh) doivent joindre Keycloak par le nom de
+  // service Docker (KEYCLOAK_INTERNAL_ISSUER) — sinon le conteneur s'appelle lui-même.
+  const internalIssuer = process.env.KEYCLOAK_INTERNAL_ISSUER ?? issuer;
   return {
     issuer,
+    internalIssuer,
     clientId: process.env.KEYCLOAK_CLIENT_ID ?? 'telecom-frontend',
     redirectUri: process.env.KEYCLOAK_REDIRECT_URI ?? `${origin}/api/auth/keycloak/callback`,
     authorizeUrl: `${issuer}/protocol/openid-connect/auth`,
-    tokenUrl: `${issuer}/protocol/openid-connect/token`,
+    tokenUrl: `${internalIssuer}/protocol/openid-connect/token`,
     endSessionUrl: `${issuer}/protocol/openid-connect/logout`,
   } as const;
 }

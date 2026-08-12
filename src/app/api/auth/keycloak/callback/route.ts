@@ -19,7 +19,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const tokens = await exchangeCode(code, verifier);
     if (!tokens.access_token || !tokens.refresh_token) return failure;
-    const response = NextResponse.redirect(new URL('/', request.nextUrl.origin), 302);
+    // PUBLIC_APP_ORIGIN est l'origine publique stable (le conteneur Next écoute
+    // en interne sur 3000 alors que le navigateur utilise 3007).
+    const appOrigin = process.env.PUBLIC_APP_ORIGIN ?? request.nextUrl.origin;
+    const response = NextResponse.redirect(new URL('/', appOrigin), 302);
     setSessionCookies(response, {
       accessToken: tokens.access_token,
       refreshToken: tokens.refresh_token,
