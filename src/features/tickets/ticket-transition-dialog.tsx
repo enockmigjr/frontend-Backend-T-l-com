@@ -5,7 +5,13 @@ import { ResourceDialog } from '@/components/ui/resource-dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { ErrorAlert } from '@/features/auth/error-alert';
 
-export type DialogAction = 'pending-customer' | 'pending-third-party' | 'resolve' | 'reopen' | 'close';
+export type DialogAction =
+  | 'pending-customer'
+  | 'pending-third-party'
+  | 'resolve'
+  | 'reopen'
+  | 'close'
+  | 'public-reply';
 
 interface TicketTransitionDialogProps {
   readonly action: DialogAction;
@@ -23,6 +29,7 @@ const titles: Record<DialogAction, string> = {
   resolve: 'Résoudre le ticket',
   reopen: 'Rouvrir le ticket',
   close: 'Clôturer le ticket',
+  'public-reply': 'Répondre au demandeur',
 };
 
 export function TicketTransitionDialog({
@@ -54,7 +61,11 @@ export function TicketTransitionDialog({
         {error ? <ErrorAlert error={error} /> : null}
         {requiresReason ? (
           <label className="grid gap-1.5 text-sm font-medium">
-            {action === 'resolve' ? 'Résumé de la résolution' : 'Raison'}
+            {action === 'resolve'
+              ? 'Résumé de la résolution'
+              : action === 'public-reply'
+                ? 'Réponse au demandeur'
+                : 'Raison'}
             <Textarea autoFocus rows={4} value={text} onChange={(event) => onText(event.target.value)} />
           </label>
         ) : (

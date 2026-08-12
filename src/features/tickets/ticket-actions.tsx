@@ -69,6 +69,7 @@ export function TicketActions({ ticket }: Readonly<{ ticket: Ticket }>) {
   function submitDialog() {
     if (!dialog) return;
     if (dialog === 'resolve') transition.mutate({ action: 'resolve', body: { resolutionSummary: text } });
+    else if (dialog === 'public-reply') transition.mutate({ action: 'public-reply', body: { content: text } });
     else if (dialog === 'reopen') transition.mutate({ action: 'reopen', body: { reason: text } });
     else transition.mutate({ action: dialog, body: { reason: text || undefined } });
   }
@@ -117,6 +118,9 @@ export function TicketActions({ ticket }: Readonly<{ ticket: Ticket }>) {
             ) : null}
             {assigned && !elevated ? <Action label="Réassigner" onClick={() => setPanel('reassign')} /> : null}
             {canOperate ? <Action label="Escalader" onClick={() => setPanel('escalate')} /> : null}
+            {ticket.supportIntegrationId ? (
+              <Action label="Répondre au demandeur" onClick={() => setDialog('public-reply')} />
+            ) : null}
           </DropdownMenuGroup>
           {canOperate ? (
             <>
