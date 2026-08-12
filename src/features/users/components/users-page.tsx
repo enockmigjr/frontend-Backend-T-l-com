@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Plus } from 'lucide-react';
 import { createUser, listUsers, setUserActive, updateUser } from '../api/admin-api';
-import type { CreateUser, UpdateUser, User } from '../api/types';
+import type { CreateUser, Department, UpdateUser, User } from '../api/types';
 import { UserForm } from './user-form';
 import { UserDetail } from './user-detail';
 import { UsersPagination } from './users-pagination';
@@ -166,7 +166,7 @@ export function UsersPage() {
       >
         <>
           <MutationError error={formError} />
-          <UserForm departments={departments.data ?? []} pending={pending} onSubmit={save} />
+          <UserForm departments={(departments.data ?? []) as Department[]} pending={pending} onSubmit={save} />
         </>
       </ResourceDialog>
       <ResourceDialog
@@ -181,7 +181,7 @@ export function UsersPage() {
         {editing ? (
           <>
             <MutationError error={formError} />
-            <UserForm user={editing} departments={departments.data ?? []} pending={pending} onSubmit={save} />
+            <UserForm user={editing} departments={(departments.data ?? []) as Department[]} pending={pending} onSubmit={save} />
           </>
         ) : null}
       </ResourceDialog>

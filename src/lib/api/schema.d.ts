@@ -320,6 +320,28 @@ export interface paths {
     patch: operations['CommentsController_update'];
     trace?: never;
   };
+  '/api/v1/dashboard/agent-performance': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Performance des agents
+     * @description Retourne les indicateurs de performance par agent : tickets ouverts/critiques/en retard/à risque, résolutions sur la période, violations SLA, délai moyen de résolution et dernière activité.
+     *
+     *     **Rôles autorisés :** ADMINISTRATOR, SUPERVISOR
+     */
+    get: operations['DashboardController_agentPerformance'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/dashboard/departments': {
     parameters: {
       query?: never;
@@ -356,6 +378,28 @@ export interface paths {
      *     **Rôles autorisés :** ADMINISTRATOR, SUPERVISOR
      */
     get: operations['DashboardController_overview'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/dashboard/public-support': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Statistiques du support public
+     * @description Retourne les indicateurs du support public : conversations, demandeurs, messages, tickets publics, délai moyen de première réponse et canaux.
+     *
+     *     **Rôles autorisés :** ADMINISTRATOR, SUPERVISOR
+     */
+    get: operations['DashboardController_publicSupport'];
     put?: never;
     post?: never;
     delete?: never;
@@ -4008,14 +4052,18 @@ export interface components {
        *       "HIGH": 3
        *     }
        */
-      priority?: Record<string, never>;
+      priority?: {
+        [key: string]: number;
+      };
       /**
        * @description Poids par sévérité (S1 à S4)
        * @example {
        *       "S1": 5
        *     }
        */
-      severity?: Record<string, never>;
+      severity?: {
+        [key: string]: number;
+      };
     };
   };
   responses: never;
@@ -5037,6 +5085,40 @@ export interface operations {
       };
     };
   };
+  DashboardController_agentPerformance: {
+    parameters: {
+      query?: {
+        /** @description Date de début (ISO 8601) */
+        from?: string;
+        /** @description Date de fin (ISO 8601) */
+        to?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Performance par agent. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiSuccessResponse'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
   DashboardController_departments: {
     parameters: {
       query?: {
@@ -5140,6 +5222,35 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  DashboardController_publicSupport: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Statistiques du support public. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiSuccessResponse'];
         };
       };
       /** @description Erreur standardisée. */

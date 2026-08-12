@@ -75,6 +75,7 @@ export const departmentSchema = z
     autoAssignmentEnabled: z.boolean(),
     assignmentStrategy: z.string(),
     maxWorkloadPerAgent: z.number().int(),
+    workloadWeights: z.record(z.string(), z.unknown()).nullable().optional(),
     createdAt: z.string(),
     updatedAt: z.string(),
   })

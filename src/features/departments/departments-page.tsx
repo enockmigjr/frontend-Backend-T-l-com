@@ -35,12 +35,24 @@ export function DepartmentsPage() {
     const maxWorkloadPerAgent = Number(formData.get('maxWorkloadPerAgent')) || 100;
     const assignmentStrategy = (String(formData.get('assignmentStrategy')) ||
       'LEAST_LOADED') as 'ROUND_ROBIN' | 'LEAST_LOADED';
+    const weightsRaw = String(formData.get('workloadWeights') || '').trim();
+    let workloadWeights: { priority?: Record<string, number>; severity?: Record<string, number> } | undefined;
+    if (weightsRaw) {
+      try {
+        workloadWeights = JSON.parse(weightsRaw) as { priority?: Record<string, number>; severity?: Record<string, number> };
+      } catch {
+        setError(new Error('La pondération de charge doit être un JSON valide.'));
+        setPending(false);
+        return;
+      }
+    }
     const body = {
       name: String(formData.get('name')),
       description: String(formData.get('description')) || undefined,
       assignmentStrategy,
       autoAssignmentEnabled: formData.get('autoAssignmentEnabled') !== null,
       maxWorkloadPerAgent: Math.max(1, Math.min(1000, maxWorkloadPerAgent)),
+      workloadWeights,
     };
     try {
       if (editing) await updateDepartment(editing.id, body);
@@ -124,7 +136,7 @@ export function DepartmentsPage() {
       ) : items.length === 0 ? (
         <EmptyState>Aucun département.</EmptyState>
       ) : (
-        <DataTable rows={items} columns={columns} getRowKey={(item) => item.id} caption="Départements" />
+        <DataTable rows={items as Department[]} columns={columns} getRowKey={(item) => item.id} caption="Départements" />
       )}
       <DepartmentDialog
         open={creating}
