@@ -34,12 +34,14 @@ export function ResourceDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       {trigger ? <DialogTrigger render={trigger} /> : null}
-      <DialogContent className={`${sizeClass} max-h-[calc(100dvh-2rem)] overflow-hidden`}>
-        <DialogHeader>
+      <DialogContent
+        className={`${sizeClass} max-h-[calc(100dvh-2rem)] grid-rows-[auto_minmax(0,1fr)] overflow-hidden p-0`}
+      >
+        <DialogHeader className="shrink-0 border-b px-4 py-3">
           <DialogTitle>{title}</DialogTitle>
           {description ? <DialogDescription>{description}</DialogDescription> : null}
         </DialogHeader>
-        <div className="min-h-0 overflow-y-auto overscroll-contain pr-1">{children}</div>
+        <div className="min-h-0 min-w-0 overflow-y-auto overscroll-contain px-4 py-4">{children}</div>
       </DialogContent>
     </Dialog>
   );
