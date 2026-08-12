@@ -5,6 +5,7 @@ import {
   departmentsSchema,
   overviewSchema,
   prioritiesSchema,
+  publicSupportSchema,
   resolutionSchema,
   slaSchema,
   statusesSchema,
@@ -19,6 +20,7 @@ const schemas = {
   workload: workloadSchema,
   'resolution-time': resolutionSchema,
   departments: departmentsSchema,
+  'public-support': publicSupportSchema,
 } as const;
 
 function dashboardPayload<T>(raw: unknown, schema: z.ZodType<T>): T {
@@ -31,7 +33,16 @@ function dashboardPayload<T>(raw: unknown, schema: z.ZodType<T>): T {
 
 export async function loadDashboard(from: string, to: string, signal?: AbortSignal) {
   const query = new URLSearchParams({ from, to }).toString();
-  const [overviewRaw, statusesRaw, prioritiesRaw, slaRaw, workloadRaw, resolutionRaw, departmentsRaw] =
+  const [
+    overviewRaw,
+    statusesRaw,
+    prioritiesRaw,
+    slaRaw,
+    workloadRaw,
+    resolutionRaw,
+    departmentsRaw,
+    publicSupportRaw,
+  ] =
     await Promise.all([
       apiRequest(`/api/v1/dashboard/overview?${query}`, { signal }),
       apiRequest(`/api/v1/dashboard/tickets-by-status?${query}`, { signal }),
@@ -40,6 +51,7 @@ export async function loadDashboard(from: string, to: string, signal?: AbortSign
       apiRequest('/api/v1/dashboard/workload', { signal }),
       apiRequest(`/api/v1/dashboard/resolution-time?${query}`, { signal }),
       apiRequest(`/api/v1/dashboard/departments?${query}`, { signal }),
+      apiRequest('/api/v1/dashboard/public-support', { signal }),
     ]);
   return {
     overview: dashboardPayload(overviewRaw, schemas.overview),
@@ -49,6 +61,7 @@ export async function loadDashboard(from: string, to: string, signal?: AbortSign
     workload: dashboardPayload(workloadRaw, schemas.workload),
     resolution: dashboardPayload(resolutionRaw, schemas['resolution-time']),
     departments: dashboardPayload(departmentsRaw, schemas.departments),
+    publicSupport: dashboardPayload(publicSupportRaw, schemas['public-support']),
   };
 }
 

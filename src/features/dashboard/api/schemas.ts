@@ -118,3 +118,35 @@ export const departmentsSchema = z.object({
     }),
   ),
 });
+
+export const publicSupportSchema = z.object({
+  generatedAt: z.string(),
+  summary: z.object({
+    totalConversations: z.coerce.number().int(),
+    openConversations: z.coerce.number().int(),
+    conversationsToday: z.coerce.number().int(),
+    totalRequesters: z.coerce.number().int(),
+    activeRequesters: z.coerce.number().int(),
+    totalMessages: z.coerce.number().int(),
+    publicRepliesSent: z.coerce.number().int(),
+    publicTickets: z.coerce.number().int(),
+    openPublicTickets: z.coerce.number().int(),
+    avgFirstResponseMinutes: z.coerce.number().int(),
+  }),
+  byChannel: z.array(
+    z.object({
+      channel: z.string(),
+      conversations: z.coerce.number().int(),
+      tickets: z.coerce.number().int(),
+    }),
+  ),
+  byStatus: z.array(z.object({ status: z.string(), count: z.coerce.number().int() })),
+  recentRequesters: z.array(
+    z.object({
+      id: z.string(),
+      displayName: z.string(),
+      lastSeenAt: z.string().nullable(),
+      createdAt: z.string(),
+    }),
+  ),
+});
