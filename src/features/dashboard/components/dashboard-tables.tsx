@@ -1,8 +1,15 @@
 import type { DashboardData } from '../api/dashboard-api';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export function DashboardTables({ data }: { readonly data: DashboardData }) {
   return (
-    <div className="grid gap-5 xl:grid-cols-2">
+    <Tabs defaultValue="interne">
+      <TabsList className="mb-4 w-full justify-start bg-transparent p-0" variant="line">
+        <TabsTrigger value="interne" className="min-h-9">Interne</TabsTrigger>
+        <TabsTrigger value="public" className="min-h-9">Support public</TabsTrigger>
+      </TabsList>
+      <TabsContent value="interne">
+        <div className="grid gap-5 xl:grid-cols-2">
       <section className="overflow-x-auto rounded-xl border bg-white p-5">
         <h2 className="font-semibold">Alternative tabulaire — statuts</h2>
         <table className="mt-3 w-full text-left text-sm">
@@ -98,59 +105,6 @@ export function DashboardTables({ data }: { readonly data: DashboardData }) {
           </tbody>
         </table>
       </section>
-      <section className="rounded-xl border bg-white p-5 xl:col-span-2">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="font-semibold">Support public</h2>
-          <p className="text-xs text-zinc-500">
-            Dernière consolidation : {new Date(data.publicSupport.generatedAt).toLocaleString('fr-FR')}
-          </p>
-        </div>
-        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-5">
-          {[
-            ['Conversations', data.publicSupport.summary.totalConversations],
-            ['Ouvertes', data.publicSupport.summary.openConversations],
-            ['Aujourd’hui', data.publicSupport.summary.conversationsToday],
-            ['Demandeurs actifs', data.publicSupport.summary.activeRequesters],
-            ['Tickets publics', data.publicSupport.summary.publicTickets],
-            ['Réponses envoyées', data.publicSupport.summary.publicRepliesSent],
-            ['Messages', data.publicSupport.summary.totalMessages],
-            ['1re réponse moyenne', `${data.publicSupport.summary.avgFirstResponseMinutes} min`],
-          ].map(([label, value]) => (
-            <div key={label} className="rounded-lg border bg-slate-50 p-3">
-              <p className="text-xs text-zinc-500">{label}</p>
-              <p className="mt-1 font-mono text-lg font-semibold">{value}</p>
-            </div>
-          ))}
-        </div>
-        <div className="mt-5 overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr>
-                <th className="py-2">Canal</th>
-                <th>Conversations</th>
-                <th>Tickets</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.publicSupport.byChannel.length > 0 ? (
-                data.publicSupport.byChannel.map((row) => (
-                  <tr className="border-t" key={row.channel}>
-                    <td className="py-2">{channelLabel(row.channel)}</td>
-                    <td>{row.conversations}</td>
-                    <td>{row.tickets}</td>
-                  </tr>
-                ))
-              ) : (
-                <tr className="border-t">
-                  <td className="py-2 text-zinc-500" colSpan={3}>
-                    Aucune donnée publique.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </section>
       <section className="overflow-x-auto rounded-xl border bg-white p-5 xl:col-span-2">
         <h2 className="font-semibold">Performance des agents</h2>
         <p className="mt-1 text-sm text-zinc-600">
@@ -192,7 +146,66 @@ export function DashboardTables({ data }: { readonly data: DashboardData }) {
           </tbody>
         </table>
       </section>
-    </div>
+        </div>
+      </TabsContent>
+      <TabsContent value="public">
+        <div className="grid gap-5">
+          <section className="rounded-xl border bg-white p-5">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h2 className="font-semibold">Support public</h2>
+              <p className="text-xs text-zinc-500">
+                Dernière consolidation : {new Date(data.publicSupport.generatedAt).toLocaleString('fr-FR')}
+              </p>
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-5">
+              {[
+                ['Conversations', data.publicSupport.summary.totalConversations],
+                ['Ouvertes', data.publicSupport.summary.openConversations],
+                ['Aujourd’hui', data.publicSupport.summary.conversationsToday],
+                ['Demandeurs actifs', data.publicSupport.summary.activeRequesters],
+                ['Tickets publics', data.publicSupport.summary.publicTickets],
+                ['Réponses envoyées', data.publicSupport.summary.publicRepliesSent],
+                ['Messages', data.publicSupport.summary.totalMessages],
+                ['1re réponse moyenne', `${data.publicSupport.summary.avgFirstResponseMinutes} min`],
+              ].map(([label, value]) => (
+                <div key={label} className="rounded-lg border bg-slate-50 p-3">
+                  <p className="text-xs text-zinc-500">{label}</p>
+                  <p className="mt-1 font-mono text-lg font-semibold">{value}</p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-5 overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead>
+                  <tr>
+                    <th className="py-2">Canal</th>
+                    <th>Conversations</th>
+                    <th>Tickets</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.publicSupport.byChannel.length > 0 ? (
+                    data.publicSupport.byChannel.map((row) => (
+                      <tr className="border-t" key={row.channel}>
+                        <td className="py-2">{channelLabel(row.channel)}</td>
+                        <td>{row.conversations}</td>
+                        <td>{row.tickets}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr className="border-t">
+                      <td className="py-2 text-zinc-500" colSpan={3}>
+                        Aucune donnée publique.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </TabsContent>
+    </Tabs>
   );
 }
 
