@@ -167,6 +167,13 @@ export function DashboardTables({ data }: { readonly data: DashboardData }) {
                 ['Réponses envoyées', data.publicSupport.summary.publicRepliesSent],
                 ['Messages', data.publicSupport.summary.totalMessages],
                 ['1re réponse moyenne', `${data.publicSupport.summary.avgFirstResponseMinutes} min`],
+                ['Satisfaction moyenne', data.publicSupport.summary.satisfaction?.avgNote ? `${data.publicSupport.summary.satisfaction.avgNote}/5` : '—'],
+                [
+                  'Satisfactions reçues',
+                  data.publicSupport.summary.satisfaction
+                    ? `${data.publicSupport.summary.satisfaction.submitted}/${data.publicSupport.summary.satisfaction.invited}`
+                    : '—',
+                ],
               ].map(([label, value]) => (
                 <div key={label} className="rounded-lg border bg-slate-50 p-3">
                   <p className="text-xs text-zinc-500">{label}</p>

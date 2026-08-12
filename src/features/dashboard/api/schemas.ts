@@ -132,6 +132,13 @@ export const publicSupportSchema = z.object({
     publicTickets: z.coerce.number().int(),
     openPublicTickets: z.coerce.number().int(),
     avgFirstResponseMinutes: z.coerce.number().int(),
+    satisfaction: z
+      .object({
+        invited: z.coerce.number().int(),
+        submitted: z.coerce.number().int(),
+        avgNote: z.coerce.number(),
+      })
+      .optional(),
   }),
   byChannel: z.array(
     z.object({
