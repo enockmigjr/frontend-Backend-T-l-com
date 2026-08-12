@@ -17,6 +17,8 @@ const descriptions: Readonly<Record<string, { label: string; hint: string; icon:
   BUSINESS_HOURS_END: { label: 'Fin des heures ouvrées', hint: 'Heure de fin utilisée par le moteur SLA.', icon: Clock3, type: 'time' },
   BUSINESS_DAYS: { label: 'Jours ouvrés', hint: 'Numéros ISO séparés par des virgules, lundi = 1.', icon: Clock3 },
   MAX_CONCURRENT_TICKETS: { label: 'Charge maximale par agent', hint: 'Limite utilisée lors de l’assignation.', icon: Tickets, type: 'number' },
+  ABSENCE_REASSIGN_HOURS: { label: 'Seuil de réaffectation absence (h)', hint: "Au-delà de cette durée d'absence planifiée, les tickets sont réassignés.", icon: Clock3, type: 'number' },
+  SLA_WARNING_MINUTES: { label: 'Seuil d’alerte SLA (min)', hint: 'Alerte envoyée avant l’échéance.', icon: Clock3, type: 'number' },
 };
 
 export function SystemSettingsPanel({ canEdit }: Readonly<{ canEdit: boolean }>) {
