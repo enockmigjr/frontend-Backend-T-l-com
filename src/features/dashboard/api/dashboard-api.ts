@@ -76,5 +76,12 @@ export async function loadMyActivity(signal?: AbortSignal) {
   return dashboardPayload(raw, myActivitySchema);
 }
 
+export async function loadAgentPerformance(from: string, to: string, signal?: AbortSignal) {
+  const query = new URLSearchParams({ from, to }).toString();
+  const raw = await apiRequest(`/api/v1/dashboard/agent-performance?${query}`, { signal });
+  return dashboardPayload(raw, agentPerformanceSchema);
+}
+
 export type DashboardData = Awaited<ReturnType<typeof loadDashboard>>;
 export type MyActivityData = Awaited<ReturnType<typeof loadMyActivity>>;
+export type AgentPerformanceData = Awaited<ReturnType<typeof loadAgentPerformance>>;
