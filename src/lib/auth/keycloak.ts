@@ -16,7 +16,7 @@ export function isKeycloakAuth(): boolean {
 export function keycloakEndpoints() {
   const issuer = process.env.KEYCLOAK_ISSUER;
   if (!issuer) throw new Error('KEYCLOAK_ISSUER is required for SSO');
-  const origin = process.env.PUBLIC_APP_ORIGIN ?? 'http://localhost:3001';
+  const origin = process.env.PUBLIC_APP_ORIGIN ?? 'http://localhost:3007';
   return {
     issuer,
     clientId: process.env.KEYCLOAK_CLIENT_ID ?? 'telecom-frontend',
