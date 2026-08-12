@@ -5,7 +5,7 @@ jest.mock('@/lib/api/client', () => ({ apiRequest: jest.fn() }));
 const request = jest.mocked(apiRequest);
 
 describe('loadDashboard', () => {
-  it('interroge exactement les sept endpoints réels avec la période', async () => {
+  it('interroge exactement les neuf endpoints réels avec la période', async () => {
     const period = { from: '2026-06-01', to: '2026-06-30' };
     request.mockImplementation(async (path) => {
       const base = { success: true, statusCode: 200 };
@@ -58,10 +58,41 @@ describe('loadDashboard', () => {
             trend: [],
           },
         };
+      if (path.includes('public-support'))
+        return {
+          ...base,
+          data: {
+            generatedAt: '2026-06-30T00:00:00Z',
+            summary: {
+              totalConversations: 0,
+              openConversations: 0,
+              conversationsToday: 0,
+              totalRequesters: 0,
+              activeRequesters: 0,
+              totalMessages: 0,
+              publicRepliesSent: 0,
+              publicTickets: 0,
+              openPublicTickets: 0,
+              avgFirstResponseMinutes: 0,
+            },
+            byChannel: [],
+            byStatus: [],
+            recentRequesters: [],
+          },
+        };
+      if (path.includes('agent-performance'))
+        return {
+          ...base,
+          data: {
+            generatedAt: '2026-06-30T00:00:00Z',
+            period,
+            data: [],
+          },
+        };
       return { ...base, data: { period, data: [] } };
     });
     await loadDashboard('2026-06-01', '2026-06-30');
-    expect(request).toHaveBeenCalledTimes(7);
+    expect(request).toHaveBeenCalledTimes(9);
     expect(request.mock.calls.map(([path]) => path)).toEqual([
       '/api/v1/dashboard/overview?from=2026-06-01&to=2026-06-30',
       '/api/v1/dashboard/tickets-by-status?from=2026-06-01&to=2026-06-30',
@@ -70,6 +101,8 @@ describe('loadDashboard', () => {
       '/api/v1/dashboard/workload',
       '/api/v1/dashboard/resolution-time?from=2026-06-01&to=2026-06-30',
       '/api/v1/dashboard/departments?from=2026-06-01&to=2026-06-30',
+      '/api/v1/dashboard/public-support',
+      '/api/v1/dashboard/agent-performance?from=2026-06-01&to=2026-06-30',
     ]);
   });
 });
