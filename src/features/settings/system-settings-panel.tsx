@@ -19,6 +19,7 @@ const descriptions: Readonly<Record<string, { label: string; hint: string; icon:
   MAX_CONCURRENT_TICKETS: { label: 'Charge maximale par agent', hint: 'Limite utilisée lors de l’assignation.', icon: Tickets, type: 'number' },
   ABSENCE_REASSIGN_HOURS: { label: 'Seuil de réaffectation absence (h)', hint: "Au-delà de cette durée d'absence planifiée, les tickets sont réassignés.", icon: Clock3, type: 'number' },
   SLA_WARNING_MINUTES: { label: 'Seuil d’alerte SLA (min)', hint: 'Alerte envoyée avant l’échéance.', icon: Clock3, type: 'number' },
+  NOTIFICATIONS_SLA_BREACH_ENABLED: { label: 'Emails de violation SLA', hint: 'Activer (true) ou désactiver (false) les emails de dépassement SLA.', icon: Clock3 },
 };
 
 export function SystemSettingsPanel({ canEdit }: Readonly<{ canEdit: boolean }>) {
