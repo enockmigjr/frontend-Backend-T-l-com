@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Eye, EyeOff, LoaderCircle, LogIn } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState, useSyncExternalStore } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { login } from './api';
 import { ErrorAlert } from './error-alert';
@@ -14,17 +14,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-const subscribeToHydration = () => () => undefined;
-
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState<unknown>();
-  const isHydrated = useSyncExternalStore(
-    subscribeToHydration,
-    () => true,
-    () => false,
-  );
   const [showPassword, setShowPassword] = useState(false);
   const {
     register,
@@ -105,7 +98,7 @@ export function LoginForm() {
       </div>
       <Button
         type="submit"
-        disabled={!isHydrated || isSubmitting}
+        disabled={isSubmitting}
         size="lg"
         className="w-full bg-blue-700 hover:bg-blue-800"
       >
