@@ -4,6 +4,7 @@ import { envelope } from '@/features/users/api/validation';
 import {
   agentPerformanceSchema,
   departmentsSchema,
+  myActivitySchema,
   overviewSchema,
   prioritiesSchema,
   publicSupportSchema,
@@ -70,4 +71,10 @@ export async function loadDashboard(from: string, to: string, signal?: AbortSign
   };
 }
 
+export async function loadMyActivity(signal?: AbortSignal) {
+  const raw = await apiRequest('/api/v1/dashboard/my-activity', { signal });
+  return dashboardPayload(raw, myActivitySchema);
+}
+
 export type DashboardData = Awaited<ReturnType<typeof loadDashboard>>;
+export type MyActivityData = Awaited<ReturnType<typeof loadMyActivity>>;

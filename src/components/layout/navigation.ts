@@ -1,4 +1,5 @@
 import {
+  Activity,
   BarChart3,
   Bell,
   Building2,
@@ -28,6 +29,7 @@ export interface NavigationItem {
 
 export const navigation: readonly NavigationItem[] = [
   { label: 'Tickets', href: '/tickets', icon: ClipboardList, group: 'Travail' },
+  { label: 'Mon activité', href: '/mon-activite', icon: Activity, group: 'Travail' },
   { label: 'Notifications', href: '/notifications', icon: Bell, group: 'Travail' },
   { label: 'Paramètres', href: '/settings', icon: Settings, group: 'Travail' },
   {

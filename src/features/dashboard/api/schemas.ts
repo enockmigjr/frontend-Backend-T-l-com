@@ -175,3 +175,28 @@ export const agentPerformanceSchema = z.object({
     }),
   ),
 });
+
+export const myActivitySchema = z.object({
+  generatedAt: z.string(),
+  profile: z
+    .object({
+      firstName: z.string(),
+      lastName: z.string(),
+      email: z.string(),
+      role: z.string(),
+      departmentName: z.string().nullable().optional(),
+      isAvailable: z.boolean(),
+      absenceEndsAt: z.string().nullable(),
+    })
+    .nullable(),
+  summary: z.object({
+    openTicketsCount: z.coerce.number().int(),
+    criticalTicketsCount: z.coerce.number().int(),
+    overdueTicketsCount: z.coerce.number().int(),
+    atRiskTicketsCount: z.coerce.number().int(),
+    resolvedThisMonth: z.coerce.number().int(),
+    slaBreachedCount: z.coerce.number().int(),
+    avgResolutionMinutes: z.coerce.number().int(),
+    lastActivityAt: z.string().nullable(),
+  }),
+});
