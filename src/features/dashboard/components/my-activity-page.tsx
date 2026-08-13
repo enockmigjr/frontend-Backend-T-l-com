@@ -3,6 +3,15 @@
 import { useQuery } from '@tanstack/react-query';
 import { AlertTriangle, CheckCircle2, Clock3, Gauge, ListChecks, RadioTower, TicketCheck } from 'lucide-react';
 import Link from 'next/link';
+import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 import { loadMyActivity } from '../api/dashboard-api';
 import { ErrorState, LoadingState } from '@/features/users/components/async-state';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -72,6 +81,38 @@ export function MyActivityPage() {
           </Card>
         ))}
       </section>
+      {summary.resolvedLast7Days.length > 0 ? (
+        <Card className="gap-0 overflow-hidden py-0 shadow-sm">
+          <CardHeader className="border-b px-5 py-4">
+            <CardTitle className="text-base">Tickets résolus — 7 derniers jours</CardTitle>
+            <p className="text-sm text-muted-foreground">Tendance quotidienne de vos résolutions.</p>
+          </CardHeader>
+          <CardContent className="h-64 p-4">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart
+                data={summary.resolvedLast7Days.map((row) => ({
+                  ...row,
+                  label: new Date(`${row.day}T12:00:00`).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }),
+                }))}
+                margin={{ top: 12, right: 12, left: -10, bottom: 0 }}
+              >
+                <CartesianGrid vertical={false} stroke="#e5e7eb" />
+                <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+                <YAxis allowDecimals={false} axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+                <Tooltip contentStyle={{ borderRadius: 10, borderColor: '#dce3ea' }} />
+                <Line
+                  type="monotone"
+                  dataKey="count"
+                  name="Résolus"
+                  stroke="#1d4ed8"
+                  strokeWidth={3}
+                  dot={{ r: 3, fill: '#1d4ed8' }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      ) : null}
       <div className="flex gap-3">
         <Link
           href="/tickets/new"

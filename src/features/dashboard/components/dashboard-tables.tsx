@@ -1,13 +1,21 @@
 import type { DashboardData } from '../api/dashboard-api';
 import Link from 'next/link';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-export function DashboardTables({
-  data,
-  showTabs = true,
-}: Readonly<{ data: DashboardData; showTabs?: boolean }>) {
-  const internal = (
-    <div className="grid items-start gap-5 xl:grid-cols-2">
+export function DashboardTables({ data }: Readonly<{ data: DashboardData }>) {
+  return (
+    <div className="space-y-5">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h2 className="font-semibold">Vue d&apos;ensemble interne</h2>
+          <p className="mt-1 text-sm text-zinc-600">
+            Statuts, charge des équipes, départements et performance des agents.
+          </p>
+        </div>
+        <Link href="/dashboard/support-public" className="text-sm font-medium text-blue-700 hover:underline">
+          Support public →
+        </Link>
+      </div>
+
       <section className="min-w-0 overflow-x-auto rounded-xl border bg-white p-5">
         <h2 className="font-semibold">Répartition par statut</h2>
         <table className="mt-3 w-full text-left text-sm">
@@ -31,6 +39,7 @@ export function DashboardTables({
           </tbody>
         </table>
       </section>
+
       <section className="min-w-0 overflow-x-auto rounded-xl border bg-white p-5">
         <h2 className="font-semibold">Charge des agents</h2>
         <p className="mt-1 text-sm text-zinc-600">
@@ -76,7 +85,8 @@ export function DashboardTables({
           </tbody>
         </table>
       </section>
-      <section className="min-w-0 overflow-x-auto rounded-xl border bg-white p-5 xl:col-span-2">
+
+      <section className="min-w-0 overflow-x-auto rounded-xl border bg-white p-5">
         <h2 className="font-semibold">Performance des départements</h2>
         <table className="mt-3 w-full text-left text-sm">
           <thead>
@@ -103,7 +113,8 @@ export function DashboardTables({
           </tbody>
         </table>
       </section>
-      <section className="min-w-0 overflow-x-auto rounded-xl border bg-white p-5 xl:col-span-2">
+
+      <section className="min-w-0 overflow-x-auto rounded-xl border bg-white p-5">
         <h2 className="font-semibold">Performance des agents</h2>
         <p className="mt-1 text-sm text-zinc-600">
           Résolutions et délais sur la période · violations SLA cumulées · dernière activité.
@@ -144,92 +155,11 @@ export function DashboardTables({
           </tbody>
         </table>
       </section>
-        </div>
-  );
-
-  if (!showTabs) return internal;
-
-  return (
-    <Tabs defaultValue="interne">
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-        <TabsList className="w-full justify-start bg-transparent p-0 sm:w-auto" variant="line">
-          <TabsTrigger value="interne" className="min-h-9">Interne</TabsTrigger>
-          <TabsTrigger value="public" className="min-h-9">Support public</TabsTrigger>
-        </TabsList>
-        <Link href="/dashboard/interne" className="text-sm font-medium text-blue-700 hover:underline">
-          Vue interne complète →
-        </Link>
-      </div>
-      <TabsContent value="interne">{internal}</TabsContent>
-      <TabsContent value="public">
-        <div className="grid gap-5">
-          <section className="rounded-xl border bg-white p-5">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 className="font-semibold">Support public</h2>
-              <p className="text-xs text-zinc-500">
-                Dernière consolidation : {new Date(data.publicSupport.generatedAt).toLocaleString('fr-FR')}
-              </p>
-            </div>
-            <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-5">
-              {[
-                ['Conversations', data.publicSupport.summary.totalConversations],
-                ['Ouvertes', data.publicSupport.summary.openConversations],
-                ['Aujourd’hui', data.publicSupport.summary.conversationsToday],
-                ['Demandeurs actifs', data.publicSupport.summary.activeRequesters],
-                ['Tickets publics', data.publicSupport.summary.publicTickets],
-                ['Réponses envoyées', data.publicSupport.summary.publicRepliesSent],
-                ['Messages', data.publicSupport.summary.totalMessages],
-                ['1re réponse moyenne', `${data.publicSupport.summary.avgFirstResponseMinutes} min`],
-                ['Satisfaction moyenne', data.publicSupport.summary.satisfaction?.avgNote ? `${data.publicSupport.summary.satisfaction.avgNote}/5` : '—'],
-                [
-                  'Satisfactions reçues',
-                  data.publicSupport.summary.satisfaction
-                    ? `${data.publicSupport.summary.satisfaction.submitted}/${data.publicSupport.summary.satisfaction.invited}`
-                    : '—',
-                ],
-              ].map(([label, value]) => (
-                <div key={label} className="rounded-lg border bg-slate-50 p-3">
-                  <p className="text-xs text-zinc-500">{label}</p>
-                  <p className="mt-1 font-mono text-lg font-semibold">{value}</p>
-                </div>
-              ))}
-            </div>
-            <div className="mt-5 overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead>
-                  <tr>
-                    <th className="py-2">Canal</th>
-                    <th>Conversations</th>
-                    <th>Tickets</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.publicSupport.byChannel.length > 0 ? (
-                    data.publicSupport.byChannel.map((row) => (
-                      <tr className="border-t" key={row.channel}>
-                        <td className="py-2">{channelLabel(row.channel)}</td>
-                        <td>{row.conversations}</td>
-                        <td>{row.tickets}</td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr className="border-t">
-                      <td className="py-2 text-zinc-500" colSpan={3}>
-                        Aucune donnée publique.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        </div>
-      </TabsContent>
-    </Tabs>
+    </div>
   );
 }
 
-function channelLabel(channel: string): string {
+export function channelLabel(channel: string): string {
   const labels: Record<string, string> = {
     INTERNAL: 'Interne',
     WEB_PORTAL: 'Portail web',

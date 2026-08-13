@@ -2,9 +2,9 @@ import type { Department } from '@/features/users/api/types';
 import { Button } from '@/components/ui/button';
 import { DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { JsonPairsEditor } from '@/components/ui/json-pairs';
 import { MutationError } from '@/components/ui/mutation-error';
 import { ResourceDialog } from '@/components/ui/resource-dialog';
+import { WorkloadWeightsEditor } from './workload-weights-editor';
 
 export function DepartmentDialog(
   props: Readonly<{
@@ -58,7 +58,7 @@ export function DepartmentDialog(
           <span className="font-medium">Charge maximale par agent</span>
           <Input name="maxWorkloadPerAgent" type="number" min={1} defaultValue={props.item?.maxWorkloadPerAgent ?? 100} />
         </label>
-        <JsonPairsEditor
+        <WorkloadWeightsEditor
           name="workloadWeights"
           label="Pondération de charge (optionnel)"
           initial={props.item?.workloadWeights ?? undefined}

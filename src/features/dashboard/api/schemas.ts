@@ -215,6 +215,7 @@ export const myActivitySchema = z.object({
     avgResolutionMinutes: z.coerce.number().int(),
     medianResolutionMinutes: z.coerce.number().int(),
     reopenedCount: z.coerce.number().int(),
+    resolvedLast7Days: z.array(z.object({ day: z.string(), count: z.coerce.number().int() })),
     lastActivityAt: z.string().nullable(),
   }),
 });

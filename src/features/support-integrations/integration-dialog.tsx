@@ -3,10 +3,10 @@
 import { Button } from '@/components/ui/button';
 import { DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { JsonPairsEditor } from '@/components/ui/json-pairs';
 import { MutationError } from '@/components/ui/mutation-error';
 import { ResourceDialog } from '@/components/ui/resource-dialog';
 import { Textarea } from '@/components/ui/textarea';
+import { IntegrationPoliciesEditor } from './integration-policies-editor';
 import type { SupportIntegration } from './types';
 
 function toLines(value: string): string[] {
@@ -37,7 +37,7 @@ export function IntegrationDialog(
       description="Les secrets ne sont jamais lus ni affichés : seule la rotation est possible, par un administrateur."
       size="large"
     >
-      <form action={props.onSubmit} className="grid gap-4">
+      <form key={props.item?.id ?? 'new'} action={props.onSubmit} className="grid gap-4">
         <MutationError error={props.error} />
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="grid gap-1.5 text-sm">
@@ -84,16 +84,7 @@ export function IntegrationDialog(
             ))}
           </fieldset>
         </div>
-        <JsonPairsEditor
-          name="routingPolicy"
-          label="Routage (optionnel)"
-          initial={props.item?.routingPolicy}
-        />
-        <JsonPairsEditor
-          name="quotaPolicy"
-          label="Quotas (optionnel)"
-          initial={props.item?.quotaPolicy}
-        />
+        <IntegrationPoliciesEditor routingInitial={props.item?.routingPolicy} quotaInitial={props.item?.quotaPolicy} />
         <DialogFooter>
           <Button type="submit" size="lg" disabled={props.pending}>
             {props.pending ? 'Enregistrement…' : 'Enregistrer'}

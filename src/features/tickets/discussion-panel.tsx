@@ -180,7 +180,7 @@ export function DiscussionPanel({
               Commentaires
             </Tab>
             {canReplyToRequester ? (
-              <Tab selected={mode === 'public-reply'} onClick={() => setMode('public-reply')} accent>
+              <Tab selected={mode === 'public-reply'} onClick={() => setMode('public-reply')}>
                 Répondre au demandeur
               </Tab>
             ) : null}

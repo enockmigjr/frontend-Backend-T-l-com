@@ -142,7 +142,7 @@ export function CategoriesPage() {
         title={editing ? 'Modifier la catégorie' : 'Nouvelle catégorie'}
         description="Orientez la catégorie vers un ou plusieurs rôles opérationnels pour l'auto-assignation."
       >
-        <form action={save} className="grid min-w-0 gap-4">
+        <form key={editing?.id ?? 'new'} action={save} className="grid min-w-0 gap-4">
           <MutationError error={error} />
           <label className="grid gap-2 text-sm font-medium">
             Nom
