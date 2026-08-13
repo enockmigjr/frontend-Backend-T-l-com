@@ -7,7 +7,7 @@ describe('redirections d’authentification', () => {
     expect(safeReturnPath('//evil.example/path')).toBeUndefined();
     expect(safeReturnPath('/\\evil.example')).toBeUndefined();
     expect(safeReturnPath('/login')).toBeUndefined();
-    expect(safeReturnPath('/change-password')).toBeUndefined();
+    expect(safeReturnPath('/login?retour=/tickets')).toBeUndefined();
   });
 
   it('choisit un accueil adapté au rôle', () => {

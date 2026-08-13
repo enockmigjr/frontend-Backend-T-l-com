@@ -39,11 +39,13 @@ export function setSessionCookies(response: NextResponse, tokens: TokenPair): vo
     maxAge: env.refreshMaxAgeSeconds,
   });
   if (tokens.idToken) {
-    // Conserve l'id_token (court) pour le logout OIDC (id_token_hint).
+    // Conserve l'id_token pour le logout OIDC (id_token_hint) pendant toute la
+    // durée de la session : s'il expire avant la déconnexion, Keycloak ne peut
+    // plus identifier la session SSO et l'utilisateur serait reconnecté seul.
     response.cookies.set(ID_TOKEN_COOKIE, tokens.idToken, {
       ...shared,
       httpOnly: true,
-      maxAge: 600,
+      maxAge: env.refreshMaxAgeSeconds,
     });
   }
 }

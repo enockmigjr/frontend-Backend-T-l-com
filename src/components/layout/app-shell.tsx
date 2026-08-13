@@ -30,7 +30,6 @@ export function AppShell({
     if (userQuery.error instanceof ApiError && userQuery.error.status === 401) {
       router.replace(`/login?retour=${encodeURIComponent(pathname)}`);
     }
-    if (userQuery.data?.mustChangePassword) router.replace('/change-password');
   }, [pathname, router, userQuery.data, userQuery.error]);
 
   useEffect(

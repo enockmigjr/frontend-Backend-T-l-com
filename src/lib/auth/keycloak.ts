@@ -69,7 +69,7 @@ export async function exchangeCode(code: string, verifier: string): Promise<Toke
   return (await response.json()) as TokenResponse;
 }
 
-export async function refreshKeycloakTokens(refreshToken: string): Promise<TokenResponse> {
+export async function refreshKeycloakTokens(refreshToken: string): Promise<TokenResponse | undefined> {
   const endpoints = keycloakEndpoints();
   const response = await fetch(endpoints.tokenUrl, {
     method: 'POST',
@@ -81,6 +81,7 @@ export async function refreshKeycloakTokens(refreshToken: string): Promise<Token
     }),
     signal: AbortSignal.timeout(10_000),
   });
+  if (response.status === 401) return undefined;
   if (!response.ok) throw new Error(`Refresh Keycloak refusé (${response.status}).`);
   return (await response.json()) as TokenResponse;
 }
@@ -94,4 +95,9 @@ export function endSessionUrl(idTokenHint?: string): string {
   url.searchParams.set('post_logout_redirect_uri', `${origin}/login`);
   if (idTokenHint) url.searchParams.set('id_token_hint', idTokenHint);
   return url.toString();
+}
+
+/** Console de compte Keycloak (mot de passe, sessions, appareils). */
+export function keycloakAccountUrl(): string {
+  return `${keycloakEndpoints().issuer}/account/`;
 }

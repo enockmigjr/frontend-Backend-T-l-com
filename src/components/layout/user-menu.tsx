@@ -53,17 +53,17 @@ export function UserMenu({
             <Settings aria-hidden />
             Profil et préférences
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => router.push('/change-password')}>
+          <DropdownMenuItem onClick={() => window.location.assign('/api/auth/keycloak/account')}>
             <UserRound aria-hidden />
-            Modifier mon mot de passe
+            Compte et mot de passe (Keycloak)
           </DropdownMenuItem>
-          <DropdownMenuItem disabled={pending} onClick={() => void logout(true)}>
+          <DropdownMenuItem disabled={pending} onClick={() => void logout()}>
             <MonitorCog aria-hidden />
             Déconnecter toutes mes sessions
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem variant="destructive" disabled={pending} onClick={() => void logout(false)}>
+        <DropdownMenuItem variant="destructive" disabled={pending} onClick={() => void logout()}>
           <LogOut aria-hidden />
           {pending ? 'Déconnexion…' : 'Se déconnecter'}
         </DropdownMenuItem>

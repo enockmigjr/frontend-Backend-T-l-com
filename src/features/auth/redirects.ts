@@ -8,7 +8,7 @@ export function safeReturnPath(value: string | null): string | undefined {
   if (!value?.startsWith('/') || value.startsWith('//') || value.includes('\\')) return undefined;
   try {
     const parsed = new URL(value, 'https://local.invalid');
-    if (parsed.origin !== 'https://local.invalid' || ['/login', '/change-password'].includes(parsed.pathname)) {
+    if (parsed.origin !== 'https://local.invalid' || parsed.pathname === '/login') {
       return undefined;
     }
     return `${parsed.pathname}${parsed.search}${parsed.hash}`;

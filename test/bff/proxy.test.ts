@@ -32,6 +32,8 @@ describe('proxy HTTP du BFF', () => {
   beforeEach(() => {
     process.env.BACKEND_INTERNAL_URL = 'http://backend:3000';
     process.env.AUTH_CSRF_SECRET = 'a-secure-test-secret-with-at-least-32-characters';
+    process.env.KEYCLOAK_ISSUER = 'http://localhost:8081/realms/telecom';
+    process.env.KEYCLOAK_INTERNAL_ISSUER = 'http://localhost:8081/realms/telecom';
     delete process.env.PUBLIC_APP_ORIGIN;
     global.fetch = fetchMock;
     fetchMock.mockReset();
@@ -76,7 +78,7 @@ describe('proxy HTTP du BFF', () => {
   it('renouvelle la session avant un GET quand le cookie access a expiré', async () => {
     fetchMock
       .mockResolvedValueOnce(
-        Response.json({ data: { accessToken: 'access-next', refreshToken: 'refresh-next', expiresIn: 900 } }),
+        Response.json({ access_token: 'access-next', refresh_token: 'refresh-next', expires_in: 900 }),
       )
       .mockResolvedValueOnce(Response.json({ success: true, data: [] }));
 
@@ -97,7 +99,7 @@ describe('proxy HTTP du BFF', () => {
     const csrf = createCsrfToken('refresh-secret');
     fetchMock
       .mockResolvedValueOnce(
-        Response.json({ data: { accessToken: 'access-next', refreshToken: 'refresh-next', expiresIn: 900 } }),
+        Response.json({ access_token: 'access-next', refresh_token: 'refresh-next', expires_in: 900 }),
       )
       .mockResolvedValueOnce(Response.json({ success: true, data: { id: 'ticket-1' } }, { status: 201 }));
 
@@ -123,7 +125,7 @@ describe('proxy HTTP du BFF', () => {
   });
 
   it('bloque les routes capables d’exposer les jetons', async () => {
-    const response = await proxyToBackend(request('GET'), ['auth', 'login']);
+    const response = await proxyToBackend(request('GET'), ['auth', 'refresh']);
     expect(response.status).toBe(404);
     expect(fetchMock).not.toHaveBeenCalled();
   });

@@ -546,23 +546,6 @@
         ],
         "type": "object"
       },
-      "ChangePasswordDto": {
-        "properties": {
-          "currentPassword": {
-            "description": "Mot de passe actuel",
-            "type": "string"
-          },
-          "newPassword": {
-            "description": "Nouveau mot de passe (min 8 car., 1 maj, 1 min, 1 chiffre, 1 spécial)",
-            "type": "string"
-          }
-        },
-        "required": [
-          "currentPassword",
-          "newPassword"
-        ],
-        "type": "object"
-      },
       "ConfirmPublicTicketDto": {
         "properties": {
           "confirmed": {
@@ -2283,47 +2266,6 @@
         ],
         "type": "object"
       },
-      "LoginData": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/TokenPair"
-          },
-          {
-            "properties": {
-              "user": {
-                "$ref": "#/components/schemas/User"
-              }
-            },
-            "required": [
-              "user"
-            ],
-            "type": "object"
-          }
-        ]
-      },
-      "LoginDto": {
-        "properties": {
-          "email": {
-            "description": "Adresse email de l'utilisateur",
-            "example": "admin@telecom.local",
-            "format": "email",
-            "minLength": 5,
-            "type": "string"
-          },
-          "password": {
-            "description": "Mot de passe",
-            "example": "Admin@1234",
-            "format": "password",
-            "minLength": 8,
-            "type": "string"
-          }
-        },
-        "required": [
-          "email",
-          "password"
-        ],
-        "type": "object"
-      },
       "MergeRequesterDto": {
         "properties": {
           "targetRequesterId": {
@@ -3492,18 +3434,6 @@
         },
         "type": "object"
       },
-      "RefreshDto": {
-        "properties": {
-          "refreshToken": {
-            "description": "Refresh token à usage unique",
-            "type": "string"
-          }
-        },
-        "required": [
-          "refreshToken"
-        ],
-        "type": "object"
-      },
       "ReopenTicketDto": {
         "properties": {
           "notes": {
@@ -3725,6 +3655,29 @@
         ],
         "type": "object"
       },
+      "SetAbsenceDto": {
+        "properties": {
+          "absenceEndsAt": {
+            "description": "Fin d'absence (ISO 8601) ; vide pour annuler",
+            "example": "2026-08-20T18:00:00.000Z",
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "SetAvailabilityDto": {
+        "properties": {
+          "available": {
+            "description": "Disponibilité (false = pause, true = reprise)",
+            "example": false,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "available"
+        ],
+        "type": "object"
+      },
       "Setting": {
         "properties": {
           "createdAt": {
@@ -3876,6 +3829,31 @@
           "period",
           "summary",
           "byPriority"
+        ],
+        "type": "object"
+      },
+      "SubmitSatisfactionDto": {
+        "properties": {
+          "comment": {
+            "description": "Commentaire libre",
+            "maxLength": 2000,
+            "type": "string"
+          },
+          "note": {
+            "description": "Note de 1 à 5",
+            "maximum": 5,
+            "minimum": 1,
+            "type": "number"
+          },
+          "token": {
+            "description": "Jeton opaque reçu par email",
+            "minLength": 32,
+            "type": "string"
+          }
+        },
+        "required": [
+          "token",
+          "note"
         ],
         "type": "object"
       },
@@ -4532,26 +4510,6 @@
           "generatedAt",
           "type",
           "ticket"
-        ],
-        "type": "object"
-      },
-      "TokenPair": {
-        "properties": {
-          "accessToken": {
-            "type": "string"
-          },
-          "expiresIn": {
-            "minimum": 1,
-            "type": "integer"
-          },
-          "refreshToken": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "accessToken",
-          "refreshToken",
-          "expiresIn"
         ],
         "type": "object"
       },
@@ -5692,260 +5650,6 @@
         ]
       }
     },
-    "/api/v1/auth/change-password": {
-      "put": {
-        "operationId": "AuthController_changePassword",
-        "parameters": [],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ChangePasswordDto"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    },
-                    "statusCode": {
-                      "maximum": 299,
-                      "minimum": 200,
-                      "type": "integer"
-                    },
-                    "success": {
-                      "enum": [
-                        true
-                      ],
-                      "type": "boolean"
-                    }
-                  },
-                  "required": [
-                    "success",
-                    "statusCode",
-                    "message"
-                  ],
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Mot de passe modifié avec succès."
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiErrorResponse"
-                }
-              }
-            },
-            "description": "Mot de passe invalide."
-          },
-          "401": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiErrorResponse"
-                }
-              }
-            },
-            "description": "Mot de passe actuel incorrect."
-          },
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiErrorResponse"
-                }
-              }
-            },
-            "description": "Erreur standardisée."
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Changer le mot de passe",
-        "tags": [
-          "auth"
-        ]
-      }
-    },
-    "/api/v1/auth/login": {
-      "post": {
-        "operationId": "AuthController_login",
-        "parameters": [],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/LoginDto"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "data": {
-                      "$ref": "#/components/schemas/LoginData"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "statusCode": {
-                      "maximum": 299,
-                      "minimum": 200,
-                      "type": "integer"
-                    },
-                    "success": {
-                      "enum": [
-                        true
-                      ],
-                      "type": "boolean"
-                    }
-                  },
-                  "required": [
-                    "success",
-                    "statusCode",
-                    "data"
-                  ],
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Authentification réussie."
-          },
-          "401": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiErrorResponse"
-                }
-              }
-            },
-            "description": "Identifiants invalides."
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiErrorResponse"
-                }
-              }
-            },
-            "description": "Compte désactivé."
-          },
-          "429": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiErrorResponse"
-                }
-              }
-            },
-            "description": "Trop de tentatives."
-          },
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiErrorResponse"
-                }
-              }
-            },
-            "description": "Erreur standardisée."
-          }
-        },
-        "summary": "Connexion utilisateur",
-        "tags": [
-          "auth"
-        ]
-      }
-    },
-    "/api/v1/auth/logout": {
-      "post": {
-        "operationId": "AuthController_logout",
-        "parameters": [],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RefreshDto"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "204": {
-            "description": "Déconnexion réussie. L'access token est immédiatement invalide."
-          },
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiErrorResponse"
-                }
-              }
-            },
-            "description": "Erreur standardisée."
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Déconnexion (révoque le refresh token + blackliste l'access token)",
-        "tags": [
-          "auth"
-        ]
-      }
-    },
-    "/api/v1/auth/logout-all": {
-      "post": {
-        "operationId": "AuthController_logoutAll",
-        "parameters": [],
-        "responses": {
-          "204": {
-            "description": "Toutes les sessions sont révoquées."
-          },
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiErrorResponse"
-                }
-              }
-            },
-            "description": "Erreur standardisée."
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Déconnexion de toutes les sessions actives",
-        "tags": [
-          "auth"
-        ]
-      }
-    },
     "/api/v1/auth/me": {
       "get": {
         "operationId": "AuthController_me",
@@ -6002,82 +5706,6 @@
           }
         ],
         "summary": "Profil de l'utilisateur connecté",
-        "tags": [
-          "auth"
-        ]
-      }
-    },
-    "/api/v1/auth/refresh": {
-      "post": {
-        "operationId": "AuthController_refresh",
-        "parameters": [],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RefreshDto"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "data": {
-                      "$ref": "#/components/schemas/TokenPair"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "statusCode": {
-                      "maximum": 299,
-                      "minimum": 200,
-                      "type": "integer"
-                    },
-                    "success": {
-                      "enum": [
-                        true
-                      ],
-                      "type": "boolean"
-                    }
-                  },
-                  "required": [
-                    "success",
-                    "statusCode",
-                    "data"
-                  ],
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Nouveaux tokens générés."
-          },
-          "401": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiErrorResponse"
-                }
-              }
-            },
-            "description": "Refresh token invalide ou expiré."
-          },
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiErrorResponse"
-                }
-              }
-            },
-            "description": "Erreur standardisée."
-          }
-        },
-        "summary": "Rafraîchir la paire de tokens (rotation)",
         "tags": [
           "auth"
         ]
@@ -6946,6 +6574,44 @@
           }
         ],
         "summary": "Performance par département",
+        "tags": [
+          "dashboard"
+        ]
+      }
+    },
+    "/api/v1/dashboard/my-activity": {
+      "get": {
+        "description": "Retourne les indicateurs personnels de l'utilisateur courant : tickets ouverts/en retard/à risque, résolutions du mois, SLA et disponibilité.",
+        "operationId": "DashboardController_myActivity",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            },
+            "description": "Mon activité."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Mon activité",
         "tags": [
           "dashboard"
         ]
@@ -11576,6 +11242,67 @@
         "x-api-audience": "public-support"
       }
     },
+    "/api/v1/public-support/tickets/{ticketId}/satisfaction": {
+      "post": {
+        "operationId": "PublicSatisfactionController_submit",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "ticketId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitSatisfactionDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            },
+            "description": "Satisfaction enregistrée."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Lien invalide."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "summary": "Soumettre une note de satisfaction",
+        "tags": [
+          "Support public - satisfaction"
+        ]
+      }
+    },
     "/api/v1/reports": {
       "get": {
         "description": "Retourne tous les rapports pour un administrateur et uniquement ses propres rapports pour un superviseur.",
@@ -16041,6 +15768,130 @@
         ]
       }
     },
+    "/api/v1/tickets/{ticketId}/public-reply": {
+      "post": {
+        "description": "Crée une réponse publique au demandeur (timeline + email) sur un ticket provenant du support public. Le ticket doit posséder un demandeur externe.",
+        "operationId": "CommentsController_publicReply",
+        "parameters": [
+          {
+            "description": "UUID du ticket concerné",
+            "in": "path",
+            "name": "ticketId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCommentDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            },
+            "description": "Réponse publique créée."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Le ticket n’a pas de demandeur externe."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Ticket non trouvé."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Répondre au demandeur externe",
+        "tags": [
+          "comments"
+        ]
+      }
+    },
+    "/api/v1/tickets/{ticketId}/satisfaction-token": {
+      "post": {
+        "operationId": "InternalSatisfactionController_createToken",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "ticketId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            },
+            "description": "Lien de satisfaction généré."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Générer un lien de satisfaction",
+        "tags": [
+          "Tickets - satisfaction"
+        ]
+      }
+    },
     "/api/v1/users": {
       "get": {
         "description": "Retourne la liste paginée de tous les utilisateurs actifs avec leur département.\n\n**Rôles autorisés :** ADMINISTRATOR, SUPERVISOR",
@@ -16810,6 +16661,112 @@
           }
         ],
         "summary": "Profil de l'utilisateur connecté",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/v1/users/me/absence": {
+      "patch": {
+        "description": "L'absence courte (<= 7 jours) est libre ; l'absence prolongée doit être déclarée par un ADMINISTRATOR ou SUPERVISOR.",
+        "operationId": "UsersController_setAbsence",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetAbsenceDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            },
+            "description": "Absence enregistrée."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Absence prolongée non autorisée pour ce rôle."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Déclarer / annuler son absence",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/v1/users/me/availability": {
+      "patch": {
+        "description": "Permet à un agent de se mettre en pause ou de reprendre. L'agent en pause est exclu de l'auto-assignation.",
+        "operationId": "UsersController_setAvailability",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetAvailabilityDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSuccessResponse"
+                }
+              }
+            },
+            "description": "Disponibilité mise à jour."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "Erreur standardisée."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Mettre en pause / reprendre (self-service)",
         "tags": [
           "users"
         ]

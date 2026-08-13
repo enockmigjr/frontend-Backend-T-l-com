@@ -3,14 +3,17 @@ import 'server-only';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
-import { backendUrl, refreshTokens } from './server-client';
+import { backendUrl } from './server-client';
 import { clearSessionCookies, readAccessToken, readRefreshToken, setSessionCookies } from '@/lib/auth/cookies';
 import { issueCsrfToken, verifyCsrf } from '@/lib/auth/csrf';
+import { refreshKeycloakTokens } from '@/lib/auth/keycloak';
 import { csrfFailure, gatewayFailure, noStoreJson, unauthorized } from '@/lib/auth/responses';
 import { withRefreshLock } from '@/lib/auth/refresh-lock';
 
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
-const BLOCKED_AUTH_ROUTES = new Set(['login', 'refresh', 'logout', 'logout-all', 'change-password']);
+// Seule la rotation BFF des tokens Keycloak reste gérée par une route dédiée ;
+// les anciennes routes locales (login/logout/change-password) ont été supprimées.
+const BLOCKED_AUTH_ROUTES = new Set(['refresh']);
 const REQUEST_HEADER_DENYLIST = new Set([
   'authorization',
   'cookie',
@@ -108,7 +111,16 @@ async function refreshedProxy(
   segments: readonly string[],
   refreshToken: string,
 ): Promise<NextResponse> {
-  const tokens = await withRefreshLock(refreshToken, () => refreshTokens(refreshToken));
+  const tokens = await withRefreshLock(refreshToken, async () => {
+    const refreshed = await refreshKeycloakTokens(refreshToken);
+    return refreshed?.refresh_token
+      ? {
+          accessToken: refreshed.access_token,
+          refreshToken: refreshed.refresh_token,
+          expiresIn: refreshed.expires_in,
+        }
+      : undefined;
+  });
   if (!tokens) {
     const response = unauthorized();
     clearSessionCookies(response);

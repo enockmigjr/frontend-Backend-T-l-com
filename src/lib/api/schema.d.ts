@@ -128,74 +128,6 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/v1/auth/change-password': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    /** Changer le mot de passe */
-    put: operations['AuthController_changePassword'];
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/auth/login': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Connexion utilisateur */
-    post: operations['AuthController_login'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/auth/logout': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Déconnexion (révoque le refresh token + blackliste l'access token) */
-    post: operations['AuthController_logout'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/auth/logout-all': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Déconnexion de toutes les sessions actives */
-    post: operations['AuthController_logoutAll'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
   '/api/v1/auth/me': {
     parameters: {
       query?: never;
@@ -207,23 +139,6 @@ export interface paths {
     get: operations['AuthController_me'];
     put?: never;
     post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/v1/auth/refresh': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Rafraîchir la paire de tokens (rotation) */
-    post: operations['AuthController_refresh'];
     delete?: never;
     options?: never;
     head?: never;
@@ -356,6 +271,26 @@ export interface paths {
      *     **Rôles autorisés :** ADMINISTRATOR, SUPERVISOR
      */
     get: operations['DashboardController_departments'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/dashboard/my-activity': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Mon activité
+     * @description Retourne les indicateurs personnels de l'utilisateur courant : tickets ouverts/en retard/à risque, résolutions du mois, SLA et disponibilité.
+     */
+    get: operations['DashboardController_myActivity'];
     put?: never;
     post?: never;
     delete?: never;
@@ -1405,6 +1340,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/public-support/tickets/{ticketId}/satisfaction': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Soumettre une note de satisfaction */
+    post: operations['PublicSatisfactionController_submit'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/reports': {
     parameters: {
       query?: never;
@@ -2183,6 +2135,43 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/tickets/{ticketId}/public-reply': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Répondre au demandeur externe
+     * @description Crée une réponse publique au demandeur (timeline + email) sur un ticket provenant du support public. Le ticket doit posséder un demandeur externe.
+     */
+    post: operations['CommentsController_publicReply'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/tickets/{ticketId}/satisfaction-token': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Générer un lien de satisfaction */
+    post: operations['InternalSatisfactionController_createToken'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/users': {
     parameters: {
       query?: never;
@@ -2305,6 +2294,46 @@ export interface paths {
     options?: never;
     head?: never;
     patch?: never;
+    trace?: never;
+  };
+  '/api/v1/users/me/absence': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Déclarer / annuler son absence
+     * @description L'absence courte (<= 7 jours) est libre ; l'absence prolongée doit être déclarée par un ADMINISTRATOR ou SUPERVISOR.
+     */
+    patch: operations['UsersController_setAbsence'];
+    trace?: never;
+  };
+  '/api/v1/users/me/availability': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Mettre en pause / reprendre (self-service)
+     * @description Permet à un agent de se mettre en pause ou de reprendre. L'agent en pause est exclu de l'auto-assignation.
+     */
+    patch: operations['UsersController_setAvailability'];
     trace?: never;
   };
 }
@@ -2470,12 +2499,6 @@ export interface components {
       targetRole?: string | null;
       /** Format: date-time */
       updatedAt: string;
-    };
-    ChangePasswordDto: {
-      /** @description Mot de passe actuel */
-      currentPassword: string;
-      /** @description Nouveau mot de passe (min 8 car., 1 maj, 1 min, 1 chiffre, 1 spécial) */
-      newPassword: string;
     };
     ConfirmPublicTicketDto: {
       /** @example true */
@@ -3105,23 +3128,6 @@ export interface components {
       /** Format: date-time */
       updatedAt: string;
     };
-    LoginData: components['schemas']['TokenPair'] & {
-      user: components['schemas']['User'];
-    };
-    LoginDto: {
-      /**
-       * Format: email
-       * @description Adresse email de l'utilisateur
-       * @example admin@telecom.local
-       */
-      email: string;
-      /**
-       * Format: password
-       * @description Mot de passe
-       * @example Admin@1234
-       */
-      password: string;
-    };
     MergeRequesterDto: {
       /** @description Profil cible de la fusion, dans la même intégration. */
       targetRequesterId: string;
@@ -3454,10 +3460,6 @@ export interface components {
       ticketNumber?: string;
       title?: string;
     };
-    RefreshDto: {
-      /** @description Refresh token à usage unique */
-      refreshToken: string;
-    };
     ReopenTicketDto: {
       /** @description Notes supplémentaires */
       notes?: string;
@@ -3527,6 +3529,20 @@ export interface components {
       /** @enum {string} */
       urgency: 'LOW' | 'MEDIUM' | 'HIGH';
     };
+    SetAbsenceDto: {
+      /**
+       * @description Fin d'absence (ISO 8601) ; vide pour annuler
+       * @example 2026-08-20T18:00:00.000Z
+       */
+      absenceEndsAt?: Record<string, never>;
+    };
+    SetAvailabilityDto: {
+      /**
+       * @description Disponibilité (false = pause, true = reprise)
+       * @example false
+       */
+      available: boolean;
+    };
     Setting: {
       /** Format: date-time */
       createdAt: string;
@@ -3570,6 +3586,14 @@ export interface components {
       };
       /** @enum {string} */
       type: 'sla-report';
+    };
+    SubmitSatisfactionDto: {
+      /** @description Commentaire libre */
+      comment?: string;
+      /** @description Note de 1 à 5 */
+      note: number;
+      /** @description Jeton opaque reçu par email */
+      token: string;
     };
     Ticket: {
       _meta?: components['schemas']['TicketRelationCounts'];
@@ -3772,11 +3796,6 @@ export interface components {
       };
       /** @enum {string} */
       type: 'ticket-report';
-    };
-    TokenPair: {
-      accessToken: string;
-      expiresIn: number;
-      refreshToken: string;
     };
     TrustedDeviceDataDto: {
       /** Format: date-time */
@@ -4353,186 +4372,6 @@ export interface operations {
       };
     };
   };
-  AuthController_changePassword: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['ChangePasswordDto'];
-      };
-    };
-    responses: {
-      /** @description Mot de passe modifié avec succès. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': {
-            message: string;
-            statusCode: number;
-            /** @enum {boolean} */
-            success: true;
-          };
-        };
-      };
-      /** @description Mot de passe invalide. */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['ApiErrorResponse'];
-        };
-      };
-      /** @description Mot de passe actuel incorrect. */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['ApiErrorResponse'];
-        };
-      };
-      /** @description Erreur standardisée. */
-      default: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['ApiErrorResponse'];
-        };
-      };
-    };
-  };
-  AuthController_login: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['LoginDto'];
-      };
-    };
-    responses: {
-      /** @description Authentification réussie. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': {
-            data: components['schemas']['LoginData'];
-            message?: string;
-            statusCode: number;
-            /** @enum {boolean} */
-            success: true;
-          };
-        };
-      };
-      /** @description Identifiants invalides. */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['ApiErrorResponse'];
-        };
-      };
-      /** @description Compte désactivé. */
-      403: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['ApiErrorResponse'];
-        };
-      };
-      /** @description Trop de tentatives. */
-      429: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['ApiErrorResponse'];
-        };
-      };
-      /** @description Erreur standardisée. */
-      default: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['ApiErrorResponse'];
-        };
-      };
-    };
-  };
-  AuthController_logout: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['RefreshDto'];
-      };
-    };
-    responses: {
-      /** @description Déconnexion réussie. L'access token est immédiatement invalide. */
-      204: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Erreur standardisée. */
-      default: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['ApiErrorResponse'];
-        };
-      };
-    };
-  };
-  AuthController_logoutAll: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Toutes les sessions sont révoquées. */
-      204: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Erreur standardisée. */
-      default: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['ApiErrorResponse'];
-        };
-      };
-    };
-  };
   AuthController_me: {
     parameters: {
       query?: never;
@@ -4554,54 +4393,6 @@ export interface operations {
             /** @enum {boolean} */
             success: true;
           };
-        };
-      };
-      /** @description Erreur standardisée. */
-      default: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['ApiErrorResponse'];
-        };
-      };
-    };
-  };
-  AuthController_refresh: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['RefreshDto'];
-      };
-    };
-    responses: {
-      /** @description Nouveaux tokens générés. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': {
-            data: components['schemas']['TokenPair'];
-            message?: string;
-            statusCode: number;
-            /** @enum {boolean} */
-            success: true;
-          };
-        };
-      };
-      /** @description Refresh token invalide ou expiré. */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['ApiErrorResponse'];
         };
       };
       /** @description Erreur standardisée. */
@@ -5164,6 +4955,35 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  DashboardController_myActivity: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Mon activité. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiSuccessResponse'];
         };
       };
       /** @description Erreur standardisée. */
@@ -7935,6 +7755,50 @@ export interface operations {
       };
     };
   };
+  PublicSatisfactionController_submit: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        ticketId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SubmitSatisfactionDto'];
+      };
+    };
+    responses: {
+      /** @description Satisfaction enregistrée. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiSuccessResponse'];
+        };
+      };
+      /** @description Lien invalide. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
   ReportsController_listReports: {
     parameters: {
       query?: {
@@ -10436,6 +10300,91 @@ export interface operations {
       };
     };
   };
+  CommentsController_publicReply: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description UUID du ticket concerné */
+        ticketId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateCommentDto'];
+      };
+    };
+    responses: {
+      /** @description Réponse publique créée. */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiSuccessResponse'];
+        };
+      };
+      /** @description Le ticket n’a pas de demandeur externe. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Ticket non trouvé. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  InternalSatisfactionController_createToken: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        ticketId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Lien de satisfaction généré. */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiSuccessResponse'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
   UsersController_findAll: {
     parameters: {
       query?: {
@@ -10897,6 +10846,81 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  UsersController_setAbsence: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SetAbsenceDto'];
+      };
+    };
+    responses: {
+      /** @description Absence enregistrée. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiSuccessResponse'];
+        };
+      };
+      /** @description Absence prolongée non autorisée pour ce rôle. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+      /** @description Erreur standardisée. */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiErrorResponse'];
+        };
+      };
+    };
+  };
+  UsersController_setAvailability: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SetAvailabilityDto'];
+      };
+    };
+    responses: {
+      /** @description Disponibilité mise à jour. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiSuccessResponse'];
         };
       };
       /** @description Erreur standardisée. */

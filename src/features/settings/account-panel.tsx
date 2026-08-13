@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
 import { Building2, CalendarClock, KeyRound, LogOut, Mail, MonitorX, Pause, Play, ShieldCheck, UserRound } from 'lucide-react';
@@ -80,23 +79,21 @@ export function AccountPanel({ user }: Readonly<{ user: CurrentUser }>) {
         <Card>
           <CardHeader>
             <CardTitle>Sécurité</CardTitle>
-            <CardDescription>Gérez le mot de passe et les sessions actives.</CardDescription>
+            <CardDescription>
+              Le mot de passe et les sessions actives sont gérés par Keycloak.
+            </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-2">
-            <Button
-              variant="outline"
-              nativeButton={false}
-              render={<Link href="/change-password?retour=/settings" />}
-            >
-              <KeyRound />Modifier mon mot de passe
+            <Button variant="outline" onClick={() => window.location.assign('/api/auth/keycloak/account')}>
+              <KeyRound />Compte et mot de passe (Keycloak)
             </Button>
-            <Button variant="outline" disabled={pending} onClick={() => void logout(false)}><LogOut />Déconnecter cette session</Button>
+            <Button variant="outline" disabled={pending} onClick={() => void logout()}><LogOut />Déconnecter cette session</Button>
             <ConfirmDialog
               trigger={<Button variant="destructive" disabled={pending}><MonitorX />Déconnecter toutes les sessions</Button>}
               title="Déconnecter toutes les sessions ?"
-              description="Tous les appareils devront se reconnecter avec votre mot de passe."
+              description="La session SSO courante est terminée ; tous les autres appareils devront se reconnecter via Keycloak."
               confirmLabel="Tout déconnecter"
-              onConfirm={() => void logout(true)}
+              onConfirm={() => void logout()}
             />
           </CardContent>
         </Card>
