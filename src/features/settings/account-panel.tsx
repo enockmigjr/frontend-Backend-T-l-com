@@ -145,7 +145,7 @@ export function AccountPanel({ user }: Readonly<{ user: CurrentUser }>) {
                 Fin d&apos;absence
                 <Input type="date" value={absenceEnd} min={new Date().toISOString().slice(0, 10)} onChange={(event) => setAbsenceEnd(event.target.value)} className="h-9 w-40" />
               </label>
-              <Button type="submit" size="sm" disabled={absence.isPending}>
+              <Button type="submit" size="sm" className="h-9" disabled={absence.isPending}>
                 {absenceEnd ? 'Enregistrer' : me?.absenceEndsAt ? 'Annuler l’absence' : 'Enregistrer'}
               </Button>
             </div>

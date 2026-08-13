@@ -41,6 +41,7 @@ export function TicketList({ filters, query }: Readonly<{ filters: Filters; quer
   return (
     <div className="space-y-5">
       <PageHeader
+        eyebrow="Incidents"
         title="Tickets"
         description="Pilotez les incidents, les affectations et les échéances SLA."
         actions={

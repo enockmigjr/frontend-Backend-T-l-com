@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { JsonPairsEditor } from '@/components/ui/json-pairs';
 import { MutationError } from '@/components/ui/mutation-error';
 import { ResourceDialog } from '@/components/ui/resource-dialog';
 import { Textarea } from '@/components/ui/textarea';
@@ -27,16 +27,6 @@ export function IntegrationDialog(
   }>,
 ) {
   const trustDays = String(props.item?.trustPolicy?.trustedDeviceDays ?? 90);
-  const [routing, setRouting] = useState(() =>
-    props.item?.routingPolicy && Object.keys(props.item.routingPolicy).length > 0
-      ? JSON.stringify(props.item.routingPolicy, null, 2)
-      : '',
-  );
-  const [quota, setQuota] = useState(() =>
-    props.item?.quotaPolicy && Object.keys(props.item.quotaPolicy).length > 0
-      ? JSON.stringify(props.item.quotaPolicy, null, 2)
-      : '',
-  );
   const features = props.item?.features ?? {};
 
   return (
@@ -94,14 +84,16 @@ export function IntegrationDialog(
             ))}
           </fieldset>
         </div>
-        <label className="grid gap-1.5 text-sm">
-          <span className="font-medium">Routage (JSON, optionnel)</span>
-          <Textarea name="routingPolicy" rows={5} value={routing} onChange={(event) => setRouting(event.target.value)} placeholder='{"allowedCategoryIds":[],"defaultRoute":{}}' />
-        </label>
-        <label className="grid gap-1.5 text-sm">
-          <span className="font-medium">Quotas (JSON, optionnel)</span>
-          <Textarea name="quotaPolicy" rows={4} value={quota} onChange={(event) => setQuota(event.target.value)} placeholder='{"attachmentMaxBytes":10485760}' />
-        </label>
+        <JsonPairsEditor
+          name="routingPolicy"
+          label="Routage (optionnel)"
+          initial={props.item?.routingPolicy}
+        />
+        <JsonPairsEditor
+          name="quotaPolicy"
+          label="Quotas (optionnel)"
+          initial={props.item?.quotaPolicy}
+        />
         <DialogFooter>
           <Button type="submit" size="lg" disabled={props.pending}>
             {props.pending ? 'Enregistrement…' : 'Enregistrer'}

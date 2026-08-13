@@ -9,9 +9,9 @@ export function DashboardTables({ data }: { readonly data: DashboardData }) {
         <TabsTrigger value="public" className="min-h-9">Support public</TabsTrigger>
       </TabsList>
       <TabsContent value="interne">
-        <div className="grid gap-5 xl:grid-cols-2">
-      <section className="overflow-x-auto rounded-xl border bg-white p-5">
-        <h2 className="font-semibold">Alternative tabulaire — statuts</h2>
+        <div className="grid items-start gap-5 xl:grid-cols-2">
+      <section className="min-w-0 overflow-x-auto rounded-xl border bg-white p-5">
+        <h2 className="font-semibold">Répartition par statut</h2>
         <table className="mt-3 w-full text-left text-sm">
           <thead>
             <tr>
@@ -33,7 +33,7 @@ export function DashboardTables({ data }: { readonly data: DashboardData }) {
           </tbody>
         </table>
       </section>
-      <section className="overflow-x-auto rounded-xl border bg-white p-5">
+      <section className="min-w-0 overflow-x-auto rounded-xl border bg-white p-5">
         <h2 className="font-semibold">Charge des agents</h2>
         <p className="mt-1 text-sm text-zinc-600">
           {data.workload.summary.unassignedTickets} ticket(s) non assigné(s) ·{' '}
@@ -78,7 +78,7 @@ export function DashboardTables({ data }: { readonly data: DashboardData }) {
           </tbody>
         </table>
       </section>
-      <section className="overflow-x-auto rounded-xl border bg-white p-5 xl:col-span-2">
+      <section className="min-w-0 overflow-x-auto rounded-xl border bg-white p-5 xl:col-span-2">
         <h2 className="font-semibold">Performance des départements</h2>
         <table className="mt-3 w-full text-left text-sm">
           <thead>
@@ -105,7 +105,7 @@ export function DashboardTables({ data }: { readonly data: DashboardData }) {
           </tbody>
         </table>
       </section>
-      <section className="overflow-x-auto rounded-xl border bg-white p-5 xl:col-span-2">
+      <section className="min-w-0 overflow-x-auto rounded-xl border bg-white p-5 xl:col-span-2">
         <h2 className="font-semibold">Performance des agents</h2>
         <p className="mt-1 text-sm text-zinc-600">
           Résolutions et délais sur la période · violations SLA cumulées · dernière activité.
@@ -123,8 +123,8 @@ export function DashboardTables({ data }: { readonly data: DashboardData }) {
             </tr>
           </thead>
           <tbody>
-            {data.agentPerformance.data.map((item) => (
-              <tr className="border-t" key={item.agentId ?? item.email ?? ''}>
+            {data.agentPerformance.data.map((item, index) => (
+              <tr className="border-t" key={`${item.agentId ?? item.email ?? 'agent'}-${index}`}>
                 <td className="py-2">
                   {[item.firstName, item.lastName].filter(Boolean).join(' ') || item.email || 'Agent'}
                   {item.departmentName ? <p className="text-xs text-zinc-500">{item.departmentName}</p> : null}

@@ -17,7 +17,7 @@ export function AdminSection({
       <header className="flex flex-col justify-between gap-4 border-b pb-5 sm:flex-row sm:items-end">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-blue-700">{eyebrow}</p>
-          <h1 id={headingId} className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">
+          <h1 id={headingId} className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
             {title}
           </h1>
           <p className="mt-1 max-w-3xl text-sm text-muted-foreground">{description}</p>

@@ -89,19 +89,6 @@ export default function DashboardCharts({ data }: Readonly<{ data: DashboardData
         </ResponsiveContainer>
       </ChartFrame>
       <ChartFrame
-        title="Répartition par statut"
-        summary={`${statuses.reduce((sum, item) => sum + item.count, 0)} tickets sur ${statuses.length} statuts actifs`}
-      >
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie data={statuses} dataKey="count" nameKey="status" innerRadius={58} outerRadius={92} paddingAngle={2}>
-              {statuses.map((item, index) => <Cell key={item.status} fill={statusColors[index % statusColors.length]} />)}
-            </Pie>
-            <Tooltip contentStyle={{ borderRadius: 10, borderColor: '#dce3ea' }} />
-          </PieChart>
-        </ResponsiveContainer>
-      </ChartFrame>
-      <ChartFrame
         className="xl:col-span-2"
         title="Taux de conformité SLA par jour"
         summary={`${data.sla.summary.atRisk} ticket(s) à risque · ${data.sla.summary.overdue ?? 0} en retard`}
@@ -121,6 +108,19 @@ export default function DashboardCharts({ data }: Readonly<{ data: DashboardData
               dot={{ r: 3, fill: '#0f766e' }}
             />
           </LineChart>
+        </ResponsiveContainer>
+      </ChartFrame>
+      <ChartFrame
+        title="Répartition par statut"
+        summary={`${statuses.reduce((sum, item) => sum + item.count, 0)} tickets sur ${statuses.length} statuts actifs`}
+      >
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie data={statuses} dataKey="count" nameKey="status" innerRadius={58} outerRadius={92} paddingAngle={2}>
+              {statuses.map((item, index) => <Cell key={item.status} fill={statusColors[index % statusColors.length]} />)}
+            </Pie>
+            <Tooltip contentStyle={{ borderRadius: 10, borderColor: '#dce3ea' }} />
+          </PieChart>
         </ResponsiveContainer>
       </ChartFrame>
       <ChartFrame title="Priorités et violations SLA" summary="Comparez le volume et les dépassements par niveau de priorité">

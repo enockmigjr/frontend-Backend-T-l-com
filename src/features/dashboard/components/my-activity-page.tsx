@@ -15,18 +15,33 @@ export function MyActivityPage() {
   const { profile, summary } = query.data;
   const name = profile ? `${profile.firstName} ${profile.lastName}`.trim() : 'Agent';
   const metrics = [
+    { label: 'Tickets assignés (total)', value: summary.totalAssigned, icon: ListChecks, tone: 'text-slate-700' },
     { label: 'Tickets ouverts', value: summary.openTicketsCount, icon: ListChecks, tone: 'text-blue-700' },
     { label: 'Critiques', value: summary.criticalTicketsCount, icon: RadioTower, tone: 'text-red-700' },
     { label: 'En retard', value: summary.overdueTicketsCount, icon: AlertTriangle, tone: 'text-red-700' },
     { label: 'À risque SLA', value: summary.atRiskTicketsCount, icon: Gauge, tone: 'text-amber-700' },
     { label: 'Résolus ce mois', value: summary.resolvedThisMonth, icon: CheckCircle2, tone: 'text-emerald-700' },
+    { label: 'Clôturés ce mois', value: summary.closedThisMonth, icon: TicketCheck, tone: 'text-emerald-700' },
     { label: 'SLA dépassés', value: summary.slaBreachedCount, icon: AlertTriangle, tone: 'text-red-700' },
+    {
+      label: 'Conformité 1re réponse',
+      value: `${summary.firstResponseComplianceRate} %`,
+      icon: Gauge,
+      tone: 'text-blue-700',
+    },
     {
       label: 'Délai moyen',
       value: summary.resolvedThisMonth > 0 ? `${summary.avgResolutionMinutes} min` : '—',
       icon: Clock3,
       tone: 'text-amber-700',
     },
+    {
+      label: 'Délai médian',
+      value: summary.resolvedThisMonth > 0 ? `${summary.medianResolutionMinutes} min` : '—',
+      icon: Clock3,
+      tone: 'text-slate-700',
+    },
+    { label: 'Réouvertures', value: summary.reopenedCount, icon: CheckCircle2, tone: 'text-red-700' },
     { label: 'Dernière activité', value: formatLastActivity(summary.lastActivityAt), icon: TicketCheck, tone: 'text-slate-700' },
   ];
 
@@ -60,7 +75,7 @@ export function MyActivityPage() {
       <div className="flex gap-3">
         <Link
           href="/tickets/new"
-          className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800"
+          className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
         >
           Nouveau ticket
         </Link>

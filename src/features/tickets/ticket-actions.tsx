@@ -44,6 +44,7 @@ export function TicketActions({ ticket }: Readonly<{ ticket: Ticket }>) {
     Promise.all([
       client.invalidateQueries({ queryKey: ticketKeys.detail(ticket.id) }),
       client.invalidateQueries({ queryKey: ticketKeys.history(ticket.id) }),
+      client.invalidateQueries({ queryKey: ticketKeys.comments(ticket.id) }),
       client.invalidateQueries({ queryKey: ticketKeys.all }),
       client.invalidateQueries({ queryKey: ['notifications'] }),
     ]);
@@ -65,17 +66,26 @@ export function TicketActions({ ticket }: Readonly<{ ticket: Ticket }>) {
       toast.add({ title: ticket.assignedTo ? 'Ticket réassigné' : 'Ticket assigné' });
     },
   });
+  const reply = useMutation({
+    mutationFn: ({ content }: { content: string }) => ticketsApi.publicReply(ticket.id, content),
+    onSuccess: async () => {
+      setDialog(undefined);
+      setText('');
+      await refresh();
+      toast.add({ title: 'Réponse envoyée au demandeur' });
+    },
+  });
 
   function submitDialog() {
     if (!dialog) return;
     if (dialog === 'resolve') transition.mutate({ action: 'resolve', body: { resolutionSummary: text } });
-    else if (dialog === 'public-reply') transition.mutate({ action: 'public-reply', body: { content: text } });
+    else if (dialog === 'public-reply') reply.mutate({ content: text });
     else if (dialog === 'reopen') transition.mutate({ action: 'reopen', body: { reason: text } });
     else transition.mutate({ action: dialog, body: { reason: text || undefined } });
   }
 
   const primary = primaryAction(ticket, canOperate);
-  const error = transition.error ?? assignment.error;
+  const error = transition.error ?? assignment.error ?? reply.error;
   return (
     <div className="flex flex-wrap items-center gap-2">
       {error ? (
@@ -164,8 +174,8 @@ export function TicketActions({ ticket }: Readonly<{ ticket: Ticket }>) {
         <TicketTransitionDialog
           action={dialog}
           text={text}
-          busy={transition.isPending}
-          error={transition.error}
+          busy={transition.isPending || reply.isPending}
+          error={transition.error ?? reply.error}
           onText={setText}
           onCancel={() => setDialog(undefined)}
           onConfirm={submitDialog}

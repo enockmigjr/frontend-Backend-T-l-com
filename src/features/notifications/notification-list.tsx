@@ -56,6 +56,7 @@ export function NotificationList() {
   return (
     <div className="space-y-5">
       <PageHeader
+        eyebrow="Centre de contrôle"
         title="Notifications"
         description="Retrouvez les changements qui demandent votre attention."
         actions={

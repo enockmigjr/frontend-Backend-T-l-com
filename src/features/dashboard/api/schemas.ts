@@ -202,13 +202,19 @@ export const myActivitySchema = z.object({
     })
     .nullable(),
   summary: z.object({
+    totalAssigned: z.coerce.number().int(),
     openTicketsCount: z.coerce.number().int(),
     criticalTicketsCount: z.coerce.number().int(),
     overdueTicketsCount: z.coerce.number().int(),
     atRiskTicketsCount: z.coerce.number().int(),
     resolvedThisMonth: z.coerce.number().int(),
+    closedThisMonth: z.coerce.number().int(),
     slaBreachedCount: z.coerce.number().int(),
+    firstResponseCount: z.coerce.number().int(),
+    firstResponseComplianceRate: z.coerce.number().int(),
     avgResolutionMinutes: z.coerce.number().int(),
+    medianResolutionMinutes: z.coerce.number().int(),
+    reopenedCount: z.coerce.number().int(),
     lastActivityAt: z.string().nullable(),
   }),
 });

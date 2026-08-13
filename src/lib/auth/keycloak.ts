@@ -87,9 +87,11 @@ export async function refreshKeycloakTokens(refreshToken: string): Promise<Token
 
 export function endSessionUrl(idTokenHint?: string): string {
   const endpoints = keycloakEndpoints();
+  const origin = process.env.PUBLIC_APP_ORIGIN ?? 'http://localhost:3007';
   const url = new URL(endpoints.endSessionUrl);
   url.searchParams.set('client_id', endpoints.clientId);
-  url.searchParams.set('post_logout_redirect_uri', endpoints.redirectUri.replace('/callback', '/logout'));
+  // Après le logout Keycloak, revenir sur la page de connexion (pas sur une route API).
+  url.searchParams.set('post_logout_redirect_uri', `${origin}/login`);
   if (idTokenHint) url.searchParams.set('id_token_hint', idTokenHint);
   return url.toString();
 }

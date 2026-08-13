@@ -6,6 +6,7 @@ import { Copy, KeyRound, ShieldOff } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { JsonPairsView } from '@/components/ui/json-pairs';
 import { ResourceDialog } from '@/components/ui/resource-dialog';
 import { toast } from '@/components/ui/toast';
 import { formatDate } from '@/features/tickets/presentation';
@@ -113,8 +114,8 @@ export function IntegrationDetail(
           </ul>
         </div>
         <div className="grid gap-4 lg:grid-cols-2">
-          <JsonBlock label="Routage" value={integration.routingPolicy} />
-          <JsonBlock label="Quotas" value={integration.quotaPolicy} />
+          <JsonPairsView label="Routage" value={integration.routingPolicy} />
+          <JsonPairsView label="Quotas" value={integration.quotaPolicy} />
         </div>
         {integration.appearance && Object.keys(integration.appearance).length > 0 ? (
           <JsonBlock label="Apparence" value={integration.appearance} />

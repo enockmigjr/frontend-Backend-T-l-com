@@ -64,7 +64,7 @@ export function PerformancePage() {
             <option value="openTicketsCount">Ouverts</option>
           </select>
         </label>
-        <Button type="submit" size="sm">
+        <Button type="submit" size="sm" className="h-9">
           <ArrowDownUp />Actualiser
         </Button>
       </form>
@@ -87,8 +87,8 @@ export function PerformancePage() {
             </tr>
           </thead>
           <tbody>
-            {rows.map((item) => (
-              <tr className="border-b last:border-0" key={item.agentId ?? item.email ?? ''}>
+            {rows.map((item, index) => (
+              <tr className="border-b last:border-0" key={`${item.agentId ?? item.email ?? 'agent'}-${index}`}>
                 <td className="py-3 pl-4 pr-3">
                   {[item.firstName, item.lastName].filter(Boolean).join(' ') || item.email || 'Agent'}
                   {item.departmentName ? <p className="text-xs text-zinc-500">{item.departmentName}</p> : null}

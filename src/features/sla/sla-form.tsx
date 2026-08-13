@@ -18,7 +18,7 @@ export function SlaForm({
   onSubmit: (data: FormData) => Promise<void>;
 }>) {
   return (
-    <form action={onSubmit} className="grid min-w-0 gap-4 sm:grid-cols-2">
+    <form key={editing?.id ?? 'new'} action={onSubmit} className="grid min-w-0 gap-4 sm:grid-cols-2">
       <div className="sm:col-span-2">
         <MutationError error={error} />
       </div>

@@ -2,9 +2,9 @@ import type { Department } from '@/features/users/api/types';
 import { Button } from '@/components/ui/button';
 import { DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { JsonPairsEditor } from '@/components/ui/json-pairs';
 import { MutationError } from '@/components/ui/mutation-error';
 import { ResourceDialog } from '@/components/ui/resource-dialog';
-import { Textarea } from '@/components/ui/textarea';
 
 export function DepartmentDialog(
   props: Readonly<{
@@ -23,7 +23,8 @@ export function DepartmentDialog(
       title={props.item ? 'Modifier le département' : 'Créer un département'}
       description="Configurez l'identité et les paramètres d'assignation automatique."
     >
-      <form action={props.onSubmit} className="grid gap-4">
+      {/* key force le remontage quand on passe création → édition (inputs non contrôlés). */}
+      <form key={props.item?.id ?? 'new'} action={props.onSubmit} className="grid gap-4">
         <MutationError error={props.error} />
         <label className="grid gap-1.5 text-sm">
           <span className="font-medium">Nom</span>
@@ -57,19 +58,11 @@ export function DepartmentDialog(
           <span className="font-medium">Charge maximale par agent</span>
           <Input name="maxWorkloadPerAgent" type="number" min={1} defaultValue={props.item?.maxWorkloadPerAgent ?? 100} />
         </label>
-        <label className="grid gap-1.5 text-sm">
-          <span className="font-medium">Pondération de charge (JSON, optionnel)</span>
-          <Textarea
-            name="workloadWeights"
-            rows={3}
-            placeholder={'{"priority":{"HIGH":3,"CRITICAL":5},"severity":{"S1":5,"S2":3}}'}
-            defaultValue={
-              props.item?.workloadWeights && Object.keys(props.item.workloadWeights).length > 0
-                ? JSON.stringify(props.item.workloadWeights, null, 2)
-                : ''
-            }
-          />
-        </label>
+        <JsonPairsEditor
+          name="workloadWeights"
+          label="Pondération de charge (optionnel)"
+          initial={props.item?.workloadWeights ?? undefined}
+        />
         <DialogFooter>
           <Button type="submit" size="lg" disabled={props.pending}>
             {props.pending ? 'Enregistrement…' : 'Enregistrer'}

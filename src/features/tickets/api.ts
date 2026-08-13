@@ -79,6 +79,11 @@ export const ticketsApi = {
   comments: (id: string) => apiPage(`/api/v1/tickets/${id}/comments?page=1&limit=100&order=asc`, commentSchema),
   addComment: (id: string, content: string) =>
     apiRequest(`/api/v1/tickets/${id}/comments`, commentSchema, { method: 'POST', body: JSON.stringify({ content }) }),
+  publicReply: (id: string, content: string) =>
+    apiRequest(`/api/v1/tickets/${id}/public-reply`, commentSchema, {
+      method: 'POST',
+      body: JSON.stringify({ content }),
+    }),
   updateComment: (id: string, content: string) =>
     apiRequest(`/api/v1/comments/${id}`, commentSchema, { method: 'PATCH', body: JSON.stringify({ content }) }),
   removeComment: (id: string) => apiRequest(`/api/v1/comments/${id}`, z.undefined(), { method: 'DELETE' }),
