@@ -1,10 +1,9 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import Link from 'next/link';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, MessagesSquare, RefreshCw, Star, Timer, Users } from 'lucide-react';
+import { MessagesSquare, RefreshCw, Star, Timer, Users } from 'lucide-react';
 import { loadDashboard } from '@/features/dashboard/api/dashboard-api';
 import { channelLabel } from '@/features/dashboard/components/dashboard-tables';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -96,11 +95,6 @@ export default function PublicSupportDashboardPage() {
           </Button>
         </form>
       </header>
-
-      <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:underline">
-        <ArrowLeft aria-hidden className="size-4" />
-        Retour au tableau de bord
-      </Link>
 
       {query.error ? (
         <ErrorState message={query.error.message} retry={() => void query.refetch()} />

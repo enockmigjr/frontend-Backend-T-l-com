@@ -157,8 +157,10 @@ export function IntegrationPoliciesEditor({
     }
     return result;
   });
-  const [maxBytes, setMaxBytes] = useState(() =>
-    typeof quotaInitial?.attachmentMaxBytes === 'number' ? String(quotaInitial.attachmentMaxBytes) : '',
+  const [maxMegaBytes, setMaxMegaBytes] = useState(() =>
+    typeof quotaInitial?.attachmentMaxBytes === 'number' && quotaInitial.attachmentMaxBytes > 0
+      ? String(Math.round(quotaInitial.attachmentMaxBytes / (1024 * 1024)))
+      : '',
   );
 
   const defaultFilled = filledRoute(defaultRoute);
@@ -177,7 +179,9 @@ export function IntegrationPoliciesEditor({
     ...(Object.keys(categoryRoutesFilled).length > 0 ? { categoryRoutes: categoryRoutesFilled } : {}),
   });
   const quotaJson = JSON.stringify({
-    ...(maxBytes.trim() !== '' && Number(maxBytes) > 0 ? { attachmentMaxBytes: Number(maxBytes) } : {}),
+    ...(maxMegaBytes.trim() !== '' && Number(maxMegaBytes) > 0
+      ? { attachmentMaxBytes: Math.round(Number(maxMegaBytes) * 1024 * 1024) }
+      : {}),
   });
 
   const toggleCategory = (categoryId: string) => {
@@ -242,20 +246,155 @@ export function IntegrationPoliciesEditor({
         </fieldset>
       ) : null}
 
-      <label className="grid gap-1.5 text-sm">
-        <span className="font-medium">Taille maximale de pièce jointe (octets, optionnel)</span>
+      <fieldset className="grid gap-2 rounded-lg border p-3">
+        <legend className="px-1 text-xs font-medium text-muted-foreground">Quotas</legend>
+        <p className="text-xs text-muted-foreground">
+          Limite appliquée aux pièces jointes téléversées par les demandeurs publics (vides = aucune limite).
+        </p>
+        <label className="grid gap-1.5 text-sm">
+          <span className="font-medium">Taille maximale des pièces jointes (Mo)</span>
         <Input
           type="number"
           min={1}
           className="h-9"
-          value={maxBytes}
-          onChange={(event) => setMaxBytes(event.target.value)}
-          placeholder="10485760"
+          value={maxMegaBytes}
+          onChange={(event) => setMaxMegaBytes(event.target.value)}
+          placeholder="10"
         />
-      </label>
+        </label>
+      </fieldset>
 
       <input type="hidden" name="routingPolicy" value={routingJson} />
       <input type="hidden" name="quotaPolicy" value={quotaJson} />
     </div>
+  );
+}
+
+type NamedItem = { id: string; name: string };
+
+function Field({ label, children }: Readonly<{ label: string; children: React.ReactNode }>) {
+  return (
+    <div>
+      <p className="mb-1 text-sm font-medium">{label}</p>
+      {children}
+    </div>
+  );
+}
+
+function RouteLine({ route, departments }: Readonly<{ route: Route; departments: readonly NamedItem[] }>) {
+  const nameOf = (id: string) => departments.find((item) => item.id === id)?.name ?? id;
+  const rows = [
+    route.priority ? ['Priorité', priorityLabels[route.priority] ?? route.priority] : null,
+    route.severity ? ['Sévérité', route.severity] : null,
+    route.departmentId ? ['Département', nameOf(route.departmentId)] : null,
+    route.teamId ? ['Équipe assignée', nameOf(route.teamId)] : null,
+  ].filter((row): row is [string, string] => row !== null);
+  if (rows.length === 0) return <p className="text-xs text-muted-foreground">Non configuré.</p>;
+  return (
+    <dl className="grid gap-x-4 gap-y-1 rounded-lg border bg-slate-50 px-3 py-2 text-sm sm:grid-cols-2">
+      {rows.map(([label, value]) => (
+        <div key={label} className="flex justify-between gap-3">
+          <dt className="text-xs text-muted-foreground">{label}</dt>
+          <dd className="text-right font-medium">{value}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+function Chips({ values }: Readonly<{ values: readonly string[] }>) {
+  if (values.length === 0) return <p className="text-xs text-muted-foreground">Aucun.</p>;
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {values.map((value) => (
+        <span key={value} className="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-medium">
+          {value}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+/** Vue détaillée lisible du routage : noms réels, pas d'UUID ni de JSON. */
+export function RoutingPolicyView({
+  policy,
+  departments,
+  categories,
+}: Readonly<{
+  policy?: Routing;
+  departments: readonly NamedItem[];
+  categories: readonly NamedItem[];
+}>) {
+  if (!policy) return <p className="text-sm text-muted-foreground">Aucune politique de routage définie.</p>;
+  const services = Array.isArray(policy.services) ? (policy.services as string[]) : [];
+  const allowed = Array.isArray(policy.allowedCategoryIds) ? (policy.allowedCategoryIds as string[]) : [];
+  const defaultRoute = routeFrom(policy.defaultRoute);
+  const categoryRoutes: ReadonlyArray<readonly [string, Route]> =
+    policy.categoryRoutes && typeof policy.categoryRoutes === 'object'
+      ? Object.entries(policy.categoryRoutes as Record<string, unknown>)
+          .map(([categoryId, value]) => [categoryId, routeFrom(value)] as const)
+          .filter((entry) => filledRoute(entry[1]) !== null)
+      : [];
+  const categoryName = (id: string) => categories.find((item) => item.id === id)?.name ?? id;
+
+  if (services.length === 0 && allowed.length === 0 && !filledRoute(defaultRoute) && categoryRoutes.length === 0) {
+    return <p className="text-sm text-muted-foreground">Aucune politique de routage définie.</p>;
+  }
+
+  return (
+    <div className="grid gap-4">
+      {services.length > 0 ? (
+        <Field label="Services concernés">
+          <Chips values={services} />
+        </Field>
+      ) : null}
+      {filledRoute(defaultRoute) ? (
+        <Field label="Route par défaut">
+          <RouteLine route={defaultRoute} departments={departments} />
+        </Field>
+      ) : null}
+      {allowed.length > 0 ? (
+        <Field label="Catégories autorisées">
+          <div className="flex flex-wrap gap-1.5">
+            {allowed.map((id) => (
+              <span key={id} className="rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-900">
+                {categoryName(id)}
+              </span>
+            ))}
+          </div>
+        </Field>
+      ) : null}
+      {categoryRoutes.length > 0 ? (
+        <Field label="Routes par catégorie">
+          <div className="grid gap-2">
+            {categoryRoutes.map(([categoryId, route]) => (
+              <div key={categoryId}>
+                <p className="mb-1 text-sm font-medium">{categoryName(categoryId)}</p>
+                <RouteLine route={route} departments={departments} />
+              </div>
+            ))}
+          </div>
+        </Field>
+      ) : null}
+    </div>
+  );
+}
+
+/** Vue détaillée lisible des quotas. */
+export function QuotaPolicyView({ policy }: Readonly<{ policy?: Quota }>) {
+  const bytes = typeof policy?.attachmentMaxBytes === 'number' ? policy.attachmentMaxBytes : undefined;
+  if (bytes === undefined || bytes <= 0) {
+    return <p className="text-sm text-muted-foreground">Aucun quota défini.</p>;
+  }
+  const megabytes = bytes / (1024 * 1024);
+  return (
+    <dl className="grid gap-x-4 gap-y-1 rounded-lg border bg-slate-50 px-3 py-2 text-sm sm:grid-cols-2">
+      <div className="flex justify-between gap-3">
+        <dt className="text-xs text-muted-foreground">Pièces jointes — taille max</dt>
+        <dd className="text-right font-medium">
+          {megabytes >= 1 ? `${megabytes} Mo` : `${bytes} octets`}
+        </dd>
+      </div>
+    </dl>
   );
 }

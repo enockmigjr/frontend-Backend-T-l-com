@@ -8,6 +8,7 @@ export interface TokenPair {
   readonly accessToken: string;
   readonly refreshToken: string;
   readonly expiresIn: number;
+  readonly idToken?: string;
 }
 
 export function readAccessToken(request: NextRequest): string | undefined {
@@ -16,6 +17,12 @@ export function readAccessToken(request: NextRequest): string | undefined {
 
 export function readRefreshToken(request: NextRequest): string | undefined {
   return request.cookies.get(authEnvironment().refreshCookieName)?.value;
+}
+
+export const ID_TOKEN_COOKIE = 'kc_id_token';
+
+export function readIdTokenCookie(request: NextRequest): string | undefined {
+  return request.cookies.get(ID_TOKEN_COOKIE)?.value;
 }
 
 export function setSessionCookies(response: NextResponse, tokens: TokenPair): void {
@@ -31,11 +38,19 @@ export function setSessionCookies(response: NextResponse, tokens: TokenPair): vo
     httpOnly: true,
     maxAge: env.refreshMaxAgeSeconds,
   });
+  if (tokens.idToken) {
+    // Conserve l'id_token (court) pour le logout OIDC (id_token_hint).
+    response.cookies.set(ID_TOKEN_COOKIE, tokens.idToken, {
+      ...shared,
+      httpOnly: true,
+      maxAge: 600,
+    });
+  }
 }
 
 export function clearSessionCookies(response: NextResponse): void {
   const env = authEnvironment();
-  for (const name of [env.accessCookieName, env.refreshCookieName, env.csrfCookieName]) {
+  for (const name of [env.accessCookieName, env.refreshCookieName, env.csrfCookieName, ID_TOKEN_COOKIE]) {
     response.cookies.set(name, '', {
       httpOnly: name !== env.csrfCookieName,
       secure: env.secureCookies,

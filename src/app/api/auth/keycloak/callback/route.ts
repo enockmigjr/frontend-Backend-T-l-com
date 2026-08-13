@@ -12,7 +12,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const state = request.nextUrl.searchParams.get('state');
   const verifier = request.cookies.get('kc_verifier')?.value;
   const expectedState = request.cookies.get('kc_state')?.value;
-  const failure = new NextResponse(null, { status: 400 });
+  // Échec de callback (code expiré/déjà consommé, cookies absents) : on revient
+  // proprement vers la page de connexion au lieu d'afficher une erreur 400.
+  const appOrigin = process.env.PUBLIC_APP_ORIGIN ?? request.nextUrl.origin;
+  const failure = NextResponse.redirect(new URL('/login', appOrigin), 302);
   for (const name of ['kc_verifier', 'kc_state']) failure.cookies.set(name, '', KcClear);
   if (!code || !state || !verifier || !expectedState || state !== expectedState) return failure;
 
@@ -27,6 +30,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       accessToken: tokens.access_token,
       refreshToken: tokens.refresh_token,
       expiresIn: tokens.expires_in,
+      idToken: tokens.id_token,
     });
     issueCsrfToken(response, tokens.refresh_token);
     for (const name of ['kc_verifier', 'kc_state']) response.cookies.set(name, '', KcClear);

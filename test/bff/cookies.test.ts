@@ -29,7 +29,8 @@ describe('cookies de session du BFF', () => {
     const response = new NextResponse(null, { status: 204 });
     clearSessionCookies(response);
     const cookies = response.headers.getSetCookie();
-    expect(cookies).toHaveLength(3);
+    expect(cookies).toHaveLength(4);
+    expect(cookies).toContainEqual(expect.stringContaining('kc_id_token=;'));
     for (const cookie of cookies) expect(cookie).toContain('Max-Age=0');
   });
 });

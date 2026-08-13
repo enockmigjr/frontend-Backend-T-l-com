@@ -6,11 +6,12 @@ import { Copy, KeyRound, ShieldOff } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { JsonPairsView } from '@/components/ui/json-pairs';
 import { ResourceDialog } from '@/components/ui/resource-dialog';
 import { toast } from '@/components/ui/toast';
 import { formatDate } from '@/features/tickets/presentation';
+import { ticketsApi } from '@/features/tickets/api';
 import { listCredentials, listDevices, revokeCredential, revokeDevice, rotateIntegrationSecret } from './api';
+import { QuotaPolicyView, RoutingPolicyView } from './integration-policies-editor';
 import type { SupportIntegration } from './types';
 
 function generateSecret(): string {
@@ -64,6 +65,14 @@ export function IntegrationDetail(
     queryFn: ({ signal }) => listDevices(integration.id, 1, 25, signal).then((result) => result.data),
     enabled: props.open,
   });
+  const departments = useQuery({
+    queryKey: ['departments'],
+    queryFn: ticketsApi.departments,
+  });
+  const categories = useQuery({
+    queryKey: ['categories'],
+    queryFn: ticketsApi.categories,
+  });
   const rotate = useMutation({
     mutationFn: () => rotateIntegrationSecret(integration.id, secret),
     onSuccess: (result) => {
@@ -114,8 +123,18 @@ export function IntegrationDetail(
           </ul>
         </div>
         <div className="grid gap-4 lg:grid-cols-2">
-          <JsonPairsView label="Routage" value={integration.routingPolicy} />
-          <JsonPairsView label="Quotas" value={integration.quotaPolicy} />
+          <div className="rounded-xl border p-4">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Routage</p>
+            <RoutingPolicyView
+              policy={integration.routingPolicy}
+              departments={departments.data ?? []}
+              categories={categories.data ?? []}
+            />
+          </div>
+          <div className="rounded-xl border p-4">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Quotas</p>
+            <QuotaPolicyView policy={integration.quotaPolicy} />
+          </div>
         </div>
         {integration.appearance && Object.keys(integration.appearance).length > 0 ? (
           <JsonBlock label="Apparence" value={integration.appearance} />

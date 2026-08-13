@@ -81,13 +81,17 @@ export function MyActivityPage() {
           </Card>
         ))}
       </section>
-      {summary.resolvedLast7Days.length > 0 ? (
-        <Card className="gap-0 overflow-hidden py-0 shadow-sm">
-          <CardHeader className="border-b px-5 py-4">
-            <CardTitle className="text-base">Tickets résolus — 7 derniers jours</CardTitle>
-            <p className="text-sm text-muted-foreground">Tendance quotidienne de vos résolutions.</p>
-          </CardHeader>
-          <CardContent className="h-64 p-4">
+      <Card className="gap-0 overflow-hidden py-0 shadow-sm">
+        <CardHeader className="border-b px-5 py-4">
+          <CardTitle className="text-base">Tickets résolus — 7 derniers jours</CardTitle>
+          <p className="text-sm text-muted-foreground">Tendance quotidienne de vos résolutions.</p>
+        </CardHeader>
+        <CardContent className="h-64 p-4">
+          {summary.resolvedLast7Days.length === 0 ? (
+            <div className="grid h-full place-items-center text-sm text-muted-foreground">
+              Aucune résolution enregistrée sur les 7 derniers jours.
+            </div>
+          ) : (
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={summary.resolvedLast7Days.map((row) => ({
@@ -110,9 +114,9 @@ export function MyActivityPage() {
                 />
               </LineChart>
             </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      ) : null}
+          )}
+        </CardContent>
+      </Card>
       <div className="flex gap-3">
         <Link
           href="/tickets/new"

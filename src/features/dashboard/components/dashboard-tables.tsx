@@ -1,5 +1,4 @@
 import type { DashboardData } from '../api/dashboard-api';
-import Link from 'next/link';
 
 export function DashboardTables({ data }: Readonly<{ data: DashboardData }>) {
   return (
@@ -11,9 +10,6 @@ export function DashboardTables({ data }: Readonly<{ data: DashboardData }>) {
             Statuts, charge des équipes, départements et performance des agents.
           </p>
         </div>
-        <Link href="/dashboard/support-public" className="text-sm font-medium text-blue-700 hover:underline">
-          Support public →
-        </Link>
       </div>
 
       <section className="min-w-0 overflow-x-auto rounded-xl border bg-white p-5">

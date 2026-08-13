@@ -40,6 +40,13 @@ export const navigation: readonly NavigationItem[] = [
     group: 'Supervision',
     roles: ['ADMINISTRATOR', 'SUPERVISOR'],
   },
+  {
+    label: 'Support public',
+    href: '/dashboard/support-public',
+    icon: UsersRound,
+    group: 'Supervision',
+    roles: ['ADMINISTRATOR', 'SUPERVISOR'],
+  },
   { label: 'Audit', href: '/audit', icon: History, group: 'Supervision', roles: ['ADMINISTRATOR', 'SUPERVISOR'] },
   {
     label: 'Rapports',
