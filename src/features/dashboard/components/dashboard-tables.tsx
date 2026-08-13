@@ -1,15 +1,13 @@
 import type { DashboardData } from '../api/dashboard-api';
+import Link from 'next/link';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-export function DashboardTables({ data }: { readonly data: DashboardData }) {
-  return (
-    <Tabs defaultValue="interne">
-      <TabsList className="mb-4 w-full justify-start bg-transparent p-0" variant="line">
-        <TabsTrigger value="interne" className="min-h-9">Interne</TabsTrigger>
-        <TabsTrigger value="public" className="min-h-9">Support public</TabsTrigger>
-      </TabsList>
-      <TabsContent value="interne">
-        <div className="grid items-start gap-5 xl:grid-cols-2">
+export function DashboardTables({
+  data,
+  showTabs = true,
+}: Readonly<{ data: DashboardData; showTabs?: boolean }>) {
+  const internal = (
+    <div className="grid items-start gap-5 xl:grid-cols-2">
       <section className="min-w-0 overflow-x-auto rounded-xl border bg-white p-5">
         <h2 className="font-semibold">Répartition par statut</h2>
         <table className="mt-3 w-full text-left text-sm">
@@ -147,7 +145,22 @@ export function DashboardTables({ data }: { readonly data: DashboardData }) {
         </table>
       </section>
         </div>
-      </TabsContent>
+  );
+
+  if (!showTabs) return internal;
+
+  return (
+    <Tabs defaultValue="interne">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+        <TabsList className="w-full justify-start bg-transparent p-0 sm:w-auto" variant="line">
+          <TabsTrigger value="interne" className="min-h-9">Interne</TabsTrigger>
+          <TabsTrigger value="public" className="min-h-9">Support public</TabsTrigger>
+        </TabsList>
+        <Link href="/dashboard/interne" className="text-sm font-medium text-blue-700 hover:underline">
+          Vue interne complète →
+        </Link>
+      </div>
+      <TabsContent value="interne">{internal}</TabsContent>
       <TabsContent value="public">
         <div className="grid gap-5">
           <section className="rounded-xl border bg-white p-5">

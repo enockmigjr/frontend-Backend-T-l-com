@@ -18,11 +18,14 @@ import { ticketKeys } from './query-keys';
 import type { z } from 'zod';
 import { attachmentSchema } from './schemas';
 
-type Mode = 'comments' | 'notes';
+type Mode = 'comments' | 'notes' | 'public-reply';
 type Editing = { readonly id: string; readonly content: string } | null;
 type Attachment = z.infer<typeof attachmentSchema>;
 
-export function DiscussionPanel({ ticketId }: Readonly<{ ticketId: string }>) {
+export function DiscussionPanel({
+  ticketId,
+  canReplyToRequester = false,
+}: Readonly<{ ticketId: string; canReplyToRequester?: boolean }>) {
   const client = useQueryClient();
   const user = useCurrentUser();
   const messageFiles = useRef<HTMLInputElement>(null);
@@ -42,8 +45,9 @@ export function DiscussionPanel({ ticketId }: Readonly<{ ticketId: string }>) {
     queryKey: ticketKeys.attachments(ticketId),
     queryFn: () => ticketsApi.attachments(ticketId),
   });
-  const active = mode === 'comments' ? comments : notes;
-  const activeKey = mode === 'comments' ? ticketKeys.comments(ticketId) : ticketKeys.notes(ticketId);
+  const isNotes = mode === 'notes';
+  const active = isNotes ? notes : comments;
+  const activeKey = isNotes ? ticketKeys.notes(ticketId) : ticketKeys.comments(ticketId);
   const refresh = () =>
     Promise.all([
       client.invalidateQueries({ queryKey: activeKey }),
@@ -53,11 +57,12 @@ export function DiscussionPanel({ ticketId }: Readonly<{ ticketId: string }>) {
 
   const publish = useMutation({
     mutationFn: async () => {
-      const entry =
-        mode === 'comments'
-          ? await ticketsApi.addComment(ticketId, content.trim())
-          : await ticketsApi.addNote(ticketId, content.trim());
-      const association = mode === 'comments' ? { commentId: entry.id } : { internalNoteId: entry.id };
+      const entry = isNotes
+        ? await ticketsApi.addNote(ticketId, content.trim())
+        : mode === 'public-reply'
+          ? await ticketsApi.publicReply(ticketId, content.trim())
+          : await ticketsApi.addComment(ticketId, content.trim());
+      const association = isNotes ? { internalNoteId: entry.id } : { commentId: entry.id };
       await Promise.all(files.map((file) => ticketsApi.upload(association, file)));
     },
     onSuccess: async () => {
@@ -65,7 +70,14 @@ export function DiscussionPanel({ ticketId }: Readonly<{ ticketId: string }>) {
       setFiles([]);
       if (messageFiles.current) messageFiles.current.value = '';
       await refresh();
-      toast.add({ title: mode === 'comments' ? 'Commentaire publié' : 'Note interne publiée' });
+      toast.add({
+        title:
+          mode === 'public-reply'
+            ? 'Réponse envoyée au demandeur'
+            : isNotes
+              ? 'Note interne publiée'
+              : 'Commentaire publié',
+      });
     },
   });
   const uploadTicketFile = useMutation({
@@ -78,8 +90,8 @@ export function DiscussionPanel({ ticketId }: Readonly<{ ticketId: string }>) {
   });
   const update = useMutation({
     mutationFn: async (value: { id: string; content: string }) => {
-      if (mode === 'comments') await ticketsApi.updateComment(value.id, value.content);
-      else await ticketsApi.updateNote(value.id, value.content);
+      if (isNotes) await ticketsApi.updateNote(value.id, value.content);
+      else await ticketsApi.updateComment(value.id, value.content);
     },
     onSuccess: async () => {
       setEditing(null);
@@ -88,7 +100,7 @@ export function DiscussionPanel({ ticketId }: Readonly<{ ticketId: string }>) {
     },
   });
   const remove = useMutation({
-    mutationFn: (id: string) => (mode === 'comments' ? ticketsApi.removeComment(id) : ticketsApi.removeNote(id)),
+    mutationFn: (id: string) => (isNotes ? ticketsApi.removeNote(id) : ticketsApi.removeComment(id)),
     onSuccess: async () => {
       await refresh();
       toast.add({ title: 'Contenu supprimé' });
@@ -167,6 +179,11 @@ export function DiscussionPanel({ ticketId }: Readonly<{ ticketId: string }>) {
             <Tab selected={mode === 'comments'} onClick={() => setMode('comments')}>
               Commentaires
             </Tab>
+            {canReplyToRequester ? (
+              <Tab selected={mode === 'public-reply'} onClick={() => setMode('public-reply')} accent>
+                Répondre au demandeur
+              </Tab>
+            ) : null}
             {canSeeNotes ? (
               <Tab selected={mode === 'notes'} onClick={() => setMode('notes')}>
                 Notes internes
@@ -189,7 +206,7 @@ export function DiscussionPanel({ ticketId }: Readonly<{ ticketId: string }>) {
               return (
                 <article
                   key={entry.id}
-                  className={`rounded-xl border p-3.5 ${mode === 'notes' ? 'border-amber-200 bg-amber-50/60' : 'bg-background'}`}
+                  className={`rounded-xl border p-3.5 ${isNotes ? 'border-amber-200 bg-amber-50/60' : 'bg-background'}`}
                 >
                   <header className="flex items-start justify-between gap-3">
                     <div>
@@ -223,9 +240,11 @@ export function DiscussionPanel({ ticketId }: Readonly<{ ticketId: string }>) {
               value={content}
               onChange={(event) => setContent(event.target.value)}
               placeholder={
-                mode === 'comments'
-                  ? 'Rédiger une réponse visible par les équipes…'
-                  : 'Ajouter une note privée aux équipes internes…'
+                mode === 'public-reply'
+                  ? 'Réponse visible par le demandeur (email + portail)…'
+                  : isNotes
+                    ? 'Ajouter une note privée aux équipes internes…'
+                    : 'Rédiger une réponse visible par les équipes…'
               }
             />
             {files.length > 0 ? (
@@ -244,7 +263,8 @@ export function DiscussionPanel({ ticketId }: Readonly<{ ticketId: string }>) {
                 />
               </Button>
               <Button type="submit" disabled={content.trim().length < 2 || publish.isPending}>
-                <Send aria-hidden /> {publish.isPending ? 'Publication…' : 'Publier'}
+                <Send aria-hidden />{' '}
+                {publish.isPending ? 'Envoi…' : mode === 'public-reply' ? 'Envoyer la réponse' : 'Publier'}
               </Button>
             </div>
           </form>
@@ -284,13 +304,26 @@ function Tab({
   selected,
   onClick,
   children,
-}: Readonly<{ selected: boolean; onClick: () => void; children: React.ReactNode }>) {
+  accent = false,
+}: Readonly<{
+  selected: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+  accent?: boolean;
+}>) {
+  const tone = accent
+    ? selected
+      ? 'bg-blue-700 text-white shadow-sm'
+      : 'text-blue-800'
+    : selected
+      ? 'bg-background text-foreground shadow-sm'
+      : 'text-muted-foreground';
   return (
     <button
       type="button"
       role="tab"
       aria-selected={selected}
-      className={`min-h-9 rounded-lg px-3 text-sm font-medium ${selected ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'}`}
+      className={`min-h-9 rounded-lg px-3 text-sm font-medium ${tone}`}
       onClick={onClick}
     >
       {children}

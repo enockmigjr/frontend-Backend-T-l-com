@@ -10,8 +10,7 @@ export type DialogAction =
   | 'pending-third-party'
   | 'resolve'
   | 'reopen'
-  | 'close'
-  | 'public-reply';
+  | 'close';
 
 interface TicketTransitionDialogProps {
   readonly action: DialogAction;
@@ -29,7 +28,6 @@ const titles: Record<DialogAction, string> = {
   resolve: 'Résoudre le ticket',
   reopen: 'Rouvrir le ticket',
   close: 'Clôturer le ticket',
-  'public-reply': 'Répondre au demandeur',
 };
 
 export function TicketTransitionDialog({
@@ -63,9 +61,7 @@ export function TicketTransitionDialog({
           <label className="grid gap-1.5 text-sm font-medium">
             {action === 'resolve'
               ? 'Résumé de la résolution'
-              : action === 'public-reply'
-                ? 'Réponse au demandeur'
-                : 'Raison'}
+              : 'Raison'}
             <Textarea autoFocus rows={4} value={text} onChange={(event) => onText(event.target.value)} />
           </label>
         ) : (

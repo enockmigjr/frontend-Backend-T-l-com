@@ -127,7 +127,7 @@ export function TicketDetail({ id }: Readonly<{ id: string }>) {
       </Panel>
       <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_20rem]">
         <main>
-          <DiscussionPanel ticketId={id} />
+          <DiscussionPanel ticketId={id} canReplyToRequester={Boolean(ticket.supportIntegrationId)} />
         </main>
         <aside className="space-y-4">
           <TicketSlaCard ticket={ticket} />
