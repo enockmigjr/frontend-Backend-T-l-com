@@ -9,7 +9,7 @@ export function useSessionActions() {
   const queryClient = useQueryClient();
   const [pending, setPending] = useState(false);
 
-  async function logout(): Promise<void> {
+  async function logout(allSessions = false): Promise<void> {
     setPending(true);
     // Déconnexion SSO : le BFF efface les cookies puis redirige vers la fin de
     // session Keycloak, qui revient sur /login. L'ancien logout local ne touchait
@@ -17,7 +17,7 @@ export function useSessionActions() {
     resetCsrfToken();
     publishSessionSignal('logout');
     queryClient.clear();
-    window.location.assign('/api/auth/keycloak/logout');
+    window.location.assign(allSessions ? '/api/auth/keycloak/logout-all' : '/api/auth/keycloak/logout');
   }
 
   return { logout, pending } as const;

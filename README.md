@@ -31,9 +31,11 @@ pnpm dev
 | `supervisor@telecom.local` | `Super@1234` | SUPERVISOR |
 | `agent-cc1@telecom.local` | `Agent@1234` | CUSTOMER_SERVICE_AGENT |
 
-### SSO Keycloak (`AUTH_PROVIDER=keycloak`)
+### SSO Keycloak (fournisseur unique)
 
-La page de login est redirigée vers Keycloak (`http://localhost:8081`, port 8081 car 8080 est utilisé par PhotoVault) :
+Keycloak est l'unique fournisseur d'authentification (`AUTH_PROVIDER=keycloak`) ;
+l'ancien login local a été supprimé. La page de login est redirigée vers Keycloak
+(`http://localhost:8081`, port 8081 car 8080 est utilisé par PhotoVault) :
 
 | Email | Mot de passe | Rôle |
 | ----- | ------------ | ---- |
@@ -42,6 +44,9 @@ La page de login est redirigée vers Keycloak (`http://localhost:8081`, port 808
 | `agent.<ROLE>.<1..15>@telecom.local` | `Telecom@2026!` | 105 comptes seed (`make keycloak-seed`) |
 
 Console admin Keycloak : `http://localhost:8081/admin` — `admin` / `Admin@1234`.
+Console de compte (mot de passe, sessions) : `http://localhost:8081/realms/telecom/account/`.
+La déconnexion passe par l'endpoint OIDC end-session ; « Déconnecter toutes les
+sessions » révoque les sessions de l'utilisateur via l'API admin Keycloak.
 
 En développement, le cookie access utilise `access_token`, identique au défaut du gateway Nest, et les autres cookies utilisent le préfixe `itsm-`. En production, les trois noms doivent commencer par `__Host-`, être `Secure`, `Path=/` et sans `Domain`. Définir aussi `AUTH_CSRF_SECRET` avec au moins 32 caractères.
 

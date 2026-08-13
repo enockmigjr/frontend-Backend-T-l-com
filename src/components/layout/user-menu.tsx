@@ -57,13 +57,13 @@ export function UserMenu({
             <UserRound aria-hidden />
             Compte et mot de passe (Keycloak)
           </DropdownMenuItem>
-          <DropdownMenuItem disabled={pending} onClick={() => void logout()}>
+          <DropdownMenuItem disabled={pending} onClick={() => void logout(true)}>
             <MonitorCog aria-hidden />
             Déconnecter toutes mes sessions
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem variant="destructive" disabled={pending} onClick={() => void logout()}>
+        <DropdownMenuItem variant="destructive" disabled={pending} onClick={() => void logout(false)}>
           <LogOut aria-hidden />
           {pending ? 'Déconnexion…' : 'Se déconnecter'}
         </DropdownMenuItem>

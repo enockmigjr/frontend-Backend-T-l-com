@@ -81,7 +81,9 @@ export async function refreshKeycloakTokens(refreshToken: string): Promise<Token
     }),
     signal: AbortSignal.timeout(10_000),
   });
-  if (response.status === 401) return undefined;
+  // 400 (invalid_grant) et 401 : refresh token expiré, révoqué ou émis pour un
+  // autre issuer — la session doit être purgée, pas transformée en 502.
+  if (response.status === 400 || response.status === 401) return undefined;
   if (!response.ok) throw new Error(`Refresh Keycloak refusé (${response.status}).`);
   return (await response.json()) as TokenResponse;
 }
@@ -100,4 +102,72 @@ export function endSessionUrl(idTokenHint?: string): string {
 /** Console de compte Keycloak (mot de passe, sessions, appareils). */
 export function keycloakAccountUrl(): string {
   return `${keycloakEndpoints().issuer}/account/`;
+}
+
+interface AdminTokenResponse {
+  readonly access_token: string;
+}
+
+function realmName(issuer: string): string {
+  const match = issuer.match(/\/realms\/([^/]+)$/);
+  if (!match) throw new Error('KEYCLOAK_ISSUER doit contenir le chemin /realms/{realm}');
+  return match[1];
+}
+
+function internalOrigin(issuer: string): string {
+  return new URL(issuer).origin;
+}
+
+function adminCredentials(): { username: string; password: string } {
+  const username = process.env.KEYCLOAK_ADMIN;
+  const password = process.env.KEYCLOAK_ADMIN_PASSWORD;
+  if (!username || !password) {
+    throw new Error('KEYCLOAK_ADMIN et KEYCLOAK_ADMIN_PASSWORD sont requis pour révoquer toutes les sessions');
+  }
+  return { username, password };
+}
+
+/** Jeton admin Keycloak (compte bootstrap, via le client admin-cli par défaut). */
+export async function keycloakAdminToken(): Promise<string> {
+  const endpoints = keycloakEndpoints();
+  const { username, password } = adminCredentials();
+  // Le compte bootstrap (KEYCLOAK_ADMIN) appartient au realm `master`, pas au
+  // realm métier : le jeton admin doit être demandé sur le realm master.
+  const masterTokenUrl = `${internalOrigin(endpoints.internalIssuer)}/realms/master/protocol/openid-connect/token`;
+  const response = await fetch(masterTokenUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      grant_type: 'password',
+      client_id: 'admin-cli',
+      username,
+      password,
+    }),
+    signal: AbortSignal.timeout(10_000),
+  });
+  if (!response.ok) throw new Error(`Jeton admin Keycloak refusé (${response.status}).`);
+  const data = (await response.json()) as AdminTokenResponse;
+  return data.access_token;
+}
+
+/**
+ * Révoque toutes les sessions d'un utilisateur Keycloak (tous les appareils),
+ * y compris les sessions hors ligne, via l'API admin REST.
+ */
+export async function revokeAllUserSessions(subject: string): Promise<void> {
+  const endpoints = keycloakEndpoints();
+  const token = await keycloakAdminToken();
+  const realm = realmName(endpoints.issuer);
+  const adminBase = `${internalOrigin(endpoints.internalIssuer)}/admin/realms/${realm}`;
+  const response = await fetch(
+    `${adminBase}/users/${encodeURIComponent(subject)}/logout`,
+    {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      signal: AbortSignal.timeout(10_000),
+    },
+  );
+  if (!response.ok && response.status !== 204) {
+    throw new Error(`Révocation des sessions refusée (${response.status}).`);
+  }
 }

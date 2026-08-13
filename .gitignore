@@ -1,6 +1,6 @@
 node_modules/
 .next/
-.next-stale/
+.next-stale*/
 out/
 coverage/
 playwright-report/

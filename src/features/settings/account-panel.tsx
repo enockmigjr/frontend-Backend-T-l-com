@@ -87,13 +87,13 @@ export function AccountPanel({ user }: Readonly<{ user: CurrentUser }>) {
             <Button variant="outline" onClick={() => window.location.assign('/api/auth/keycloak/account')}>
               <KeyRound />Compte et mot de passe (Keycloak)
             </Button>
-            <Button variant="outline" disabled={pending} onClick={() => void logout()}><LogOut />Déconnecter cette session</Button>
+            <Button variant="outline" disabled={pending} onClick={() => void logout(false)}><LogOut />Déconnecter cette session</Button>
             <ConfirmDialog
               trigger={<Button variant="destructive" disabled={pending}><MonitorX />Déconnecter toutes les sessions</Button>}
               title="Déconnecter toutes les sessions ?"
               description="La session SSO courante est terminée ; tous les autres appareils devront se reconnecter via Keycloak."
               confirmLabel="Tout déconnecter"
-              onConfirm={() => void logout()}
+              onConfirm={() => void logout(true)}
             />
           </CardContent>
         </Card>
