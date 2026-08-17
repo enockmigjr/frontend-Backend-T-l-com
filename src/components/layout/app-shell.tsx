@@ -68,7 +68,7 @@ export function AppShell({
       <SidebarInset className="min-w-0 bg-muted/35">
         <AppTopbar user={userQuery.data} />
         <main id="contenu" className="w-full flex-1 p-4 sm:p-6 lg:p-8">
-          <div className="mx-auto w-full max-w-[100rem]">{children}</div>
+          <div className="mx-auto w-full max-w-(--content-max-width)">{children}</div>
         </main>
       </SidebarInset>
     </SidebarProvider>
