@@ -64,9 +64,7 @@ function RouteFields({
           {item.name}
         </option>
       ))}
-      {current && !departments.some((item) => item.id === current) ? (
-        <option value={current}>{current}</option>
-      ) : null}
+      {current && !departments.some((item) => item.id === current) ? <option value={current}>{current}</option> : null}
     </>
   );
   return (
@@ -140,9 +138,7 @@ export function IntegrationPoliciesEditor({
   const cats = categories.data ?? [];
 
   const [allowed, setAllowed] = useState<string[]>(() =>
-    Array.isArray(routingInitial?.allowedCategoryIds)
-      ? (routingInitial.allowedCategoryIds as string[])
-      : [],
+    Array.isArray(routingInitial?.allowedCategoryIds) ? (routingInitial.allowedCategoryIds as string[]) : [],
   );
   const [services, setServices] = useState(() =>
     Array.isArray(routingInitial?.services) ? (routingInitial.services as string[]).join(', ') : '',
@@ -217,7 +213,12 @@ export function IntegrationPoliciesEditor({
 
       <label className="grid gap-1.5 text-sm">
         <span className="font-medium">Services concernés (séparés par des virgules, optionnel)</span>
-        <Input className="h-9" value={services} onChange={(event) => setServices(event.target.value)} placeholder="ticketing, bot" />
+        <Input
+          className="h-9"
+          value={services}
+          onChange={(event) => setServices(event.target.value)}
+          placeholder="ticketing, bot"
+        />
       </label>
 
       <fieldset className="grid gap-3 rounded-lg border p-3">
@@ -233,7 +234,7 @@ export function IntegrationPoliciesEditor({
             const route = categoryRoutes[categoryId] ?? emptyRoute();
             return (
               <div key={categoryId} className="grid gap-1">
-                <p className="text-sm font-medium">{category?.name ?? categoryId}</p>
+                <p className="text-sm font-medium">{category?.name ?? 'Catégorie en cours de chargement'}</p>
                 <RouteFields
                   compact
                   route={route}
@@ -253,14 +254,14 @@ export function IntegrationPoliciesEditor({
         </p>
         <label className="grid gap-1.5 text-sm">
           <span className="font-medium">Taille maximale des pièces jointes (Mo)</span>
-        <Input
-          type="number"
-          min={1}
-          className="h-9"
-          value={maxMegaBytes}
-          onChange={(event) => setMaxMegaBytes(event.target.value)}
-          placeholder="10"
-        />
+          <Input
+            type="number"
+            min={1}
+            className="h-9"
+            value={maxMegaBytes}
+            onChange={(event) => setMaxMegaBytes(event.target.value)}
+            placeholder="10"
+          />
         </label>
       </fieldset>
 
@@ -291,7 +292,7 @@ function RouteLine({ route, departments }: Readonly<{ route: Route; departments:
   ].filter((row): row is [string, string] => row !== null);
   if (rows.length === 0) return <p className="text-xs text-muted-foreground">Non configuré.</p>;
   return (
-    <dl className="grid gap-x-4 gap-y-1 rounded-lg border bg-slate-50 px-3 py-2 text-sm sm:grid-cols-2">
+    <dl className="grid gap-x-4 gap-y-1 rounded-lg border bg-muted/40 px-3 py-2 text-sm sm:grid-cols-2">
       {rows.map(([label, value]) => (
         <div key={label} className="flex justify-between gap-3">
           <dt className="text-xs text-muted-foreground">{label}</dt>
@@ -307,7 +308,7 @@ function Chips({ values }: Readonly<{ values: readonly string[] }>) {
   return (
     <div className="flex flex-wrap gap-1.5">
       {values.map((value) => (
-        <span key={value} className="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-medium">
+        <span key={value} className="rounded-lg bg-muted px-2.5 py-1 text-xs font-medium">
           {value}
         </span>
       ))}
@@ -335,7 +336,8 @@ export function RoutingPolicyView({
           .map(([categoryId, value]) => [categoryId, routeFrom(value)] as const)
           .filter((entry) => filledRoute(entry[1]) !== null)
       : [];
-  const categoryName = (id: string) => categories.find((item) => item.id === id)?.name ?? id;
+  const categoryName = (id: string) =>
+    categories.find((item) => item.id === id)?.name ?? 'Catégorie en cours de chargement';
 
   if (services.length === 0 && allowed.length === 0 && !filledRoute(defaultRoute) && categoryRoutes.length === 0) {
     return <p className="text-sm text-muted-foreground">Aucune politique de routage définie.</p>;
@@ -357,7 +359,7 @@ export function RoutingPolicyView({
         <Field label="Catégories autorisées">
           <div className="flex flex-wrap gap-1.5">
             {allowed.map((id) => (
-              <span key={id} className="rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-900">
+              <span key={id} className="rounded-lg bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
                 {categoryName(id)}
               </span>
             ))}
@@ -388,12 +390,10 @@ export function QuotaPolicyView({ policy }: Readonly<{ policy?: Quota }>) {
   }
   const megabytes = bytes / (1024 * 1024);
   return (
-    <dl className="grid gap-x-4 gap-y-1 rounded-lg border bg-slate-50 px-3 py-2 text-sm sm:grid-cols-2">
+    <dl className="grid gap-x-4 gap-y-1 rounded-lg border bg-muted/40 px-3 py-2 text-sm sm:grid-cols-2">
       <div className="flex justify-between gap-3">
         <dt className="text-xs text-muted-foreground">Pièces jointes — taille max</dt>
-        <dd className="text-right font-medium">
-          {megabytes >= 1 ? `${megabytes} Mo` : `${bytes} octets`}
-        </dd>
+        <dd className="text-right font-medium">{megabytes >= 1 ? `${megabytes} Mo` : `${bytes} octets`}</dd>
       </div>
     </dl>
   );

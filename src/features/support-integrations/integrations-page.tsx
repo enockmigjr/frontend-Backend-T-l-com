@@ -22,18 +22,23 @@ function tryJson(value: string): Record<string, unknown> | undefined {
   const trimmed = value.trim();
   if (!trimmed) return undefined;
   const parsed: unknown = JSON.parse(trimmed);
-  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) throw new Error('La politique JSON doit être un objet.');
+  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed))
+    throw new Error('La politique JSON doit être un objet.');
   return parsed as Record<string, unknown>;
 }
 
 function StatusBadge({ status }: { readonly status: string }) {
   const tone =
     status === 'ACTIVE'
-      ? 'bg-emerald-100 text-emerald-900'
+      ? 'bg-emerald-100 text-emerald-900 dark:bg-emerald-950/60 dark:text-emerald-200'
       : status === 'SUSPENDED'
-        ? 'bg-amber-100 text-amber-900'
-        : 'bg-slate-200 text-slate-800';
-  return <Badge className={tone}>{status === 'ACTIVE' ? 'Active' : status === 'SUSPENDED' ? 'Suspendue' : 'Brouillon'}</Badge>;
+        ? 'bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-200'
+        : 'bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-200';
+  return (
+    <Badge className={tone}>
+      {status === 'ACTIVE' ? 'Active' : status === 'SUSPENDED' ? 'Suspendue' : 'Brouillon'}
+    </Badge>
+  );
 }
 
 export function IntegrationsPage() {
@@ -96,13 +101,27 @@ export function IntegrationsPage() {
     await updateIntegration(item.id, { name: item.name, allowedOrigins: item.allowedOrigins, status: next });
     await query.refetch();
     setPendingStatus(undefined);
-    toast.add({ title: next === 'ACTIVE' ? 'Intégration activée' : 'Intégration suspendue', description: item.name, type: 'success' });
+    toast.add({
+      title: next === 'ACTIVE' ? 'Intégration activée' : 'Intégration suspendue',
+      description: item.name,
+      type: 'success',
+    });
   }
 
   const columns: readonly DataColumn<SupportIntegration>[] = [
     { key: 'name', label: 'Intégration', sortValue: (item) => item.name, cell: (item) => <strong>{item.name}</strong> },
-    { key: 'status', label: 'Statut', sortValue: (item) => item.status, cell: (item) => <StatusBadge status={item.status} /> },
-    { key: 'origins', label: 'Origines', sortValue: (item) => item.allowedOrigins.length, cell: (item) => `${item.allowedOrigins.length}` },
+    {
+      key: 'status',
+      label: 'Statut',
+      sortValue: (item) => item.status,
+      cell: (item) => <StatusBadge status={item.status} />,
+    },
+    {
+      key: 'origins',
+      label: 'Origines',
+      sortValue: (item) => item.allowedOrigins.length,
+      cell: (item) => `${item.allowedOrigins.length}`,
+    },
     {
       key: 'createdAt',
       label: 'Créée',
@@ -142,7 +161,8 @@ export function IntegrationsPage() {
       action={
         canWrite ? (
           <Button onClick={() => setCreating(true)}>
-            <Plus className="size-4" />Créer une intégration
+            <Plus className="size-4" />
+            Créer une intégration
           </Button>
         ) : undefined
       }
@@ -171,16 +191,29 @@ export function IntegrationsPage() {
         onSubmit={save}
       />
       {selected ? (
-        <IntegrationDetail integration={selected} open onOpenChange={(open) => { if (!open) setSelected(undefined); }} canWrite={canWrite} />
+        <IntegrationDetail
+          integration={selected}
+          open
+          onOpenChange={(open) => {
+            if (!open) setSelected(undefined);
+          }}
+          canWrite={canWrite}
+        />
       ) : null}
       {pendingStatus ? (
         <ConfirmDialog
           open
           title={pendingStatus.status === 'ACTIVE' ? 'Suspendre cette intégration ?' : 'Activer cette intégration ?'}
-          description={pendingStatus.status === 'ACTIVE' ? 'Les nouveaux accès seront refusés pendant la suspension.' : 'Le site pourra de nouveau créer des demandes.'}
+          description={
+            pendingStatus.status === 'ACTIVE'
+              ? 'Les nouveaux accès seront refusés pendant la suspension.'
+              : 'Le site pourra de nouveau créer des demandes.'
+          }
           confirmLabel="Confirmer"
           onConfirm={() => toggleStatus(pendingStatus)}
-          onOpenChange={(open) => { if (!open) setPendingStatus(undefined); }}
+          onOpenChange={(open) => {
+            if (!open) setPendingStatus(undefined);
+          }}
         />
       ) : null}
     </AdminSection>

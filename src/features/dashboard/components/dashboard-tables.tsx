@@ -12,7 +12,7 @@ export function DashboardTables({ data }: Readonly<{ data: DashboardData }>) {
         </div>
       </div>
 
-      <section className="min-w-0 overflow-x-auto rounded-xl border bg-white p-5">
+      <section className="min-w-0 overflow-x-auto rounded-xl border bg-card p-5">
         <h2 className="font-semibold">Répartition par statut</h2>
         <table className="mt-3 w-full text-left text-sm">
           <thead>
@@ -36,7 +36,7 @@ export function DashboardTables({ data }: Readonly<{ data: DashboardData }>) {
         </table>
       </section>
 
-      <section className="min-w-0 overflow-x-auto rounded-xl border bg-white p-5">
+      <section className="min-w-0 overflow-x-auto rounded-xl border bg-card p-5">
         <h2 className="font-semibold">Charge des agents</h2>
         <p className="mt-1 text-sm text-zinc-600">
           {data.workload.summary.unassignedTickets} ticket(s) non assigné(s) ·{' '}
@@ -82,7 +82,7 @@ export function DashboardTables({ data }: Readonly<{ data: DashboardData }>) {
         </table>
       </section>
 
-      <section className="min-w-0 overflow-x-auto rounded-xl border bg-white p-5">
+      <section className="min-w-0 overflow-x-auto rounded-xl border bg-card p-5">
         <h2 className="font-semibold">Performance des départements</h2>
         <table className="mt-3 w-full text-left text-sm">
           <thead>
@@ -110,7 +110,7 @@ export function DashboardTables({ data }: Readonly<{ data: DashboardData }>) {
         </table>
       </section>
 
-      <section className="min-w-0 overflow-x-auto rounded-xl border bg-white p-5">
+      <section className="min-w-0 overflow-x-auto rounded-xl border bg-card p-5">
         <h2 className="font-semibold">Performance des agents</h2>
         <p className="mt-1 text-sm text-zinc-600">
           Résolutions et délais sur la période · violations SLA cumulées · dernière activité.

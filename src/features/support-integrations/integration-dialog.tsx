@@ -50,7 +50,7 @@ export function IntegrationDialog(
               <select
                 name="status"
                 defaultValue={props.item.status}
-                className="h-10 w-full rounded-lg border bg-background px-3 text-sm"
+                className="h-10 w-full rounded-lg border bg-background px-3 text-sm text-foreground"
               >
                 <option value="DRAFT">Brouillon</option>
                 <option value="ACTIVE">Active</option>
@@ -78,8 +78,17 @@ export function IntegrationDialog(
             <span className="font-medium">Fonctionnalités</span>
             {(['attachments', 'realtime', 'bot'] as const).map((feature) => (
               <label key={feature} className="flex items-center gap-2 text-sm">
-                <input type="checkbox" name={`feature-${feature}`} defaultChecked={Boolean(features[feature])} className="size-4 accent-blue-700" />
-                {feature === 'attachments' ? 'Pièces jointes publiques' : feature === 'realtime' ? 'Temps réel public' : 'Bot public'}
+                <input
+                  type="checkbox"
+                  name={`feature-${feature}`}
+                  defaultChecked={Boolean(features[feature])}
+                  className="size-4 accent-blue-700"
+                />
+                {feature === 'attachments'
+                  ? 'Pièces jointes publiques'
+                  : feature === 'realtime'
+                    ? 'Temps réel public'
+                    : 'Bot public'}
               </label>
             ))}
           </fieldset>

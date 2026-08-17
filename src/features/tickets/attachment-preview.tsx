@@ -36,7 +36,7 @@ export function AttachmentPreview({ file, label = false }: Readonly<{ file: Atta
           <iframe
             src={url}
             title={`Prévisualisation de ${file.originalFilename}`}
-            className="h-[70vh] w-full bg-white"
+            className="h-[70vh] w-full bg-background"
           />
         )}
       </div>

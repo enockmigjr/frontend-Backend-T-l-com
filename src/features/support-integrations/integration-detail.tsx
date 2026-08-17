@@ -27,19 +27,26 @@ function generateSecret(): string {
 function StatusBadge({ status }: { readonly status: string }) {
   const tone =
     status === 'ACTIVE'
-      ? 'bg-emerald-100 text-emerald-900'
+      ? 'bg-emerald-100 text-emerald-900 dark:bg-emerald-950/60 dark:text-emerald-200'
       : status === 'SUSPENDED'
-        ? 'bg-amber-100 text-amber-900'
-        : 'bg-slate-200 text-slate-800';
-  return <Badge className={tone}>{status === 'ACTIVE' ? 'Active' : status === 'SUSPENDED' ? 'Suspendue' : 'Brouillon'}</Badge>;
+        ? 'bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-200'
+        : 'bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-200';
+  return (
+    <Badge className={tone}>
+      {status === 'ACTIVE' ? 'Active' : status === 'SUSPENDED' ? 'Suspendue' : 'Brouillon'}
+    </Badge>
+  );
 }
 
 function JsonBlock({ label, value }: { readonly label: string; readonly value: unknown }) {
-  const text = value && Object.keys(value as Record<string, unknown>).length > 0 ? JSON.stringify(value, null, 2) : 'Aucune politique définie.';
+  const text =
+    value && Object.keys(value as Record<string, unknown>).length > 0
+      ? JSON.stringify(value, null, 2)
+      : 'Aucune politique définie.';
   return (
     <div>
       <p className="mb-1 text-sm font-medium">{label}</p>
-      <pre className="overflow-x-auto rounded-lg border bg-slate-50 p-3 text-xs leading-5">{text}</pre>
+      <pre className="overflow-x-auto rounded-lg border bg-muted/40 p-3 text-xs leading-5">{text}</pre>
     </div>
   );
 }
@@ -53,7 +60,8 @@ export function IntegrationDetail(
   }>,
 ) {
   const { integration } = props;
-  const trustDays = typeof integration.trustPolicy?.trustedDeviceDays === 'number' ? integration.trustPolicy.trustedDeviceDays : 90;
+  const trustDays =
+    typeof integration.trustPolicy?.trustedDeviceDays === 'number' ? integration.trustPolicy.trustedDeviceDays : 90;
   const [secret, setSecret] = useState('');
   const credentials = useQuery({
     queryKey: ['integration-credentials', integration.id],
@@ -76,8 +84,14 @@ export function IntegrationDetail(
   const rotate = useMutation({
     mutationFn: () => rotateIntegrationSecret(integration.id, secret),
     onSuccess: (result) => {
-      const until = result.data.previousValidUntil ? formatDate(result.data.previousValidUntil.toISOString()) : 'la fin de la période de grâce';
-      toast.add({ title: 'Secret pivoté', description: `Version ${result.data.version} active, l’ancienne reste valable jusqu’à ${until}.`, type: 'success' });
+      const until = result.data.previousValidUntil
+        ? formatDate(result.data.previousValidUntil.toISOString())
+        : 'la fin de la période de grâce';
+      toast.add({
+        title: 'Secret pivoté',
+        description: `Version ${result.data.version} active, l’ancienne reste valable jusqu’à ${until}.`,
+        type: 'success',
+      });
       setSecret('');
       void credentials.refetch();
     },
@@ -98,12 +112,20 @@ export function IntegrationDetail(
   });
 
   return (
-    <ResourceDialog open={props.open} onOpenChange={props.onOpenChange} title={integration.name} description={`Clé publique : ${integration.publicKey}`} size="wide">
+    <ResourceDialog
+      open={props.open}
+      onOpenChange={props.onOpenChange}
+      title={integration.name}
+      description={`Clé publique : ${integration.publicKey}`}
+      size="wide"
+    >
       <div className="grid gap-6">
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="rounded-xl border p-4">
             <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Statut</p>
-            <div className="mt-2"><StatusBadge status={integration.status} /></div>
+            <div className="mt-2">
+              <StatusBadge status={integration.status} />
+            </div>
           </div>
           <div className="rounded-xl border p-4">
             <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Confiance appareil</p>
@@ -111,11 +133,15 @@ export function IntegrationDetail(
           </div>
         </div>
         <div className="rounded-xl border p-4">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Origines autorisées</p>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+            Origines autorisées
+          </p>
           <ul className="flex flex-wrap gap-2">
             {integration.allowedOrigins.length > 0 ? (
               integration.allowedOrigins.map((origin) => (
-                <li key={origin} className="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-medium">{origin}</li>
+                <li key={origin} className="rounded-lg bg-muted px-2.5 py-1 text-xs font-medium">
+                  {origin}
+                </li>
               ))
             ) : (
               <li className="text-sm text-muted-foreground">Aucune origine.</li>
@@ -140,7 +166,9 @@ export function IntegrationDetail(
           <JsonBlock label="Apparence" value={integration.appearance} />
         ) : null}
         <div className="rounded-xl border p-4">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Versions de secret</p>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+            Versions de secret
+          </p>
           {credentials.isLoading ? (
             <p className="text-sm text-muted-foreground">Chargement…</p>
           ) : (credentials.data?.length ?? 0) === 0 ? (
@@ -148,14 +176,27 @@ export function IntegrationDetail(
           ) : (
             <ul className="space-y-2">
               {(credentials.data ?? []).map((credential) => (
-                <li key={credential.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-slate-50 px-3 py-2 text-sm">
+                <li
+                  key={credential.id}
+                  className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-muted/40 px-3 py-2 text-sm"
+                >
                   <span className="font-medium">Version {credential.version}</span>
-                  <span className="text-xs text-muted-foreground">Active depuis {credential.activeFrom ? formatDate(credential.activeFrom.toISOString()) : '—'}</span>
+                  <span className="text-xs text-muted-foreground">
+                    Active depuis {credential.activeFrom ? formatDate(credential.activeFrom.toISOString()) : '—'}
+                  </span>
                   {credential.revokedAt ? (
-                    <Badge className="bg-amber-100 text-amber-900">Révoquée</Badge>
+                    <Badge className="bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-200">
+                      Révoquée
+                    </Badge>
                   ) : props.canWrite ? (
-                    <Button variant="outline" size="sm" disabled={revokeCred.isPending} onClick={() => revokeCred.mutate(credential.id)}>
-                      <ShieldOff className="size-3.5" />Révoquer
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={revokeCred.isPending}
+                      onClick={() => revokeCred.mutate(credential.id)}
+                    >
+                      <ShieldOff className="size-3.5" />
+                      Révoquer
                     </Button>
                   ) : null}
                 </li>
@@ -165,24 +206,50 @@ export function IntegrationDetail(
         </div>
         {props.canWrite ? (
           <div className="rounded-xl border p-4">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Rotation du secret</p>
-            <p className="mb-3 text-sm text-muted-foreground">Générez un secret puis faites pivoter : la version précédente reste valable pendant la période de grâce. Le secret ne sera jamais affiché ensuite.</p>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              Rotation du secret
+            </p>
+            <p className="mb-3 text-sm text-muted-foreground">
+              Générez un secret puis faites pivoter : la version précédente reste valable pendant la période de grâce.
+              Le secret ne sera jamais affiché ensuite.
+            </p>
             <div className="flex flex-col gap-2 sm:flex-row">
               <Input readOnly value={secret} placeholder="Secret base64url (43 caractères)" className="font-mono" />
               <div className="flex gap-2">
-                <Button type="button" variant="outline" disabled={!secret} onClick={() => void navigator.clipboard.writeText(secret).then(() => toast.add({ title: 'Secret copié', type: 'success' }))}>
-                  <Copy className="size-4" />Copier
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={!secret}
+                  onClick={() =>
+                    void navigator.clipboard
+                      .writeText(secret)
+                      .then(() => toast.add({ title: 'Secret copié', type: 'success' }))
+                  }
+                >
+                  <Copy className="size-4" />
+                  Copier
                 </Button>
                 <Button type="button" disabled={!secret || rotate.isPending} onClick={() => rotate.mutate()}>
-                  <KeyRound className="size-4" />{rotate.isPending ? 'Rotation…' : 'Faire pivoter'}
+                  <KeyRound className="size-4" />
+                  {rotate.isPending ? 'Rotation…' : 'Faire pivoter'}
                 </Button>
               </div>
             </div>
-            <Button type="button" variant="ghost" size="sm" className="mt-2" onClick={() => setSecret(generateSecret())}>Générer un secret aléatoire</Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="mt-2"
+              onClick={() => setSecret(generateSecret())}
+            >
+              Générer un secret aléatoire
+            </Button>
           </div>
         ) : null}
         <div className="rounded-xl border p-4">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Appareils de confiance ({devices.data?.length ?? 0})</p>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+            Appareils de confiance ({devices.data?.length ?? 0})
+          </p>
           {devices.isLoading ? (
             <p className="text-sm text-muted-foreground">Chargement…</p>
           ) : (devices.data?.length ?? 0) === 0 ? (
@@ -190,14 +257,27 @@ export function IntegrationDetail(
           ) : (
             <ul className="space-y-2">
               {(devices.data ?? []).map((device) => (
-                <li key={device.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-slate-50 px-3 py-2 text-sm">
+                <li
+                  key={device.id}
+                  className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-muted/40 px-3 py-2 text-sm"
+                >
                   <span className="font-mono text-xs">{device.id.slice(0, 8)}…</span>
-                  <span className="text-xs text-muted-foreground">Expire le {device.expiresAt ? formatDate(device.expiresAt.toISOString()) : '—'}</span>
+                  <span className="text-xs text-muted-foreground">
+                    Expire le {device.expiresAt ? formatDate(device.expiresAt.toISOString()) : '—'}
+                  </span>
                   {device.revokedAt ? (
-                    <Badge className="bg-amber-100 text-amber-900">Révoqué</Badge>
+                    <Badge className="bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-200">
+                      Révoqué
+                    </Badge>
                   ) : props.canWrite ? (
-                    <Button variant="outline" size="sm" disabled={revokeDev.isPending} onClick={() => revokeDev.mutate(device.id)}>
-                      <ShieldOff className="size-3.5" />Révoquer
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={revokeDev.isPending}
+                      onClick={() => revokeDev.mutate(device.id)}
+                    >
+                      <ShieldOff className="size-3.5" />
+                      Révoquer
                     </Button>
                   ) : null}
                 </li>

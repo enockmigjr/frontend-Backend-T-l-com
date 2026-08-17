@@ -65,7 +65,7 @@ export function DataTable<T>({
         </TableHeader>
         <TableBody>
           {sortedRows.map((row) => (
-            <TableRow key={getRowKey(row)} className="group hover:bg-blue-50/45">
+            <TableRow key={getRowKey(row)} className="group hover:bg-primary/5 dark:hover:bg-primary/10">
               {columns.map((column) => (
                 <TableCell key={column.key} className={column.className}>
                   {column.cell(row)}

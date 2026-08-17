@@ -33,7 +33,8 @@ export function PerformancePage() {
       description="Métriques d'activité, de SLA et d'efficacité avec score pondéré (40 % SLA, 30 % volume résolu, 20 % vitesse, 10 % réouvertures)."
       action={
         <Button variant="outline" onClick={() => exportCsv(rows)}>
-          <Download />Exporter CSV
+          <Download />
+          Exporter CSV
         </Button>
       }
     >
@@ -46,11 +47,23 @@ export function PerformancePage() {
       >
         <label className="grid gap-1 px-1 text-xs font-medium text-muted-foreground">
           Du
-          <Input className="h-9 w-36 bg-background" type="date" value={from} max={to} onChange={(event) => setFrom(event.target.value)} />
+          <Input
+            className="h-9 w-36 bg-background"
+            type="date"
+            value={from}
+            max={to}
+            onChange={(event) => setFrom(event.target.value)}
+          />
         </label>
         <label className="grid gap-1 px-1 text-xs font-medium text-muted-foreground">
           Au
-          <Input className="h-9 w-36 bg-background" type="date" value={to} min={from} onChange={(event) => setTo(event.target.value)} />
+          <Input
+            className="h-9 w-36 bg-background"
+            type="date"
+            value={to}
+            min={from}
+            onChange={(event) => setTo(event.target.value)}
+          />
         </label>
         <label className="grid gap-1 px-1 text-xs font-medium text-muted-foreground">
           Tri
@@ -65,10 +78,11 @@ export function PerformancePage() {
           </select>
         </label>
         <Button type="submit" size="sm" className="h-9">
-          <ArrowDownUp />Actualiser
+          <ArrowDownUp />
+          Actualiser
         </Button>
       </form>
-      <div className="mt-4 overflow-x-auto rounded-xl border bg-white">
+      <div className="mt-4 overflow-x-auto rounded-xl border bg-card">
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b">
@@ -94,18 +108,26 @@ export function PerformancePage() {
                   {item.departmentName ? <p className="text-xs text-zinc-500">{item.departmentName}</p> : null}
                 </td>
                 <td className="px-3">
-                  <span className={`rounded-md px-2 py-0.5 font-mono font-semibold ${scoreTone(item.score)}`}>{item.score}</span>
+                  <span className={`rounded-md px-2 py-0.5 font-mono font-semibold ${scoreTone(item.score)}`}>
+                    {item.score}
+                  </span>
                 </td>
                 <td className="px-3">{item.openTicketsCount}</td>
-                <td className={`px-3 ${item.overdueTicketsCount > 0 ? 'font-semibold text-red-700' : ''}`}>{item.overdueTicketsCount}</td>
+                <td className={`px-3 ${item.overdueTicketsCount > 0 ? 'font-semibold text-red-700' : ''}`}>
+                  {item.overdueTicketsCount}
+                </td>
                 <td className="px-3">{item.resolvedInPeriod}</td>
                 <td className="px-3">{item.closedInPeriod}</td>
                 <td className={`px-3 ${item.reopenedCount > 0 ? 'text-red-700' : ''}`}>{item.reopenedCount}</td>
-                <td className={`px-3 ${item.slaBreachedCount > 0 ? 'font-semibold text-red-700' : ''}`}>{item.slaBreachedCount}</td>
+                <td className={`px-3 ${item.slaBreachedCount > 0 ? 'font-semibold text-red-700' : ''}`}>
+                  {item.slaBreachedCount}
+                </td>
                 <td className="px-3">{item.firstResponseComplianceRate}%</td>
                 <td className="px-3">{item.resolvedInPeriod > 0 ? `${item.avgResolutionMinutes} min` : '—'}</td>
                 <td className="px-3">{item.resolvedInPeriod > 0 ? `${item.medianResolutionMinutes} min` : '—'}</td>
-                <td className={`px-3 pr-4 ${isInactive(item.lastActivityAt) ? 'text-red-700' : ''}`}>{formatLastActivity(item.lastActivityAt)}</td>
+                <td className={`px-3 pr-4 ${isInactive(item.lastActivityAt) ? 'text-red-700' : ''}`}>
+                  {formatLastActivity(item.lastActivityAt)}
+                </td>
               </tr>
             ))}
           </tbody>

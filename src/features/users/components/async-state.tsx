@@ -1,6 +1,6 @@
 export function LoadingState({ label = 'Chargement…' }: { readonly label?: string }) {
   return (
-    <p role="status" aria-live="polite" className="rounded-xl border border-zinc-200 bg-white p-6 text-zinc-600">
+    <p role="status" aria-live="polite" className="rounded-xl border bg-card p-6 text-muted-foreground">
       {label}
     </p>
   );
@@ -8,10 +8,16 @@ export function LoadingState({ label = 'Chargement…' }: { readonly label?: str
 
 export function ErrorState({ message, retry }: { readonly message: string; readonly retry?: () => void }) {
   return (
-    <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-5 text-red-900">
+    <div
+      role="alert"
+      className="rounded-xl border border-red-200 bg-red-50 p-5 text-red-900 dark:border-red-900/70 dark:bg-red-950/30 dark:text-red-200"
+    >
       <p>{message}</p>
       {retry ? (
-        <button className="mt-3 min-h-11 rounded-lg bg-red-900 px-4 text-white" onClick={retry}>
+        <button
+          className="mt-3 min-h-11 rounded-lg bg-red-900 px-4 text-white dark:bg-red-700 dark:hover:bg-red-600"
+          onClick={retry}
+        >
           Réessayer
         </button>
       ) : null}
@@ -20,5 +26,5 @@ export function ErrorState({ message, retry }: { readonly message: string; reado
 }
 
 export function EmptyState({ children }: { readonly children: React.ReactNode }) {
-  return <p className="rounded-xl border border-dashed border-zinc-300 p-8 text-center text-zinc-600">{children}</p>;
+  return <p className="rounded-xl border border-dashed p-8 text-center text-muted-foreground">{children}</p>;
 }

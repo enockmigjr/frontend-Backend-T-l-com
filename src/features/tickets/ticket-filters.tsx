@@ -6,7 +6,7 @@ export function TicketFilters({ values }: Readonly<{ values: Readonly<Record<str
   return (
     <form
       method="GET"
-      className="grid gap-3 rounded-xl border bg-white p-4 md:grid-cols-[2fr_1fr_1fr_auto]"
+      className="grid gap-3 rounded-xl border bg-card p-4 md:grid-cols-[2fr_1fr_1fr_auto]"
       role="search"
     >
       <div>
@@ -58,7 +58,7 @@ export function TicketFilters({ values }: Readonly<{ values: Readonly<Record<str
           <option value="LOW">Basse</option>
         </select>
       </div>
-      <button className="flex min-h-11 items-center justify-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-white">
+      <button className="flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-primary-foreground">
         <Search aria-hidden size={18} />
         Filtrer
       </button>
