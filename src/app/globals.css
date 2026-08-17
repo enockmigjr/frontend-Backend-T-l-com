@@ -76,7 +76,7 @@
   --secondary: oklch(0.963 0.002 197.1);
   --secondary-foreground: oklch(0.218 0.008 223.9);
   --muted: oklch(0.963 0.002 197.1);
-  --muted-foreground: oklch(0.56 0.021 213.5);
+  --muted-foreground: oklch(0.5 0.021 213.5);
   --accent: oklch(0.963 0.002 197.1);
   --accent-foreground: oklch(0.218 0.008 223.9);
   --destructive: oklch(0.577 0.245 27.325);
@@ -270,7 +270,7 @@ html[data-animation-style='expressive'] * {
   border-bottom-color: color-mix(in srgb, var(--navigation-accent) 18%, var(--border));
 }
 
-.navigation-tone-option:has([data-checked]) {
+.preference-option:has([data-checked]) {
   background: var(--navigation-soft);
   border-color: var(--navigation-accent);
   color: var(--navigation-text);
@@ -328,6 +328,11 @@ textarea {
 ::selection {
   background: #bfdbfe;
   color: #172033;
+}
+
+.dark ::selection {
+  background: #1e3a8a;
+  color: #dbeafe;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -445,6 +450,10 @@ html[data-content-width='full'] main#contenu {
   --sidebar-accent-foreground: oklch(0.987 0.002 197.1);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.56 0.021 213.5);
+}
+
+.dark .uppercase.text-blue-700 {
+  color: #93c5fd;
 }
 
 @layer base {

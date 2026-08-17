@@ -80,18 +80,18 @@ export function AccountPanel({ user }: Readonly<{ user: CurrentUser }>) {
           <CardHeader>
             <CardTitle>Sécurité</CardTitle>
             <CardDescription>
-              Le mot de passe et les sessions actives sont gérés par Keycloak.
+              Le mot de passe et les sessions actives sont gérés par votre compte professionnel.
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-2">
             <Button variant="outline" onClick={() => window.location.assign('/api/auth/keycloak/account')}>
-              <KeyRound />Compte et mot de passe (Keycloak)
+              <KeyRound />Compte et sécurité
             </Button>
             <Button variant="outline" disabled={pending} onClick={() => void logout(false)}><LogOut />Déconnecter cette session</Button>
             <ConfirmDialog
               trigger={<Button variant="destructive" disabled={pending}><MonitorX />Déconnecter toutes les sessions</Button>}
               title="Déconnecter toutes les sessions ?"
-              description="La session SSO courante est terminée ; tous les autres appareils devront se reconnecter via Keycloak."
+              description="La session SSO courante est terminée ; tous les autres appareils devront se reconnecter avec leur compte professionnel."
               confirmLabel="Tout déconnecter"
               onConfirm={() => void logout(true)}
             />

@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { NotificationMenu } from './notification-menu';
 import { UserMenu } from './user-menu';
+import { Brand } from '@/components/brand';
 
 export function AppTopbar({ user }: Readonly<{ user: CurrentUser }>) {
   const router = useRouter();
@@ -34,6 +35,7 @@ export function AppTopbar({ user }: Readonly<{ user: CurrentUser }>) {
   return (
     <header className="app-topbar sticky top-0 z-30 flex h-16 items-center gap-2 border-b px-3 backdrop-blur sm:px-5">
       <SidebarTrigger className="size-9" />
+      <Brand compact className="md:hidden" />
       <form onSubmit={submit} className="relative hidden w-full max-w-xl md:block">
         <Search aria-hidden className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input

@@ -3,10 +3,11 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ChevronDown, RadioTower } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import type { CurrentUser } from '@/lib/auth/session';
 import { navigationForRole, type NavigationGroup } from './navigation';
 import { UserMenu } from './user-menu';
+import { Brand } from '@/components/brand';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
   Sidebar,
@@ -65,19 +66,11 @@ export function AppSidebar({ user }: Readonly<{ user: CurrentUser }>) {
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
       <SidebarHeader className="h-16 justify-center border-b border-sidebar-border px-2">
-        <Link
-          href="/tickets"
+        <Brand
           onClick={closeMobile}
-          className="flex h-10 w-full items-center gap-2 overflow-hidden rounded-lg px-1 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
-        >
-          <span className="app-sidebar-logo grid size-8 shrink-0 place-items-center rounded-lg text-white shadow-sm">
-            <RadioTower aria-hidden className="size-4" />
-          </span>
-          <span className="min-w-0 group-data-[collapsible=icon]:hidden">
-            <strong className="block truncate text-sm tracking-tight">KAMGOKO</strong>
-            <span className="block truncate text-[11px] text-muted-foreground">Operations Desk</span>
-          </span>
-        </Link>
+          className="h-10 w-full px-1 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
+          textClassName="group-data-[collapsible=icon]:hidden"
+        />
       </SidebarHeader>
       <SidebarContent className="py-2">
         {groups.map((group) => {
