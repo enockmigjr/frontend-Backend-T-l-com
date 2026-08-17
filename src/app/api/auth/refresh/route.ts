@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { readRefreshToken, setSessionCookies } from '@/lib/auth/cookies';
+import { clearSessionCookies, readRefreshToken, setSessionCookies } from '@/lib/auth/cookies';
 import { issueCsrfToken, verifyCsrf } from '@/lib/auth/csrf';
 import { refreshKeycloakTokens } from '@/lib/auth/keycloak';
 import { csrfFailure, gatewayFailure, unauthorized } from '@/lib/auth/responses';
@@ -21,7 +21,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           }
         : undefined;
     });
-    if (!tokens) return unauthorized();
+    if (!tokens) {
+      const response = unauthorized();
+      clearSessionCookies(response);
+      return response;
+    }
     const response = new NextResponse(null, { status: 204, headers: { 'Cache-Control': 'no-store' } });
     setSessionCookies(response, tokens);
     issueCsrfToken(response, tokens.refreshToken);

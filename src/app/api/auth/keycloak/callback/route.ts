@@ -2,12 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { setSessionCookies } from '@/lib/auth/cookies';
 import { issueCsrfToken } from '@/lib/auth/csrf';
-import { exchangeCode, isKeycloakAuth } from '@/lib/auth/keycloak';
+import { exchangeCode } from '@/lib/auth/keycloak';
 
 const KcClear = { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax' as const, path: '/', expires: new Date(0), maxAge: 0 };
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
-  if (!isKeycloakAuth()) return new NextResponse(null, { status: 404 });
   const code = request.nextUrl.searchParams.get('code');
   const state = request.nextUrl.searchParams.get('state');
   const verifier = request.cookies.get('kc_verifier')?.value;

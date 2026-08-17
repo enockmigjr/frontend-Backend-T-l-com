@@ -9,10 +9,6 @@ interface TokenResponse {
   readonly id_token?: string;
 }
 
-export function isKeycloakAuth(): boolean {
-  return process.env.AUTH_PROVIDER === 'keycloak';
-}
-
 export function keycloakEndpoints() {
   const issuer = process.env.KEYCLOAK_ISSUER;
   if (!issuer) throw new Error('KEYCLOAK_ISSUER is required for SSO');
@@ -81,9 +77,10 @@ export async function refreshKeycloakTokens(refreshToken: string): Promise<Token
     }),
     signal: AbortSignal.timeout(10_000),
   });
-  // 400 (invalid_grant) et 401 : refresh token expiré, révoqué ou émis pour un
-  // autre issuer — la session doit être purgée, pas transformée en 502.
-  if (response.status === 400 || response.status === 401) return undefined;
+  // Tout code 4xx (400 invalid_grant, 401, 403, 404…) : refresh token expiré,
+  // révoqué ou émis pour un autre issuer — la session doit être purgée, pas
+  // transformée en 500/502 (cas des sessions antérieures au Keycloak-only).
+  if (response.status >= 400 && response.status < 500) return undefined;
   if (!response.ok) throw new Error(`Refresh Keycloak refusé (${response.status}).`);
   return (await response.json()) as TokenResponse;
 }
