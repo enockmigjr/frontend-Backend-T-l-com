@@ -1,6 +1,19 @@
 'use client';
 
-import { CircleDot, Moon, Monitor, PanelLeft, RadioTower, RotateCcw, Sparkles, Sun, Waves } from 'lucide-react';
+import {
+  CircleDot,
+  Layers3,
+  Moon,
+  Monitor,
+  PanelLeft,
+  RadioTower,
+  RotateCcw,
+  Sparkles,
+  Sun,
+  Type,
+  Waves,
+  Wand2,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -10,6 +23,9 @@ import {
   type AccentColor,
   type ControlSize,
   type ContentWidth,
+  type AnimationStyle,
+  type DepthStyle,
+  type FontScale,
   type NavigationTone,
   type RadiusPreference,
   type SidebarStyle,
@@ -89,6 +105,47 @@ export function PreferencePanel() {
               </button>
             ))}
           </div>
+        </CardContent>
+      </Card>
+      <Card className="lg:col-span-2">
+        <CardHeader>
+          <CardTitle>Expérience visuelle</CardTitle>
+          <CardDescription>Personnalisez les mouvements, la profondeur et la taille de lecture.</CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-5 sm:grid-cols-3">
+          <ChoiceGroup
+            icon={Wand2}
+            label="Animations"
+            value={preferences.animationStyle}
+            options={[
+              ['none', 'Aucune'],
+              ['subtle', 'Discrètes'],
+              ['expressive', 'Expressives'],
+            ]}
+            onChange={(value) => isAnimationStyle(value) && update({ animationStyle: value })}
+          />
+          <ChoiceGroup
+            icon={Layers3}
+            label="Profondeur"
+            value={preferences.depthStyle}
+            options={[
+              ['flat', 'Plate'],
+              ['soft', 'Douce'],
+              ['elevated', 'Surélevée'],
+            ]}
+            onChange={(value) => isDepthStyle(value) && update({ depthStyle: value })}
+          />
+          <ChoiceGroup
+            icon={Type}
+            label="Taille du texte"
+            value={preferences.fontScale}
+            options={[
+              ['small', 'Petite'],
+              ['default', 'Standard'],
+              ['large', 'Grande'],
+            ]}
+            onChange={(value) => isFontScale(value) && update({ fontScale: value })}
+          />
         </CardContent>
       </Card>
       <Card>
@@ -187,7 +244,10 @@ export function PreferencePanel() {
             className="grid-cols-1 sm:grid-cols-2"
           >
             {(['comfortable', 'compact'] as const).map((value) => (
-              <label key={value} className="flex cursor-pointer items-center gap-2 rounded-lg border p-3 has-data-checked:border-blue-500 has-data-checked:bg-blue-50 dark:has-data-checked:bg-blue-950/30">
+              <label
+                key={value}
+                className="flex cursor-pointer items-center gap-2 rounded-lg border p-3 has-data-checked:border-blue-500 has-data-checked:bg-blue-50 dark:has-data-checked:bg-blue-950/30"
+              >
                 <RadioGroupItem value={value} />
                 <span className="text-sm font-medium">{value === 'comfortable' ? 'Confortable' : 'Compacte'}</span>
               </label>
@@ -211,7 +271,8 @@ export function PreferencePanel() {
       />
       <div className="flex justify-end lg:col-span-2">
         <Button variant="outline" onClick={() => save(defaultPreferences)}>
-          <RotateCcw />Rétablir les préférences
+          <RotateCcw />
+          Rétablir les préférences
         </Button>
       </div>
     </div>
@@ -233,6 +294,15 @@ function isContentWidth(value: unknown): value is ContentWidth {
 }
 function isSidebarStyle(value: unknown): value is SidebarStyle {
   return ['solid', 'soft', 'contrast'].includes(String(value));
+}
+function isAnimationStyle(value: unknown): value is AnimationStyle {
+  return ['none', 'subtle', 'expressive'].includes(String(value));
+}
+function isDepthStyle(value: unknown): value is DepthStyle {
+  return ['flat', 'soft', 'elevated'].includes(String(value));
+}
+function isFontScale(value: unknown): value is FontScale {
+  return ['small', 'default', 'large'].includes(String(value));
 }
 
 function isDensity(value: unknown): value is DensityPreference {
@@ -275,19 +345,24 @@ function PreferenceSwitch({
 }
 
 function ChoiceGroup({
+  icon: Icon = CircleDot,
   label,
   value,
   options,
   onChange,
 }: Readonly<{
   label: string;
+  icon?: typeof RadioTower;
   value: string;
   options: readonly (readonly [string, string])[];
   onChange: (value: string) => void;
 }>) {
   return (
     <fieldset className="grid gap-2">
-      <legend className="text-sm font-medium">{label}</legend>
+      <legend className="flex items-center gap-2 text-sm font-medium">
+        <Icon className="size-4 text-muted-foreground" />
+        {label}
+      </legend>
       <div className="grid gap-1.5">
         {options.map(([option, optionLabel]) => (
           <button

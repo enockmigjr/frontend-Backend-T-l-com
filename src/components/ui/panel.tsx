@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils/cn';
 export function Panel({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
+      data-slot="panel"
       className={cn(
         'rounded-xl border border-[var(--border)] bg-card shadow-[0_1px_2px_rgba(15,23,42,.04)]',
         className,

@@ -9,6 +9,9 @@ export type ControlSize = 'compact' | 'default' | 'large';
 export type RadiusPreference = 'sharp' | 'default' | 'round';
 export type ContentWidth = 'standard' | 'wide' | 'full';
 export type SidebarStyle = 'solid' | 'soft' | 'contrast';
+export type AnimationStyle = 'none' | 'subtle' | 'expressive';
+export type DepthStyle = 'flat' | 'soft' | 'elevated';
+export type FontScale = 'small' | 'default' | 'large';
 export type ThemePreference = 'light' | 'dark' | 'system';
 
 export interface InterfacePreferences {
@@ -19,6 +22,9 @@ export interface InterfacePreferences {
   readonly radius: RadiusPreference;
   readonly contentWidth: ContentWidth;
   readonly sidebarStyle: SidebarStyle;
+  readonly animationStyle: AnimationStyle;
+  readonly depthStyle: DepthStyle;
+  readonly fontScale: FontScale;
   readonly reduceMotion: boolean;
   readonly sidebarOpen: boolean;
   readonly theme: ThemePreference;
@@ -38,6 +44,9 @@ export const defaultPreferences: InterfacePreferences = {
   radius: 'default',
   contentWidth: 'standard',
   sidebarStyle: 'solid',
+  animationStyle: 'subtle',
+  depthStyle: 'soft',
+  fontScale: 'default',
   reduceMotion: false,
   sidebarOpen: true,
   theme: 'system',
@@ -46,7 +55,10 @@ export const defaultPreferences: InterfacePreferences = {
 export function loadPreferences(): InterfacePreferences {
   const current = readStored(storageKeyV4, isPreferences);
   if (current) return current;
-  const legacy = readStored(storageKeyV3, isPreferencesV3) ?? readStored(storageKeyV2, isLegacyPreferences);
+  const legacy =
+    readStored(storageKeyV4, isPreferencesV4) ??
+    readStored(storageKeyV3, isPreferencesV3) ??
+    readStored(storageKeyV2, isLegacyPreferences);
   if (legacy) {
     const migrated: InterfacePreferences = {
       ...defaultPreferences,
@@ -97,6 +109,9 @@ export function applyPreferences(value: InterfacePreferences): void {
   document.documentElement.dataset.radius = value.radius;
   document.documentElement.dataset.contentWidth = value.contentWidth;
   document.documentElement.dataset.sidebarStyle = value.sidebarStyle;
+  document.documentElement.dataset.animationStyle = value.reduceMotion ? 'none' : value.animationStyle;
+  document.documentElement.dataset.depthStyle = value.depthStyle;
+  document.documentElement.dataset.fontScale = value.fontScale;
   document.documentElement.dataset.reduceMotion = String(value.reduceMotion);
 }
 
@@ -130,6 +145,28 @@ function readStored<T>(key: string, guard: (value: unknown) => value is T): T | 
 }
 
 function isPreferences(value: unknown): value is InterfacePreferences {
+  if (typeof value !== 'object' || value === null) return false;
+  const read = (key: string) => Reflect.get(value, key);
+  return (
+    ['blue', 'slate', 'teal'].includes(String(read('navigationTone'))) &&
+    ['blue', 'violet', 'emerald', 'orange', 'rose'].includes(String(read('accentColor'))) &&
+    ['comfortable', 'compact'].includes(String(read('density'))) &&
+    ['compact', 'default', 'large'].includes(String(read('controlSize'))) &&
+    ['sharp', 'default', 'round'].includes(String(read('radius'))) &&
+    ['standard', 'wide', 'full'].includes(String(read('contentWidth'))) &&
+    ['solid', 'soft', 'contrast'].includes(String(read('sidebarStyle'))) &&
+    ['none', 'subtle', 'expressive'].includes(String(read('animationStyle'))) &&
+    ['flat', 'soft', 'elevated'].includes(String(read('depthStyle'))) &&
+    ['small', 'default', 'large'].includes(String(read('fontScale'))) &&
+    typeof read('reduceMotion') === 'boolean' &&
+    typeof read('sidebarOpen') === 'boolean' &&
+    ['light', 'dark', 'system'].includes(String(read('theme')))
+  );
+}
+
+function isPreferencesV4(
+  value: unknown,
+): value is Omit<InterfacePreferences, 'animationStyle' | 'depthStyle' | 'fontScale'> {
   if (typeof value !== 'object' || value === null) return false;
   const read = (key: string) => Reflect.get(value, key);
   return (

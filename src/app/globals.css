@@ -155,6 +155,24 @@ html[data-content-width='wide'] {
 html[data-content-width='full'] {
   --content-max-width: none;
 }
+html[data-font-scale='small'] {
+  font-size: 93.75%;
+}
+html[data-font-scale='large'] {
+  font-size: 106.25%;
+}
+html[data-depth-style='flat'] {
+  --surface-shadow: none;
+  --surface-ring: 0 0 0 1px var(--border);
+}
+html[data-depth-style='soft'] {
+  --surface-shadow: 0 1px 3px rgb(15 23 42 / 0.08);
+  --surface-ring: 0 0 0 1px color-mix(in srgb, var(--foreground) 8%, transparent);
+}
+html[data-depth-style='elevated'] {
+  --surface-shadow: 0 12px 30px rgb(15 23 42 / 0.14);
+  --surface-ring: 0 0 0 1px color-mix(in srgb, var(--foreground) 12%, transparent);
+}
 
 html[data-navigation-tone='slate'] {
   --navigation-accent: #334155;
@@ -218,6 +236,21 @@ html[data-sidebar-style='soft'] {
 }
 html[data-sidebar-style='contrast'] {
   --sidebar: color-mix(in srgb, var(--background) 82%, var(--primary));
+}
+
+html[data-animation-style='none'] *,
+html[data-animation-style='none'] *::before,
+html[data-animation-style='none'] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  scroll-behavior: auto !important;
+  transition-duration: 0.01ms !important;
+}
+html[data-animation-style='subtle'] * {
+  --motion-duration: 150ms;
+}
+html[data-animation-style='expressive'] * {
+  --motion-duration: 280ms;
 }
 
 .app-sidebar-logo {
@@ -338,6 +371,13 @@ html[data-control-size] [data-slot='select-trigger'],
 html[data-control-size] select,
 html[data-control-size] textarea {
   min-height: var(--control-height);
+}
+
+html[data-depth-style] [data-slot='card'],
+html[data-depth-style] [data-slot='table-container'],
+html[data-depth-style] [data-slot='dialog-content'],
+html[data-depth-style] [data-slot='panel'] {
+  box-shadow: var(--surface-shadow);
 }
 
 html[data-control-size] button,
