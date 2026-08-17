@@ -24,17 +24,26 @@ export function UserMenu({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className={placement === 'sidebar'
-        ? 'flex h-12 w-full items-center gap-2 rounded-lg px-2 text-left hover:bg-sidebar-accent focus-visible:ring-2'
-        : 'flex h-10 items-center gap-2 rounded-lg px-2 hover:bg-muted focus-visible:ring-2'}
+      <DropdownMenuTrigger
+        className={
+          placement === 'sidebar'
+            ? 'flex h-12 w-full items-center gap-2 rounded-lg px-2 text-left hover:bg-sidebar-accent focus-visible:ring-2'
+            : 'flex h-10 items-center gap-2 rounded-lg px-2 hover:bg-muted focus-visible:ring-2'
+        }
       >
         <Avatar>
-          <AvatarFallback className="bg-blue-100 font-semibold text-blue-800">
+          <AvatarFallback className="bg-primary/10 font-semibold text-primary">
             {user.firstName.slice(0, 1)}
             {user.lastName.slice(0, 1)}
           </AvatarFallback>
         </Avatar>
-        <span className={placement === 'sidebar' ? 'min-w-0 flex-1 group-data-[collapsible=icon]:hidden' : 'hidden min-w-0 text-left lg:block'}>
+        <span
+          className={
+            placement === 'sidebar'
+              ? 'min-w-0 flex-1 group-data-[collapsible=icon]:hidden'
+              : 'hidden min-w-0 text-left lg:block'
+          }
+        >
           <strong className="block max-w-36 truncate text-xs">
             {user.firstName} {user.lastName}
           </strong>
@@ -55,7 +64,7 @@ export function UserMenu({
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => window.location.assign('/api/auth/keycloak/account')}>
             <UserRound aria-hidden />
-            Compte et mot de passe (Keycloak)
+            Compte et sécurité
           </DropdownMenuItem>
           <DropdownMenuItem disabled={pending} onClick={() => void logout(true)}>
             <MonitorCog aria-hidden />

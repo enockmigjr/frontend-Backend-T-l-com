@@ -105,7 +105,7 @@ export function PerformancePage() {
               <tr className="border-b last:border-0" key={`${item.agentId ?? item.email ?? 'agent'}-${index}`}>
                 <td className="py-3 pl-4 pr-3">
                   {[item.firstName, item.lastName].filter(Boolean).join(' ') || item.email || 'Agent'}
-                  {item.departmentName ? <p className="text-xs text-zinc-500">{item.departmentName}</p> : null}
+                  {item.departmentName ? <p className="text-xs text-muted-foreground">{item.departmentName}</p> : null}
                 </td>
                 <td className="px-3">
                   <span className={`rounded-md px-2 py-0.5 font-mono font-semibold ${scoreTone(item.score)}`}>
@@ -113,19 +113,25 @@ export function PerformancePage() {
                   </span>
                 </td>
                 <td className="px-3">{item.openTicketsCount}</td>
-                <td className={`px-3 ${item.overdueTicketsCount > 0 ? 'font-semibold text-red-700' : ''}`}>
+                <td
+                  className={`px-3 ${item.overdueTicketsCount > 0 ? 'font-semibold text-red-700 dark:text-red-300' : ''}`}
+                >
                   {item.overdueTicketsCount}
                 </td>
                 <td className="px-3">{item.resolvedInPeriod}</td>
                 <td className="px-3">{item.closedInPeriod}</td>
-                <td className={`px-3 ${item.reopenedCount > 0 ? 'text-red-700' : ''}`}>{item.reopenedCount}</td>
-                <td className={`px-3 ${item.slaBreachedCount > 0 ? 'font-semibold text-red-700' : ''}`}>
+                <td className={`px-3 ${item.reopenedCount > 0 ? 'text-red-700 dark:text-red-300' : ''}`}>
+                  {item.reopenedCount}
+                </td>
+                <td
+                  className={`px-3 ${item.slaBreachedCount > 0 ? 'font-semibold text-red-700 dark:text-red-300' : ''}`}
+                >
                   {item.slaBreachedCount}
                 </td>
                 <td className="px-3">{item.firstResponseComplianceRate}%</td>
                 <td className="px-3">{item.resolvedInPeriod > 0 ? `${item.avgResolutionMinutes} min` : '—'}</td>
                 <td className="px-3">{item.resolvedInPeriod > 0 ? `${item.medianResolutionMinutes} min` : '—'}</td>
-                <td className={`px-3 pr-4 ${isInactive(item.lastActivityAt) ? 'text-red-700' : ''}`}>
+                <td className={`px-3 pr-4 ${isInactive(item.lastActivityAt) ? 'text-red-700 dark:text-red-300' : ''}`}>
                   {formatLastActivity(item.lastActivityAt)}
                 </td>
               </tr>
@@ -138,9 +144,9 @@ export function PerformancePage() {
 }
 
 function scoreTone(score: number): string {
-  if (score >= 80) return 'bg-emerald-100 text-emerald-900';
-  if (score >= 50) return 'bg-amber-100 text-amber-900';
-  return 'bg-red-100 text-red-900';
+  if (score >= 80) return 'bg-emerald-100 text-emerald-900 dark:bg-emerald-950/60 dark:text-emerald-200';
+  if (score >= 50) return 'bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-200';
+  return 'bg-red-100 text-red-900 dark:bg-red-950/60 dark:text-red-200';
 }
 
 function formatLastActivity(value?: string | null): string {

@@ -19,12 +19,12 @@ const STATUSES = ['PENDING', 'PROCESSING', 'DELIVERED', 'FAILED', 'DELIVERY_UNKN
 function StatusBadge({ status }: { readonly status: string }) {
   const tone =
     status === 'DELIVERED'
-      ? 'bg-emerald-100 text-emerald-900'
+      ? 'bg-emerald-100 text-emerald-900 dark:bg-emerald-950/60 dark:text-emerald-200'
       : status === 'FAILED'
-        ? 'bg-red-100 text-red-900'
+        ? 'bg-red-100 text-red-900 dark:bg-red-950/60 dark:text-red-200'
         : status === 'DELIVERY_UNKNOWN'
-          ? 'bg-amber-100 text-amber-900'
-          : 'bg-slate-200 text-slate-800';
+          ? 'bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-200'
+          : 'bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-200';
   return <Badge className={tone}>{status}</Badge>;
 }
 
@@ -40,8 +40,18 @@ export function DeliveriesPage() {
   const meta = query.data?.meta;
 
   const columns: readonly DataColumn<ExternalDelivery>[] = [
-    { key: 'channel', label: 'Canal', sortValue: (item) => item.channel, cell: (item) => <strong>{item.channel}</strong> },
-    { key: 'status', label: 'Statut', sortValue: (item) => item.status, cell: (item) => <StatusBadge status={item.status} /> },
+    {
+      key: 'channel',
+      label: 'Canal',
+      sortValue: (item) => item.channel,
+      cell: (item) => <strong>{item.channel}</strong>,
+    },
+    {
+      key: 'status',
+      label: 'Statut',
+      sortValue: (item) => item.status,
+      cell: (item) => <StatusBadge status={item.status} />,
+    },
     {
       key: 'attemptCount',
       label: 'Tentatives',
@@ -62,7 +72,14 @@ export function DeliveriesPage() {
       key: 'lastError',
       label: 'Erreur',
       sortValue: (item) => item.lastError ?? '',
-      cell: (item) => (item.lastError ? <span className="max-w-52 truncate text-xs text-red-700" title={item.lastError}>{item.lastError}</span> : <span className="text-muted-foreground">—</span>),
+      cell: (item) =>
+        item.lastError ? (
+          <span className="max-w-52 truncate text-xs text-red-700" title={item.lastError}>
+            {item.lastError}
+          </span>
+        ) : (
+          <span className="text-muted-foreground">—</span>
+        ),
     },
     {
       key: 'actions',
@@ -95,7 +112,9 @@ export function DeliveriesPage() {
           >
             <option value="">Tous</option>
             {STATUSES.map((value) => (
-              <option key={value} value={value}>{value}</option>
+              <option key={value} value={value}>
+                {value}
+              </option>
             ))}
           </select>
         </label>
@@ -106,7 +125,9 @@ export function DeliveriesPage() {
       ) : query.error ? (
         <ErrorState message={query.error.message} retry={() => query.refetch()} />
       ) : items.length === 0 ? (
-        <EmptyState>Aucune livraison. Les notifications sortantes apparaîtront ici dès qu’un événement public sera émis.</EmptyState>
+        <EmptyState>
+          Aucune livraison. Les notifications sortantes apparaîtront ici dès qu’un événement public sera émis.
+        </EmptyState>
       ) : (
         <>
           <DataTable rows={items} columns={columns} getRowKey={(item) => item.id} caption="Livraisons externes" />
@@ -115,22 +136,34 @@ export function DeliveriesPage() {
               Page {meta?.page ?? page} sur {meta?.totalPages ?? 1} · {meta?.total ?? items.length} livraisons
             </p>
             <div className="flex gap-2">
-              <Button variant="outline" disabled={page <= 1 || query.isFetching} onClick={() => setPage((value) => value - 1)}>
-                <ChevronLeft className="size-4" />Précédent
+              <Button
+                variant="outline"
+                disabled={page <= 1 || query.isFetching}
+                onClick={() => setPage((value) => value - 1)}
+              >
+                <ChevronLeft className="size-4" />
+                Précédent
               </Button>
               <Button
                 variant="outline"
                 disabled={query.isFetching || (meta ? page >= meta.totalPages : items.length < 20)}
                 onClick={() => setPage((value) => value + 1)}
               >
-                Suivant<ChevronRight className="size-4" />
+                Suivant
+                <ChevronRight className="size-4" />
               </Button>
             </div>
           </div>
         </>
       )}
       {selected ? (
-        <DeliveryDetail delivery={selected} open onOpenChange={(open) => { if (!open) setSelected(undefined); }} />
+        <DeliveryDetail
+          delivery={selected}
+          open
+          onOpenChange={(open) => {
+            if (!open) setSelected(undefined);
+          }}
+        />
       ) : null}
     </AdminSection>
   );

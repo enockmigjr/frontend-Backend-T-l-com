@@ -206,7 +206,7 @@ export function DiscussionPanel({
               return (
                 <article
                   key={entry.id}
-                  className={`rounded-xl border p-3.5 ${isNotes ? 'border-amber-200 bg-amber-50/60' : 'bg-background'}`}
+                  className={`rounded-xl border p-3.5 ${isNotes ? 'border-amber-200 bg-amber-50/60 dark:border-amber-900/70 dark:bg-amber-950/30' : 'bg-background'}`}
                 >
                   <header className="flex items-start justify-between gap-3">
                     <div>
@@ -313,8 +313,8 @@ function Tab({
 }>) {
   const tone = accent
     ? selected
-      ? 'bg-blue-700 text-white shadow-sm'
-      : 'text-blue-800'
+      ? 'bg-primary text-primary-foreground shadow-sm'
+      : 'text-primary'
     : selected
       ? 'bg-background text-foreground shadow-sm'
       : 'text-muted-foreground';

@@ -6,7 +6,7 @@ export function DashboardTables({ data }: Readonly<{ data: DashboardData }>) {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <h2 className="font-semibold">Vue d&apos;ensemble interne</h2>
-          <p className="mt-1 text-sm text-zinc-600">
+          <p className="mt-1 text-sm text-muted-foreground">
             Statuts, charge des équipes, départements et performance des agents.
           </p>
         </div>
@@ -38,7 +38,7 @@ export function DashboardTables({ data }: Readonly<{ data: DashboardData }>) {
 
       <section className="min-w-0 overflow-x-auto rounded-xl border bg-card p-5">
         <h2 className="font-semibold">Charge des agents</h2>
-        <p className="mt-1 text-sm text-zinc-600">
+        <p className="mt-1 text-sm text-muted-foreground">
           {data.workload.summary.unassignedTickets} ticket(s) non assigné(s) ·{' '}
           {data.workload.summary.absentAgentsCount ?? 0} agent(s) en pause ou en absence.
         </p>
@@ -62,8 +62,10 @@ export function DashboardTables({ data }: Readonly<{ data: DashboardData }>) {
                 </td>
                 <td>{item.openTicketsCount}</td>
                 <td>{item.criticalTicketsCount}</td>
-                <td className={item.slaAtRiskCount > 0 ? 'font-semibold text-red-700' : ''}>{item.slaAtRiskCount}</td>
-                <td className={item.overdueTicketsCount ? 'font-semibold text-red-700' : ''}>
+                <td className={item.slaAtRiskCount > 0 ? 'font-semibold text-red-700 dark:text-red-300' : ''}>
+                  {item.slaAtRiskCount}
+                </td>
+                <td className={item.overdueTicketsCount ? 'font-semibold text-red-700 dark:text-red-300' : ''}>
                   {item.overdueTicketsCount ?? 0}
                 </td>
                 <td>
@@ -73,7 +75,7 @@ export function DashboardTables({ data }: Readonly<{ data: DashboardData }>) {
                       ? 'En absence'
                       : 'Disponible'}
                 </td>
-                <td className={isInactive(item.lastActivityAt) ? 'text-red-700' : ''}>
+                <td className={isInactive(item.lastActivityAt) ? 'text-red-700 dark:text-red-300' : ''}>
                   {formatLastActivity(item.lastActivityAt)}
                 </td>
               </tr>
@@ -112,7 +114,7 @@ export function DashboardTables({ data }: Readonly<{ data: DashboardData }>) {
 
       <section className="min-w-0 overflow-x-auto rounded-xl border bg-card p-5">
         <h2 className="font-semibold">Performance des agents</h2>
-        <p className="mt-1 text-sm text-zinc-600">
+        <p className="mt-1 text-sm text-muted-foreground">
           Résolutions et délais sur la période · violations SLA cumulées · dernière activité.
         </p>
         <table className="mt-3 w-full text-left text-sm">
@@ -132,18 +134,18 @@ export function DashboardTables({ data }: Readonly<{ data: DashboardData }>) {
               <tr className="border-t" key={`${item.agentId ?? item.email ?? 'agent'}-${index}`}>
                 <td className="py-2">
                   {[item.firstName, item.lastName].filter(Boolean).join(' ') || item.email || 'Agent'}
-                  {item.departmentName ? <p className="text-xs text-zinc-500">{item.departmentName}</p> : null}
+                  {item.departmentName ? <p className="text-xs text-muted-foreground">{item.departmentName}</p> : null}
                 </td>
                 <td>{item.openTicketsCount}</td>
                 <td>{item.resolvedInPeriod}</td>
-                <td className={item.slaBreachedCount > 0 ? 'font-semibold text-red-700' : ''}>
+                <td className={item.slaBreachedCount > 0 ? 'font-semibold text-red-700 dark:text-red-300' : ''}>
                   {item.slaBreachedCount}
                 </td>
                 <td>{item.resolvedInPeriod > 0 ? `${item.avgResolutionMinutes} min` : '—'}</td>
-                <td className={item.overdueTicketsCount > 0 ? 'font-semibold text-red-700' : ''}>
+                <td className={item.overdueTicketsCount > 0 ? 'font-semibold text-red-700 dark:text-red-300' : ''}>
                   {item.overdueTicketsCount}
                 </td>
-                <td className={isInactive(item.lastActivityAt) ? 'text-red-700' : ''}>
+                <td className={isInactive(item.lastActivityAt) ? 'text-red-700 dark:text-red-300' : ''}>
                   {formatLastActivity(item.lastActivityAt)}
                 </td>
               </tr>

@@ -107,7 +107,7 @@ export function UsersPage() {
       {notice ? (
         <p
           role="status"
-          className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm font-medium text-amber-950"
+          className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm font-medium text-amber-950 dark:border-amber-900/70 dark:bg-amber-950/30 dark:text-amber-200"
         >
           {notice}
         </p>
@@ -181,7 +181,12 @@ export function UsersPage() {
         {editing ? (
           <>
             <MutationError error={formError} />
-            <UserForm user={editing} departments={(departments.data ?? []) as Department[]} pending={pending} onSubmit={save} />
+            <UserForm
+              user={editing}
+              departments={(departments.data ?? []) as Department[]}
+              pending={pending}
+              onSubmit={save}
+            />
           </>
         ) : null}
       </ResourceDialog>

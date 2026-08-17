@@ -15,9 +15,12 @@ export function AccessGate({
   if (!user) return <LoadingState label="Vérification des autorisations…" />;
   if (!allow(user))
     return (
-      <section role="alert" className="rounded-xl border border-amber-300 bg-amber-50 p-6">
+      <section
+        role="alert"
+        className="rounded-xl border border-amber-300 bg-amber-50 p-6 dark:border-amber-900/70 dark:bg-amber-950/30"
+      >
         <h1 className="text-xl font-semibold">Accès interdit</h1>
-        <p className="mt-2 text-amber-950">
+        <p className="mt-2 text-amber-950 dark:text-amber-200">
           Votre rôle ne permet pas d’accéder à cette page. Le backend reste autoritaire.
         </p>
       </section>

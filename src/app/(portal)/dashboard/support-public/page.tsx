@@ -34,32 +34,65 @@ export default function PublicSupportDashboardPage() {
   const summary = data?.publicSupport.summary;
   const metrics = summary
     ? [
-        { label: 'Conversations', value: summary.totalConversations, icon: MessagesSquare, tone: 'text-blue-700' },
-        { label: 'Ouvertes', value: summary.openConversations, icon: MessagesSquare, tone: 'text-amber-700' },
-        { label: "Aujourd'hui", value: summary.conversationsToday, icon: Timer, tone: 'text-slate-700' },
-        { label: 'Demandeurs actifs', value: summary.activeRequesters, icon: Users, tone: 'text-indigo-700' },
-        { label: 'Tickets publics', value: summary.publicTickets, icon: MessagesSquare, tone: 'text-violet-700' },
-        { label: 'Réponses envoyées', value: summary.publicRepliesSent, icon: MessagesSquare, tone: 'text-emerald-700' },
-        { label: 'Messages', value: summary.totalMessages, icon: MessagesSquare, tone: 'text-cyan-700' },
+        {
+          label: 'Conversations',
+          value: summary.totalConversations,
+          icon: MessagesSquare,
+          tone: 'text-blue-700 dark:text-blue-300',
+        },
+        {
+          label: 'Ouvertes',
+          value: summary.openConversations,
+          icon: MessagesSquare,
+          tone: 'text-amber-700 dark:text-amber-300',
+        },
+        {
+          label: "Aujourd'hui",
+          value: summary.conversationsToday,
+          icon: Timer,
+          tone: 'text-slate-700 dark:text-slate-300',
+        },
+        {
+          label: 'Demandeurs actifs',
+          value: summary.activeRequesters,
+          icon: Users,
+          tone: 'text-indigo-700 dark:text-indigo-300',
+        },
+        {
+          label: 'Tickets publics',
+          value: summary.publicTickets,
+          icon: MessagesSquare,
+          tone: 'text-violet-700 dark:text-violet-300',
+        },
+        {
+          label: 'Réponses envoyées',
+          value: summary.publicRepliesSent,
+          icon: MessagesSquare,
+          tone: 'text-emerald-700 dark:text-emerald-300',
+        },
+        {
+          label: 'Messages',
+          value: summary.totalMessages,
+          icon: MessagesSquare,
+          tone: 'text-cyan-700 dark:text-cyan-300',
+        },
         {
           label: '1re réponse moyenne',
           value: `${summary.avgFirstResponseMinutes} min`,
           icon: Timer,
-          tone: 'text-amber-700',
+          tone: 'text-amber-700 dark:text-amber-300',
         },
         {
           label: 'Satisfaction moyenne',
           value: summary.satisfaction?.avgNote ? `${summary.satisfaction.avgNote}/5` : '—',
           icon: Star,
-          tone: 'text-emerald-700',
+          tone: 'text-emerald-700 dark:text-emerald-300',
         },
         {
           label: 'Satisfactions reçues',
-          value: summary.satisfaction
-            ? `${summary.satisfaction.submitted}/${summary.satisfaction.invited}`
-            : '—',
+          value: summary.satisfaction ? `${summary.satisfaction.submitted}/${summary.satisfaction.invited}` : '—',
           icon: Star,
-          tone: 'text-slate-700',
+          tone: 'text-slate-700 dark:text-slate-300',
         },
       ]
     : [];
@@ -83,11 +116,23 @@ export default function PublicSupportDashboardPage() {
         >
           <label className="grid gap-1 px-1 text-xs font-medium text-muted-foreground">
             Du
-            <Input className="h-9 w-36 bg-background" type="date" value={from} max={to} onChange={(event) => setFrom(event.target.value)} />
+            <Input
+              className="h-9 w-36 bg-background"
+              type="date"
+              value={from}
+              max={to}
+              onChange={(event) => setFrom(event.target.value)}
+            />
           </label>
           <label className="grid gap-1 px-1 text-xs font-medium text-muted-foreground">
             Au
-            <Input className="h-9 w-36 bg-background" type="date" value={to} min={from} onChange={(event) => setTo(event.target.value)} />
+            <Input
+              className="h-9 w-36 bg-background"
+              type="date"
+              value={to}
+              min={from}
+              onChange={(event) => setTo(event.target.value)}
+            />
           </label>
           <Button type="submit" size="sm" className="h-9" disabled={query.isFetching}>
             <RefreshCw aria-hidden className={query.isFetching ? 'animate-spin' : ''} />
@@ -118,7 +163,7 @@ export default function PublicSupportDashboardPage() {
 
           <PublicCharts data={data} />
 
-          <section className="min-w-0 overflow-x-auto rounded-xl border bg-white p-5">
+          <section className="min-w-0 overflow-x-auto rounded-xl border bg-card p-5">
             <h2 className="font-semibold">Conversations par canal</h2>
             <table className="mt-3 w-full text-left text-sm">
               <thead>
@@ -139,7 +184,7 @@ export default function PublicSupportDashboardPage() {
                   ))
                 ) : (
                   <tr className="border-t">
-                    <td className="py-2 text-zinc-500" colSpan={3}>
+                    <td className="py-2 text-muted-foreground" colSpan={3}>
                       Aucune donnée publique.
                     </td>
                   </tr>
@@ -148,7 +193,7 @@ export default function PublicSupportDashboardPage() {
             </table>
           </section>
 
-          <section className="min-w-0 overflow-x-auto rounded-xl border bg-white p-5">
+          <section className="min-w-0 overflow-x-auto rounded-xl border bg-card p-5">
             <h2 className="font-semibold">Demandeurs récents</h2>
             <table className="mt-3 w-full text-left text-sm">
               <thead>
@@ -166,14 +211,17 @@ export default function PublicSupportDashboardPage() {
                       <td>{new Date(item.createdAt).toLocaleDateString('fr-FR')}</td>
                       <td>
                         {item.lastSeenAt
-                          ? new Date(item.lastSeenAt).toLocaleString('fr-FR', { dateStyle: 'medium', timeStyle: 'short' })
+                          ? new Date(item.lastSeenAt).toLocaleString('fr-FR', {
+                              dateStyle: 'medium',
+                              timeStyle: 'short',
+                            })
                           : 'Jamais'}
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr className="border-t">
-                    <td className="py-2 text-zinc-500" colSpan={3}>
+                    <td className="py-2 text-muted-foreground" colSpan={3}>
                       Aucun demandeur pour le moment.
                     </td>
                   </tr>

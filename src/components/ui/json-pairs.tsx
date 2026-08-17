@@ -40,9 +40,7 @@ export function JsonPairsEditor({
   const active = rows.filter((row) => row.key.trim().length > 0);
   const serialized =
     active.length > 0
-      ? JSON.stringify(
-          Object.fromEntries(active.map((row) => [row.key.trim(), parseValue(row.value)])),
-        )
+      ? JSON.stringify(Object.fromEntries(active.map((row) => [row.key.trim(), parseValue(row.value)])))
       : '';
 
   const update = (index: number, patch: Partial<Row>) => {
@@ -109,16 +107,11 @@ export function JsonPairsView({
     <div>
       <p className="mb-1 text-sm font-medium">{label}</p>
       {entries.length === 0 ? (
-        <p className="rounded-lg border bg-slate-50 p-3 text-xs text-muted-foreground">
-          Aucune politique définie.
-        </p>
+        <p className="rounded-lg border bg-muted/40 p-3 text-xs text-muted-foreground">Aucune politique définie.</p>
       ) : (
         <dl className="divide-y overflow-hidden rounded-lg border">
           {entries.map(([key, entry]) => (
-            <div
-              key={key}
-              className="grid gap-1 bg-card px-3 py-2 text-xs sm:grid-cols-[minmax(0,40%)_minmax(0,1fr)]"
-            >
+            <div key={key} className="grid gap-1 bg-card px-3 py-2 text-xs sm:grid-cols-[minmax(0,40%)_minmax(0,1fr)]">
               <dt className="font-medium text-muted-foreground">{key}</dt>
               <dd className="min-w-0 break-words">
                 {typeof entry === 'object' && entry !== null ? JSON.stringify(entry) : String(entry)}

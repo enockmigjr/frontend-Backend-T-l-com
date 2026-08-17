@@ -31,7 +31,7 @@ function AdminLinks() {
   return (
     <section>
       <h1 className="text-2xl font-semibold">Administration</h1>
-      <p className="mt-1 text-zinc-600">
+      <p className="mt-1 text-muted-foreground">
         Les mutations sont contrôlées par le backend; le superviseur conserve uniquement son périmètre autorisé.
       </p>
       <div className="mt-6 grid gap-4 md:grid-cols-2">
@@ -39,10 +39,10 @@ function AdminLinks() {
           <Link
             key={entry.href}
             href={entry.href}
-            className="min-h-28 rounded-xl border bg-white p-5 outline-offset-4 hover:border-blue-500"
+            className="min-h-28 rounded-xl border bg-card p-5 outline-offset-4 hover:border-primary"
           >
             <h2 className="font-semibold">{entry.title}</h2>
-            <p className="mt-2 text-sm text-zinc-600">{entry.description}</p>
+            <p className="mt-2 text-sm text-muted-foreground">{entry.description}</p>
           </Link>
         ))}
       </div>

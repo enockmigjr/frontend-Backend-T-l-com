@@ -50,7 +50,7 @@ export function TicketEscalationForm({
       }}
     >
       <div>
-        <p className="text-xs text-slate-600">
+        <p className="text-xs text-muted-foreground">
           Même équipe : escalade hiérarchique. Autre équipe : escalade fonctionnelle réservée à la supervision.
         </p>
       </div>
@@ -108,13 +108,13 @@ export function TicketEscalationForm({
           />
         )}
         {!elevated ? (
-          <p id="escalation-help" className="mt-1 text-xs text-slate-600">
+          <p id="escalation-help" className="mt-1 text-xs text-muted-foreground">
             L’API ne fournit pas encore d’annuaire assignable aux agents ; saisissez l’identifiant communiqué par votre
             équipe.
           </p>
         ) : null}
         {validation ? (
-          <p className="mt-1 text-sm text-red-700" role="alert">
+          <p className="mt-1 text-sm text-red-700 dark:text-red-300" role="alert">
             {validation}
           </p>
         ) : null}
@@ -137,7 +137,7 @@ export function TicketEscalationForm({
         </button>
         <button
           disabled={escalation.isPending}
-          className="min-h-11 rounded-lg bg-blue-700 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
+          className="min-h-11 rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
         >
           {escalation.isPending ? 'Escalade…' : 'Confirmer l’escalade'}
         </button>

@@ -40,7 +40,7 @@ export function TicketReassignmentForm({ ticket, onClose }: Readonly<{ ticket: T
       }}
     >
       <div>
-        <p className="text-xs text-slate-600">La cible doit être un agent actif de l’équipe assignée.</p>
+        <p className="text-xs text-muted-foreground">La cible doit être un agent actif de l’équipe assignée.</p>
       </div>
       {mutation.error ? <ErrorAlert error={mutation.error} /> : null}
       <div>
@@ -55,7 +55,7 @@ export function TicketReassignmentForm({ ticket, onClose }: Readonly<{ ticket: T
           onChange={(event) => setUserId(event.target.value)}
         />
         {validation ? (
-          <p className="mt-1 text-sm text-red-700" role="alert">
+          <p className="mt-1 text-sm text-red-700 dark:text-red-300" role="alert">
             {validation}
           </p>
         ) : null}
@@ -78,7 +78,7 @@ export function TicketReassignmentForm({ ticket, onClose }: Readonly<{ ticket: T
         </button>
         <button
           disabled={mutation.isPending}
-          className="min-h-11 rounded-lg bg-blue-700 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
+          className="min-h-11 rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
         >
           {mutation.isPending ? 'Réassignation…' : 'Confirmer'}
         </button>

@@ -48,7 +48,9 @@ export function DashboardPage() {
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-blue-700">Centre de supervision</p>
           <h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">État des opérations</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Priorisez les incidents, les risques SLA et la charge des équipes.</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Priorisez les incidents, les risques SLA et la charge des équipes.
+          </p>
         </div>
         <form
           className="flex flex-wrap items-end gap-2 rounded-xl border bg-card p-2 shadow-sm"
@@ -85,30 +87,60 @@ function DashboardContent({ data }: Readonly<{ data: DashboardData }>) {
     timeStyle: 'short',
   });
   const metrics = [
-    { label: 'Tickets sur la période', value: data.overview.ticketVolume.total, icon: ListChecks, tone: 'text-violet-700' },
-    { label: 'Tickets ouverts', value: data.overview.ticketVolume.openTickets, icon: RadioTower, tone: 'text-blue-700' },
-    { label: 'Créés aujourd’hui', value: data.overview.ticketVolume.createdToday, icon: TicketCheck, tone: 'text-slate-700' },
-    { label: 'Résolus aujourd’hui', value: data.overview.ticketVolume.resolvedToday, icon: CircleCheck, tone: 'text-emerald-700' },
-    { label: 'SLA en retard', value: overdue, icon: AlertTriangle, tone: 'text-red-700' },
-    { label: 'Conformité SLA', value: `${data.overview.sla.complianceRate}%`, icon: CircleCheck, tone: 'text-emerald-700' },
+    {
+      label: 'Tickets sur la période',
+      value: data.overview.ticketVolume.total,
+      icon: ListChecks,
+      tone: 'text-violet-700 dark:text-violet-300',
+    },
+    {
+      label: 'Tickets ouverts',
+      value: data.overview.ticketVolume.openTickets,
+      icon: RadioTower,
+      tone: 'text-blue-700 dark:text-blue-300',
+    },
+    {
+      label: 'Créés aujourd’hui',
+      value: data.overview.ticketVolume.createdToday,
+      icon: TicketCheck,
+      tone: 'text-slate-700 dark:text-slate-300',
+    },
+    {
+      label: 'Résolus aujourd’hui',
+      value: data.overview.ticketVolume.resolvedToday,
+      icon: CircleCheck,
+      tone: 'text-emerald-700 dark:text-emerald-300',
+    },
+    { label: 'SLA en retard', value: overdue, icon: AlertTriangle, tone: 'text-red-700 dark:text-red-300' },
+    {
+      label: 'Conformité SLA',
+      value: `${data.overview.sla.complianceRate}%`,
+      icon: CircleCheck,
+      tone: 'text-emerald-700 dark:text-emerald-300',
+    },
     {
       label: 'Première réponse SLA',
       value: `${data.sla.summary.firstResponseComplianceRate}%`,
       icon: Gauge,
-      tone: 'text-cyan-700',
+      tone: 'text-cyan-700 dark:text-cyan-300',
     },
-    { label: 'Agents actifs', value: data.workload.summary.totalAgents, icon: Users, tone: 'text-indigo-700' },
+    {
+      label: 'Agents actifs',
+      value: data.workload.summary.totalAgents,
+      icon: Users,
+      tone: 'text-indigo-700 dark:text-indigo-300',
+    },
     {
       label: 'Agents en pause/absence',
       value: data.workload.summary.absentAgentsCount ?? 0,
       icon: AlertTriangle,
-      tone: 'text-amber-700',
+      tone: 'text-amber-700 dark:text-amber-300',
     },
     {
       label: 'Charge moyenne',
       value: `${data.workload.summary.avgTicketsPerAgent.toFixed(1)} ticket`,
       icon: Gauge,
-      tone: 'text-orange-700',
+      tone: 'text-orange-700 dark:text-orange-300',
     },
     {
       label: 'Résolution moyenne',
@@ -117,14 +149,19 @@ function DashboardContent({ data }: Readonly<{ data: DashboardData }>) {
           ? '—'
           : `${Math.round(data.resolution.overall.avgResolutionTimeMinutes)} min`,
       icon: Clock3,
-      tone: 'text-amber-700',
+      tone: 'text-amber-700 dark:text-amber-300',
     },
   ];
 
   return (
     <>
       <section className="grid gap-px overflow-hidden rounded-xl border bg-border shadow-sm md:grid-cols-3">
-        <Attention label="Tickets critiques" value={critical} description="À traiter en priorité" critical={critical > 0} />
+        <Attention
+          label="Tickets critiques"
+          value={critical}
+          description="À traiter en priorité"
+          critical={critical > 0}
+        />
         <Attention
           label="SLA dépassés"
           value={data.overview.sla.breached}
@@ -164,7 +201,9 @@ function DashboardContent({ data }: Readonly<{ data: DashboardData }>) {
 function Attention(props: Readonly<{ label: string; value: number; description: string; critical: boolean }>) {
   return (
     <article className="flex items-center gap-4 bg-card p-4">
-      <span className={`grid size-10 place-items-center rounded-lg ${props.critical ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'}`}>
+      <span
+        className={`grid size-10 place-items-center rounded-lg ${props.critical ? 'bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-200' : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-200'}`}
+      >
         <AlertTriangle aria-hidden className="size-5" />
       </span>
       <div>
@@ -176,7 +215,9 @@ function Attention(props: Readonly<{ label: string; value: number; description: 
   );
 }
 
-function DateField(props: Readonly<{ label: string; value: string; min?: string; max?: string; onChange: (value: string) => void }>) {
+function DateField(
+  props: Readonly<{ label: string; value: string; min?: string; max?: string; onChange: (value: string) => void }>,
+) {
   return (
     <label className="grid gap-1 px-1 text-xs font-medium text-muted-foreground">
       {props.label}
@@ -197,7 +238,9 @@ function DashboardSkeleton() {
     <div className="space-y-5">
       <Skeleton className="h-24 w-full rounded-xl" />
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {Array.from({ length: 4 }, (_, index) => <Skeleton key={index} className="h-28 rounded-xl" />)}
+        {Array.from({ length: 4 }, (_, index) => (
+          <Skeleton key={index} className="h-28 rounded-xl" />
+        ))}
       </div>
       <Skeleton className="h-80 w-full rounded-xl" />
     </div>

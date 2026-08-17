@@ -90,9 +90,9 @@ export function TicketDetail({ id }: Readonly<{ id: string }>) {
             </h2>
             <p className="mt-3 whitespace-pre-wrap text-sm leading-7">{ticket.description}</p>
             {ticket.resolutionSummary ? (
-              <div className="mt-5 rounded-lg border border-emerald-200 bg-emerald-50 p-4">
-                <h3 className="text-sm font-semibold text-emerald-900">Résumé de résolution</h3>
-                <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-emerald-950">
+              <div className="mt-5 rounded-lg border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900/70 dark:bg-emerald-950/30">
+                <h3 className="text-sm font-semibold text-emerald-900 dark:text-emerald-200">Résumé de résolution</h3>
+                <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-emerald-950 dark:text-emerald-100">
                   {ticket.resolutionSummary}
                 </p>
               </div>

@@ -12,9 +12,9 @@ export function TicketDeletePanel({ ticketId, onClose }: Readonly<{ ticketId: st
     onSuccess: () => router.replace('/tickets'),
   });
   return (
-    <div className="rounded-lg border border-red-300 bg-red-50 p-4">
-      <h3 className="font-semibold text-red-900">Supprimer ce ticket ?</h3>
-      <p className="mt-1 text-sm text-red-800">
+    <div className="rounded-lg border border-red-300 bg-red-50 p-4 dark:border-red-900/70 dark:bg-red-950/30">
+      <h3 className="font-semibold text-red-900 dark:text-red-200">Supprimer ce ticket ?</h3>
+      <p className="mt-1 text-sm text-red-800 dark:text-red-300">
         La suppression est logique et retirera le ticket des vues opérationnelles.
       </p>
       {removal.error ? (
@@ -23,12 +23,12 @@ export function TicketDeletePanel({ ticketId, onClose }: Readonly<{ ticketId: st
         </div>
       ) : null}
       <div className="mt-3 flex justify-end gap-2">
-        <button className="min-h-11 rounded-lg border bg-white px-3 py-2 text-sm font-medium" onClick={onClose}>
+        <button className="min-h-11 rounded-lg border bg-card px-3 py-2 text-sm font-medium" onClick={onClose}>
           Annuler
         </button>
         <button
           disabled={removal.isPending}
-          className="min-h-11 rounded-lg bg-red-700 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
+          className="min-h-11 rounded-lg bg-red-700 px-3 py-2 text-sm font-semibold text-white hover:bg-red-800 dark:bg-red-600 dark:hover:bg-red-500 disabled:opacity-50"
           onClick={() => removal.mutate()}
         >
           {removal.isPending ? 'Suppression…' : 'Confirmer la suppression'}

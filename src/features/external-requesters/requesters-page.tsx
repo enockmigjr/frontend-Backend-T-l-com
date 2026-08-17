@@ -26,12 +26,7 @@ export function RequestersPage() {
   const query = useQuery({
     queryKey: ['external-requesters', page, submittedSearch, anonymized],
     queryFn: ({ signal }) =>
-      listRequesters(
-        { search: submittedSearch || undefined, anonymized: anonymized || undefined },
-        page,
-        20,
-        signal,
-      ),
+      listRequesters({ search: submittedSearch || undefined, anonymized: anonymized || undefined }, page, 20, signal),
   });
   const items = query.data?.data ?? [];
   const meta = query.data?.meta;
@@ -41,9 +36,15 @@ export function RequestersPage() {
       key: 'displayName',
       label: 'Demandeur',
       sortValue: (item) => item.displayName ?? '',
-      cell: (item) => (item.displayName ? <strong>{item.displayName}</strong> : <span className="text-muted-foreground">Anonyme</span>),
+      cell: (item) =>
+        item.displayName ? <strong>{item.displayName}</strong> : <span className="text-muted-foreground">Anonyme</span>,
     },
-    { key: 'locale', label: 'Langue', sortValue: (item) => item.locale, cell: (item) => <span className="text-sm">{item.locale}</span> },
+    {
+      key: 'locale',
+      label: 'Langue',
+      sortValue: (item) => item.locale,
+      cell: (item) => <span className="text-sm">{item.locale}</span>,
+    },
     {
       key: 'lastSeenAt',
       label: 'Dernière activité',
@@ -58,7 +59,12 @@ export function RequestersPage() {
       key: 'anonymizedAt',
       label: 'Profil',
       sortValue: (item) => item.anonymizedAt?.getTime() ?? 0,
-      cell: (item) => (item.anonymizedAt ? <Badge className="bg-slate-200 text-slate-800">Anonymisé</Badge> : <Badge className="bg-emerald-100 text-emerald-900">Actif</Badge>),
+      cell: (item) =>
+        item.anonymizedAt ? (
+          <Badge className="bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-200">Anonymisé</Badge>
+        ) : (
+          <Badge className="bg-emerald-100 text-emerald-900 dark:bg-emerald-950/60 dark:text-emerald-200">Actif</Badge>
+        ),
     },
     {
       key: 'actions',
@@ -133,15 +139,21 @@ export function RequestersPage() {
               Page {meta?.page ?? page} sur {meta?.totalPages ?? 1} · {meta?.total ?? items.length} demandeurs
             </p>
             <div className="flex gap-2">
-              <Button variant="outline" disabled={page <= 1 || query.isFetching} onClick={() => setPage((value) => value - 1)}>
-                <ChevronLeft className="size-4" />Précédent
+              <Button
+                variant="outline"
+                disabled={page <= 1 || query.isFetching}
+                onClick={() => setPage((value) => value - 1)}
+              >
+                <ChevronLeft className="size-4" />
+                Précédent
               </Button>
               <Button
                 variant="outline"
                 disabled={query.isFetching || (meta ? page >= meta.totalPages : items.length < 20)}
                 onClick={() => setPage((value) => value + 1)}
               >
-                Suivant<ChevronRight className="size-4" />
+                Suivant
+                <ChevronRight className="size-4" />
               </Button>
             </div>
           </div>
@@ -151,7 +163,9 @@ export function RequestersPage() {
         <RequesterDetail
           requester={selected}
           open
-          onOpenChange={(open) => { if (!open) setSelected(undefined); }}
+          onOpenChange={(open) => {
+            if (!open) setSelected(undefined);
+          }}
           canWrite={canWrite}
           onMerged={() => {
             setSelected(undefined);

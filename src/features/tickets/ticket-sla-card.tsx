@@ -19,18 +19,20 @@ export function TicketSlaCard({ ticket }: Readonly<{ ticket: Ticket }>) {
   const critical = ticket.slaBreached || resolution.overdue || firstResponse.overdue;
 
   return (
-    <section className={`rounded-xl border p-4 shadow-sm ${critical ? 'border-red-200 bg-red-50/50' : 'bg-card'}`}>
+    <section
+      className={`rounded-xl border p-4 shadow-sm ${critical ? 'border-red-200 bg-red-50/50 dark:border-red-900/70 dark:bg-red-950/30' : 'bg-card'}`}
+    >
       <div className="flex items-center justify-between gap-3">
         <h2 className="flex items-center gap-2 font-semibold">
           {critical ? (
-            <ShieldAlert className="text-red-600" aria-hidden />
+            <ShieldAlert className="text-red-600 dark:text-red-300" aria-hidden />
           ) : (
             <Clock3 className="text-primary" aria-hidden />
           )}
           Engagements SLA
         </h2>
         {paused ? (
-          <span className="flex items-center gap-1 text-xs font-medium text-amber-700">
+          <span className="flex items-center gap-1 text-xs font-medium text-amber-700 dark:text-amber-300">
             <PauseCircle aria-hidden className="size-3.5" /> Suspendu
           </span>
         ) : null}
@@ -61,7 +63,15 @@ function SlaLine({ label, state }: Readonly<{ label: string; state: DeadlineStat
     <div>
       <div className="mb-1.5 flex items-center justify-between gap-3 text-sm">
         <span className="text-muted-foreground">{label}</span>
-        <strong className={state.overdue ? 'text-red-700' : state.complete ? 'text-emerald-700' : 'text-foreground'}>
+        <strong
+          className={
+            state.overdue
+              ? 'text-red-700 dark:text-red-300'
+              : state.complete
+                ? 'text-emerald-700 dark:text-emerald-300'
+                : 'text-foreground'
+          }
+        >
           {state.label}
         </strong>
       </div>

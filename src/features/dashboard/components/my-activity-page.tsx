@@ -3,15 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { AlertTriangle, CheckCircle2, Clock3, Gauge, ListChecks, RadioTower, TicketCheck } from 'lucide-react';
 import Link from 'next/link';
-import {
-  CartesianGrid,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
+import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { loadMyActivity } from '../api/dashboard-api';
 import { ErrorState, LoadingState } from '@/features/users/components/async-state';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,34 +16,79 @@ export function MyActivityPage() {
   const { profile, summary } = query.data;
   const name = profile ? `${profile.firstName} ${profile.lastName}`.trim() : 'Agent';
   const metrics = [
-    { label: 'Tickets assignés (total)', value: summary.totalAssigned, icon: ListChecks, tone: 'text-slate-700' },
-    { label: 'Tickets ouverts', value: summary.openTicketsCount, icon: ListChecks, tone: 'text-blue-700' },
-    { label: 'Critiques', value: summary.criticalTicketsCount, icon: RadioTower, tone: 'text-red-700' },
-    { label: 'En retard', value: summary.overdueTicketsCount, icon: AlertTriangle, tone: 'text-red-700' },
-    { label: 'À risque SLA', value: summary.atRiskTicketsCount, icon: Gauge, tone: 'text-amber-700' },
-    { label: 'Résolus ce mois', value: summary.resolvedThisMonth, icon: CheckCircle2, tone: 'text-emerald-700' },
-    { label: 'Clôturés ce mois', value: summary.closedThisMonth, icon: TicketCheck, tone: 'text-emerald-700' },
-    { label: 'SLA dépassés', value: summary.slaBreachedCount, icon: AlertTriangle, tone: 'text-red-700' },
+    {
+      label: 'Tickets assignés (total)',
+      value: summary.totalAssigned,
+      icon: ListChecks,
+      tone: 'text-slate-700 dark:text-slate-300',
+    },
+    {
+      label: 'Tickets ouverts',
+      value: summary.openTicketsCount,
+      icon: ListChecks,
+      tone: 'text-blue-700 dark:text-blue-300',
+    },
+    {
+      label: 'Critiques',
+      value: summary.criticalTicketsCount,
+      icon: RadioTower,
+      tone: 'text-red-700 dark:text-red-300',
+    },
+    {
+      label: 'En retard',
+      value: summary.overdueTicketsCount,
+      icon: AlertTriangle,
+      tone: 'text-red-700 dark:text-red-300',
+    },
+    {
+      label: 'À risque SLA',
+      value: summary.atRiskTicketsCount,
+      icon: Gauge,
+      tone: 'text-amber-700 dark:text-amber-300',
+    },
+    {
+      label: 'Résolus ce mois',
+      value: summary.resolvedThisMonth,
+      icon: CheckCircle2,
+      tone: 'text-emerald-700 dark:text-emerald-300',
+    },
+    {
+      label: 'Clôturés ce mois',
+      value: summary.closedThisMonth,
+      icon: TicketCheck,
+      tone: 'text-emerald-700 dark:text-emerald-300',
+    },
+    {
+      label: 'SLA dépassés',
+      value: summary.slaBreachedCount,
+      icon: AlertTriangle,
+      tone: 'text-red-700 dark:text-red-300',
+    },
     {
       label: 'Conformité 1re réponse',
       value: `${summary.firstResponseComplianceRate} %`,
       icon: Gauge,
-      tone: 'text-blue-700',
+      tone: 'text-blue-700 dark:text-blue-300',
     },
     {
       label: 'Délai moyen',
       value: summary.resolvedThisMonth > 0 ? `${summary.avgResolutionMinutes} min` : '—',
       icon: Clock3,
-      tone: 'text-amber-700',
+      tone: 'text-amber-700 dark:text-amber-300',
     },
     {
       label: 'Délai médian',
       value: summary.resolvedThisMonth > 0 ? `${summary.medianResolutionMinutes} min` : '—',
       icon: Clock3,
-      tone: 'text-slate-700',
+      tone: 'text-slate-700 dark:text-slate-300',
     },
-    { label: 'Réouvertures', value: summary.reopenedCount, icon: CheckCircle2, tone: 'text-red-700' },
-    { label: 'Dernière activité', value: formatLastActivity(summary.lastActivityAt), icon: TicketCheck, tone: 'text-slate-700' },
+    { label: 'Réouvertures', value: summary.reopenedCount, icon: CheckCircle2, tone: 'text-red-700 dark:text-red-300' },
+    {
+      label: 'Dernière activité',
+      value: formatLastActivity(summary.lastActivityAt),
+      icon: TicketCheck,
+      tone: 'text-slate-700 dark:text-slate-300',
+    },
   ];
 
   return (
@@ -96,7 +133,10 @@ export function MyActivityPage() {
               <LineChart
                 data={summary.resolvedLast7Days.map((row) => ({
                   ...row,
-                  label: new Date(`${row.day}T12:00:00`).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }),
+                  label: new Date(`${row.day}T12:00:00`).toLocaleDateString('fr-FR', {
+                    day: '2-digit',
+                    month: 'short',
+                  }),
                 }))}
                 margin={{ top: 12, right: 12, left: -10, bottom: 0 }}
               >
@@ -120,14 +160,11 @@ export function MyActivityPage() {
       <div className="flex gap-3">
         <Link
           href="/tickets/new"
-          className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
+          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
         >
           Nouveau ticket
         </Link>
-        <Link
-          href="/tickets"
-          className="rounded-lg border bg-white px-4 py-2 text-sm font-medium hover:bg-muted"
-        >
+        <Link href="/tickets" className="rounded-lg border bg-card px-4 py-2 text-sm font-medium hover:bg-muted">
           Mes tickets
         </Link>
       </div>

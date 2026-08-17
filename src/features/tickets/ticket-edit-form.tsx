@@ -156,7 +156,7 @@ export function TicketEditForm({
         </button>
         <button
           disabled={update.isPending || Object.keys(changes).length === 0}
-          className="min-h-11 rounded-lg bg-blue-700 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
+          className="min-h-11 rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
         >
           {update.isPending ? 'Enregistrement…' : 'Enregistrer'}
         </button>
